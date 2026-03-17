@@ -1146,4 +1146,3 @@ theorem blueXRatio_le_mu (hi : i ∈ redOrDensitySteps μ k l ini) : blueXRatio 
   exact Nat.zero_le _
 
 end SimpleGraph
-

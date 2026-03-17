@@ -175,6 +175,7 @@ theorem labelGraph_le (C : EdgeLabelling G K) {k : K} : C.labelGraph k ≤ G := 
   rintro ⟨h, -⟩
   exact h
 
+set_option backward.isDefEq.respectTransparency false in
 theorem pairwiseDisjoint {C : EdgeLabelling G K} :
     Set.PairwiseDisjoint (Set.univ : Set K) C.labelGraph := by
   intro k₁ hk₁ k₂ _ h
@@ -540,7 +541,7 @@ theorem IsRamseyValid.remove_twos {n : K → ℕ} (h : IsRamseyValid V n) :
   rw [Finset.one_lt_card_iff] at this
   obtain ⟨a, b, ha, hb, hab⟩ := this
   have : Subtype.val (C.get a b hab) = c := hm ha hb hab
-  refine ⟨m, _, ?_, hc.trans_eq' (congr_arg n this)⟩
+  refine ⟨m, _, ?_, hc.trans_eq' (congr_arg n this.symm)⟩
   rwa [← monochromaticOf_injective _ Subtype.val_injective, this]
 
 theorem IsRamseyValid.of_remove_twos {n : K → ℕ}

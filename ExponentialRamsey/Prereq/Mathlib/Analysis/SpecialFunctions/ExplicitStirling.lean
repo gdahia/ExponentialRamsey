@@ -163,12 +163,12 @@ theorem rexp_eq_tsum {x : ℝ} : Real.exp x = ∑' i, x ^ i / i ! := by
 
 lemma exp_factorial_bound {x : ℝ} (hx : 0 ≤ x) {n : ℕ} : x ^ n / n ! ≤ exp x := by
   rw [exp_eq_exp_ℝ]
-  exact le_hasSum (NormedSpace.expSeries_div_hasSum_exp ℝ x) n (fun _ _ => by positivity)
+  exact le_hasSum (NormedSpace.expSeries_div_hasSum_exp x) n (fun _ _ => by positivity)
 
 theorem exp_factorial_bound_of_ne_zero {n : ℕ} {x : ℝ} (hx : 0 ≤ x) (hn : n ≠ 0) :
     x ^ n / n ! < exp x := by
   rw [exp_eq_exp_ℝ]
-  refine (sum_le_hasSum {n, 0} ?_ (NormedSpace.expSeries_div_hasSum_exp ℝ x)).trans_lt' ?_
+  refine (sum_le_hasSum {n, 0} ?_ (NormedSpace.expSeries_div_hasSum_exp x)).trans_lt' ?_
   · intro x _
     positivity
   rw [sum_pair hn]

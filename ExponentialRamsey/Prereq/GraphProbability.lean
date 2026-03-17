@@ -59,22 +59,24 @@ theorem edgeFinset_card_le [Fintype V] [Fintype G.edgeSet] :
 
 
 theorem compl_edgeSet_eq :
-    edgeSet (Gᶜ) = {x : Sym2 V | ¬x.IsDiag} \ edgeSet G := by
+    edgeSet (Gᶜ) = Sym2.diagSetᶜ \ edgeSet G := by
   rw [← edgeSet_top, ← edgeSet_sdiff, top_sdiff]
 
 theorem compl_edgeSet_eq' :
-    edgeSet G = {x : Sym2 V | ¬x.IsDiag} \ edgeSet (Gᶜ) := by
+    edgeSet G = Sym2.diagSetᶜ \ edgeSet (Gᶜ) := by
   rw [← edgeSet_top, ← edgeSet_sdiff, top_sdiff, compl_compl]
 
 theorem compl_edgeFinset_eq [Fintype V] [DecidableEq V] [Fintype G.edgeSet] [Fintype Gᶜ.edgeSet] :
     Gᶜ.edgeFinset = (univ.filter fun a : Sym2 V => ¬Sym2.IsDiag a) \ G.edgeFinset := by
   refine coe_injective ?_
   rw [coe_edgeFinset, coe_sdiff, coe_edgeFinset, coe_filter_univ, compl_edgeSet_eq]
+  rfl
 
 theorem compl_edgeFinset_eq' [Fintype V] [DecidableEq V] [Fintype G.edgeSet] [Fintype Gᶜ.edgeSet] :
     G.edgeFinset = (univ.filter fun a : Sym2 V => ¬Sym2.IsDiag a) \ Gᶜ.edgeFinset := by
   refine coe_injective ?_
   rw [coe_edgeFinset, coe_sdiff, coe_edgeFinset, coe_filter_univ, compl_edgeSet_eq']
+  rfl
 
 theorem card_compl_edgeFinset_eq [Fintype V] [Fintype G.edgeSet]
     [Fintype Gᶜ.edgeSet] : Gᶜ.edgeFinset.card = (card V).choose 2 - G.edgeFinset.card := by
@@ -151,6 +153,7 @@ variable [Fintype V] [DecidableEq V] [Fintype (SimpleGraph V)]
   [@DecidableRel (SimpleGraph V) _ (· < ·)] [@DecidableRel (SimpleGraph V) _ (· ≤ ·)]
   [∀ G : SimpleGraph V, DecidableRel G.Adj]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem weightingAux_sum_between (H₁ H₂ : SimpleGraph V)
     (h : H₁ ≤ H₂) :
     ∑ G ∈ Finset.Icc H₁ H₂, weighting V p G =
@@ -165,24 +168,27 @@ theorem weightingAux_sum_between (H₁ H₂ : SimpleGraph V)
       (H₁ᶜ ⊓ H₂).edgeFinset.powerset.image fun s => s ∪ H₁.edgeFinset :=
     by
     ext s
-    simp only [mem_image, mem_powerset, mem_Icc, edgeSet_inf, Set.subset_toFinset,
-      Set.subset_inter_iff, and_assoc]
+    simp only [mem_image, mem_powerset, mem_Icc, edgeFinset_inf,
+      subset_inter_iff, and_assoc]
     constructor
     · rintro ⟨G, hG₁, hG₂, rfl⟩
       refine ⟨(G \ H₁).edgeFinset, ?_, ?_, ?_⟩
-      · rw [coe_edgeFinset, sdiff_eq, edgeSet_subset_edgeSet]
-        exact inf_le_right
-      · rw [coe_edgeFinset, edgeSet_subset_edgeSet]
+      · rw [edgeFinset_subset_edgeFinset]
+        simp
+      · rw [edgeFinset_subset_edgeFinset]
         exact sdiff_le.trans hG₂
       rwa [← edgeFinset_sup', ← coe_inj, coe_edgeFinset, coe_edgeFinset, sdiff_sup_cancel]
     rintro ⟨s, hs₁, hs₂, rfl⟩
     refine ⟨fromEdgeSet s ⊔ H₁, le_sup_right, sup_le ?_ h, ?_⟩
-    · exact (fromEdgeSet_mono hs₂).trans_eq (fromEdgeSet_edgeSet _)
+    · refine (fromEdgeSet_mono hs₂).trans_eq ?_
+      simp
     rw [← coe_inj, coe_union, coe_edgeFinset, coe_edgeFinset, edgeSet_sup,
       edgeSet_fromEdgeSet, sdiff_eq_left.2]
     rw [Set.disjoint_left]
     intro e he
-    exact not_isDiag_of_mem_edgeSet _ (hs₁ he)
+    specialize hs₁ he
+    rw [mem_edgeFinset] at hs₁
+    exact not_isDiag_of_mem_edgeSet _ hs₁
   rw [h₁, Finset.sum_image]
   swap
   · simp only [edgeFinset_inf', Set.InjOn, compl_edgeFinset_eq]
@@ -225,6 +231,7 @@ theorem weightingAux_sum_between (H₁ H₂ : SimpleGraph V)
   rw [mem_powerset, edgeFinset_inf, subset_inter_iff] at hx
   exact union_subset hx.2 (edgeFinset_subset_edgeFinset.2 h)
 
+set_option backward.isDefEq.respectTransparency false in
 theorem sum_weighting : ∑ G, weighting V p G = 1 := by
   have : Icc (⊥ : SimpleGraph V) ⊤ = Finset.univ := by
     rw [← coe_inj, coe_Icc, Set.Icc_bot_top, coe_univ]
@@ -261,6 +268,7 @@ def IndepOn (G : SimpleGraph V) (t : Set V) : Prop :=
 theorem cliqueOn_compl (s : Set V) : CliqueOn (Gᶜ) s ↔ IndepOn G s := by
   rw [CliqueOn, IndepOn, le_compl_comm]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem indepOn_iff {t : Set V} : IndepOn G t ↔ Disjoint G (spanningCoe (⊤ : SimpleGraph t)) := by
   rw [IndepOn, le_compl_iff_disjoint_right]
 
@@ -343,6 +351,7 @@ variable [Fintype V] [DecidableEq V] [Fintype (SimpleGraph V)]
   [@DecidableRel (SimpleGraph V) _ (· < ·)] [@DecidableRel (SimpleGraph V) _ (· ≤ ·)]
   [∀ G : SimpleGraph V, DecidableRel G.Adj]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem weighted_number_cliques {k : ℕ} :
     ∑ G, weighting V p G * G.numberOfCliques k = (card V).choose k * p ^ k.choose 2 :=
   by
@@ -357,7 +366,6 @@ theorem weighted_number_cliques {k : ℕ} :
     by
     ext G
     simp only [mem_filter, mem_univ, true_and, mem_Icc, le_top, and_true, CliqueOn]
-    rfl
   rw [this]
   have : ∑ G ∈ Icc _ ⊤, weighting V p G = _ :=
     weightingAux_sum_between (spanningCoe (⊤ : SimpleGraph x)) ⊤ le_top
@@ -641,9 +649,7 @@ theorem little_o_lower_ramsey_bound :
   rcases eq_or_ne k 0 with (rfl | hk)
   · simp
   refine (diagonalRamsey_bound_refined_again hk).le.trans_eq' ?_
-  dsimp only
-  rw [neg_div, ← sub_eq_add_neg, div_eq_mul_inv, mul_comm (sqrt 2), mul_comm (_ * _) _⁻¹, ←
-    mul_assoc]
+  grind
 
 end
 
