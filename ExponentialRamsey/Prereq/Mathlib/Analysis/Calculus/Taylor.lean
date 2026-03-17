@@ -163,10 +163,7 @@ theorem taylor_mean_remainder_lagrange_central {f : ℝ → ℝ} {x x₀ a b : �
   swap
   · exact mul_ne_zero (neg_ne_zero.2 (by positivity)) (by positivity)
   simp only [h, sub_self, zero_pow (Nat.succ_ne_zero n), zero_sub, mul_neg, neg_mul,
-    Nat.factorial_succ, Nat.cast_add_one, neg_div_neg_eq, Nat.cast_mul, field_simps]
-  rw [mul_left_comm, ← mul_assoc, ← div_div, div_eq_iff (pow_ne_zero _ hy_ne), div_mul_eq_mul_div]
-  congr 1
-  ring_nf
+    Nat.factorial_succ, Nat.cast_add_one, neg_div_neg_eq, Nat.cast_mul, field]
 
 theorem taylor_mean_remainder_cauchy_central {f : ℝ → ℝ} {x x₀ a b : ℝ} {n : ℕ} (hab : a < b)
     (hx : x ∈ Icc a b) (hx₀ : x₀ ∈ Icc a b) (hf : ContDiffOn ℝ n f (Icc a b))
@@ -198,8 +195,9 @@ theorem taylor_mean_remainder_bound_central {f : ℝ → ℝ} {a b C x x₀ : �
     by
     refine
       (hf.differentiableOn_iteratedDerivWithin ?_ (uniqueDiffOn_Icc hab)).mono Ioo_subset_Icc_self
-    rw [← Nat.cast_add_one, Nat.cast_lt]
-    exact Nat.lt_succ_self _
+    rw [← Nat.cast_add_one, ← WithTop.coe_natCast, ← WithTop.coe_natCast,
+      WithTop.coe_lt_coe, ENat.coe_lt_coe]
+    exact lt_add_one n
   obtain ⟨x', hx', h⟩ := taylor_mean_remainder_lagrange_central hab hx hx₀ hf.of_succ this
   rw [h, norm_div, norm_mul, Real.norm_natCast, Real.norm_eq_abs ((x - x₀) ^ _), ← abs_pow]
   refine div_le_div_of_nonneg_right ?_ (Nat.cast_nonneg _)

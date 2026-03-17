@@ -36,7 +36,7 @@ def paleyGraph (F : Type*) [Field F] [Fintype F] : SimpleGraph F
     rw [or_iff_not_imp_right]
     intro h
     exact symmetric_isSquare h (h₂.resolve_right h)
-  loopless _ h := h.1 rfl
+  loopless := ⟨fun _ h ↦ h.1 rfl⟩
 
 theorem paleyGraph_adj' {x y : F} :
     (paleyGraph F).Adj x y ↔ x ≠ y ∧ (IsSquare (x - y) ∨ card F % 4 = 3) :=

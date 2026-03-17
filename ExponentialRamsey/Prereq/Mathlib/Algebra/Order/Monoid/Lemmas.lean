@@ -18,13 +18,3 @@ theorem MulLECancellable.hMul {α : Type*} [LE α] [Semigroup α] {a b : α} (ha
   intro x y h
   rw [mul_assoc, mul_assoc] at h
   exact hb (ha h)
-
-@[to_additive]
-theorem MulLECancellable.of_hMul_left {α : Type*} [LE α] [Semigroup α]
-    [CovariantClass α α (· * ·) (· ≤ ·)] {a b : α} (hab : MulLECancellable (a * b)) :
-    MulLECancellable b := by
-  intro x y h
-  apply hab
-  rw [mul_assoc, mul_assoc]
-  exact mul_le_mul_left' h a
-
