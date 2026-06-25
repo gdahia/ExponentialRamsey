@@ -667,7 +667,12 @@ theorem algorithmOption_stays_none {i : ℕ} (hi : algorithmOption μ k l ini i 
 
 theorem algorithmOption_is_some_of {i : ℕ} (hi : ∃ C, algorithmOption μ k l ini (i + 1) = some C) :
     ∃ C, algorithmOption μ k l ini i = some C := by
-  sorry
+  by_contra h
+  push_neg at h
+  have h1 : algorithmOption μ k l ini i = none := Option.eq_none_iff_forall_not_mem.mpr h
+  have h2 : algorithmOption μ k l ini (i + 1) = none := algorithmOption_stays_none h1
+  obtain ⟨C, hC⟩ := hi
+  exact Option.some_ne_none C (h2 ▸ hC).symm
 
 theorem algorithmOption_x_weak_bound {i : ℕ} (C : BookConfig χ) (hk : k ≠ 0) (hl : l ≠ 0)
     (hC : algorithmOption μ k l ini i = some C) : C.X.card + i / 2 ≤ ini.X.card := by
@@ -675,7 +680,11 @@ theorem algorithmOption_x_weak_bound {i : ℕ} (C : BookConfig χ) (hk : k ≠ 0
 
 theorem algorithmOption_terminates (μ : ℝ) (ini : BookConfig χ) (hk : k ≠ 0) (hl : l ≠ 0) :
     ∃ i, algorithmOption μ k l ini (i + 1) = none := by
-  sorry
+  refine' ⟨2 * (ini.X.card + 1), _⟩
+  rw [Option.eq_none_iff_forall_not_mem]
+  intro C hC
+  have := algorithmOption_x_weak_bound C hk hl hC
+  omega
 
 /-- The index of the final step. Also the number of steps the algorithm takes.
 The previous two sentences may have an off-by-one error.  -/
@@ -711,7 +720,17 @@ theorem algorithm_zero : algorithm μ k l ini 0 = ini :=
 
 theorem some_algorithm_of_finalStep_le (hi : i ≤ finalStep μ k l ini) :
     some (algorithm μ k l ini i) = algorithmOption μ k l ini i := by
-  sorry
+  cases i with
+  | zero => simp [algorithm, algorithmOption]
+  | succ i =>
+    unfold algorithm
+    have hnotin : ¬(i ∈ {j | algorithmOption μ k l ini (j + 1) = none}) := by
+      intro hi'
+      have : finalStep μ k l ini ≤ i := Nat.sInf_le hi'
+      omega
+    cases h : algorithmOption μ k l ini (Nat.succ i) with
+    | none => exact absurd h hnotin
+    | some C => simp [Option.getD_some, h]
 
 theorem condition_fails_at_end (hk : k ≠ 0) (hl : l ≠ 0) :
     (endState μ k l ini).X.card ≤ ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] ∨
