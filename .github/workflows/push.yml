@@ -45,9 +45,6 @@ jobs:
 
       - name: Build project
         run: ~/.elan/bin/lake build ExponentialRamsey
-
-      - name: Bundle dependencies
-        uses: ruby/setup-ruby@v1
         with:
           working-directory: docs
           ruby-version: "3.0"  # Specify Ruby version
