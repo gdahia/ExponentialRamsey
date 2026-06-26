@@ -1,2 +1,1 @@
-/build
-/lake-packages/*
+/build\n/lake-packages/*\n.lake

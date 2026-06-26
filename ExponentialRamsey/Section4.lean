@@ -527,17 +527,18 @@ theorem four_one_part_two [Fintype V] (μ : ℝ) {l : ℕ} {C : BookConfig χ} {
     rw [← Finset.sum_const]
     refine' sum_le_sum _
     intro x hx
-    rw [inter_sdiff, sub_le_iff_le_add, ← Nat.cast_add]
+    rw [← Finset.inter_sdiff_assoc, sub_le_iff_le_add, ← Nat.cast_add]
     refine' (hU'' _ hx).trans _
     rw [Nat.cast_le]
     exact card_le_card_sdiff_add_card
-  refine' this.trans_eq' _
+  convert this using 1
   · rw [nsmul_eq_mul, mul_comm]
+  · rw [Nat.cast_sum]
   rw [hU]
   positivity
 
 -- (10)
-theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : BookConfig χ} {U : Finset V} (hμ : 0 ≤ μ)
+omit [DecidableEq V] in theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : BookConfig χ} {U : Finset V} (hμ : 0 ≤ μ)
     (hk₆ : 6 ≤ k) (hl : 3 ≤ l) (hU : U.card = ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊)
     (hX : ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ C.X.card) :
     μ - 2 / k ≤ (μ * C.X.card - U.card) / (C.X.card - U.card) :=
@@ -546,14 +547,13 @@ theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : BookConfig χ} {U : Fins
   have hm₃ : 3 ≤ m :=
     by
     rw [Nat.add_one_le_ceil_iff, Nat.cast_two, div_eq_mul_inv, rpow_mul (Nat.cast_nonneg _), ←
-      rpow_lt_rpow_iff, ← rpow_mul, inv_mul_cancel, rpow_one]
+      rpow_lt_rpow_iff, ← rpow_mul, inv_mul_cancel₀ (by norm_num : (3 : ℝ) ≠ 0), rpow_one]
     · norm_cast
       rw [← Nat.succ_le_iff]
       exact (pow_le_pow_left₀ (by norm_num1) hl 2).trans_eq' (by norm_num1)
+    · exact Real.rpow_nonneg (Nat.cast_nonneg _) _
     · norm_num1
-    · exact rpow_nonneg_of_nonneg (Nat.cast_nonneg _) _
-    · norm_num1
-    · exact rpow_nonneg_of_nonneg (rpow_nonneg_of_nonneg (Nat.cast_nonneg _) _) _
+    · exact Real.rpow_nonneg (Real.rpow_nonneg (Nat.cast_nonneg _) _) _
     · norm_num1
   have hm₂ : 2 ≤ m := hm₃.trans' (by norm_num1)
   have hk₀ : 0 < (k : ℝ) := by
@@ -562,14 +562,16 @@ theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : BookConfig χ} {U : Fins
   have hk₃ : 3 ≤ k := hk₆.trans' (by norm_num1)
   have := (right_lt_ramseyNumber hk₃ hm₂).trans_le hX
   have : (0 : ℝ) < C.X.card - U.card := by rwa [hU, sub_pos, Nat.cast_lt]
-  rw [sub_div', div_le_div_iff₀ hk₀ this, sub_mul, sub_mul, mul_sub, mul_sub, hU,
+  rw [sub_div' hk₀.ne', div_le_div_iff₀ hk₀ this, sub_mul, sub_mul, mul_sub, mul_sub, hU,
     sub_sub, mul_right_comm, sub_le_sub_iff_left]
   suffices (m : ℝ) * (k / 2 * (1 - μ) + 1) ≤ C.X.card by linarith
   have : (m : ℝ) * (k / 2 * (1 - μ) + 1) ≤ (m : ℝ) * (k / 2 + 1) :=
     by
-    refine' mul_le_mul_of_nonneg_left (add_le_add_right _ _) (Nat.cast_nonneg _)
-    refine' mul_le_of_le_one_right (half_pos hk₀).le _
-    rwa [sub_le_self_iff]
+    refine' mul_le_mul_of_nonneg_left _ (Nat.cast_nonneg _)
+    have hmul : k / 2 * (1 - μ) ≤ k / 2 := by
+      refine' mul_le_of_le_one_right (half_pos hk₀).le _
+      rwa [sub_le_self_iff]
+    simpa [add_comm] using add_le_add_right hmul 1
   refine' this.trans _
   rw [ramseyNumber_pair_swap] at hX
   replace hX := (hMul_sub_two_le_ramseyNumber hm₃).trans hX
@@ -579,8 +581,8 @@ theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : BookConfig χ} {U : Fins
   swap
   · exact hk₃.trans' (by norm_num1)
   refine' mul_le_mul_of_nonneg_left _ (Nat.cast_nonneg _)
-  rw [← @Nat.cast_le ℝ, Nat.cast_ofNat, Nat.cast_ofNat, Nat.cast_one] at hk₆
-  linarith only [hk₆]
+  have hk₆' : (6 : ℝ) ≤ k := by exact_mod_cast hk₆
+  linarith only [hk₆']
 
 variable [Fintype V] {k l : ℕ} {C : BookConfig χ} {U : Finset V} {μ₀ : ℝ}
 
@@ -618,8 +620,8 @@ theorem mu_div_two_le_sigma (hμ₀ : 0 < μ₀) :
   rw [le_sub_comm, sub_half]
   refine' (div_le_div_of_le_left (by norm_num1) _ hk).trans _
   · exact div_pos (by norm_num1) (hμ₀.trans_le hμ)
-  rw [div_div_eq_mul_div, bit0_eq_two_mul (2 : ℝ), mul_div_mul_left]
-  norm_num1
+  field_simp [(hμ₀.trans_le hμ).ne']
+  nlinarith
 
 -- l ≥ 4 / μ₀
 -- l ≥ 1 / 16
@@ -645,16 +647,16 @@ theorem four_one_part_four (hμ₀ : 0 < μ₀) :
   refine' (mul_le_mul_of_nonneg_right hl' (by positivity)).trans' _
   rw [div_mul_div_comm, ← bit0_eq_two_mul]
   refine' (ceil_le_two_hMul hl).trans _
-  rw [le_div_iff', ← mul_assoc, ← div_le_iff']
-  rotate_left
-  · exact hμ₀.trans_le hμ
-  · norm_num1
+  rw [le_div_iff₀ (by norm_num : (0 : ℝ) < 2 + 2), mul_comm μ,
+    ← div_le_iff₀ (hμ₀.trans_le hμ)]
   refine' (Nat.le_ceil _).trans' _
-  rw [mul_div_assoc, mul_div_left_comm, ← le_div_iff', ← rpow_sub]
+  have hmul :
+      2 * (l : ℝ) ^ (1 / 4 : ℝ) * (2 + 2) / μ =
+        (4 * 2 / μ) * (l : ℝ) ^ (1 / 4 : ℝ) := by
+    ring
+  rw [hmul, ← le_div_iff₀ (Real.rpow_pos_of_pos (by exact_mod_cast hl₀) _), ← rpow_sub]
   · exact hl''.trans' (div_le_div_of_le_left (by norm_num1) hμ₀ hμ)
   · rwa [Nat.cast_pos]
-  refine' rpow_pos_of_pos _ _
-  rwa [Nat.cast_pos]
 
 /-- the set of vertices which are connected to S by only blue edges -/
 def commonBlues (χ : TopEdgeLabelling V (Fin 2)) (S : Finset V) : Finset V :=
@@ -664,9 +666,9 @@ theorem monochromaticBetween_commonBlues {S : Finset V} :
     χ.MonochromaticBetween S (commonBlues χ S) 1 :=
   by
   intro x hx y hy h
-  change (∀ j ∈ S, y ∈ (blue_neighbors χ) j) at hy
+  simp [commonBlues] at hy
   have := hy x hx
-  rw [mem_col_neighbors] at this
+  rw [mem_colNeighbors] at this
   obtain ⟨h, z⟩ := this
   exact z
 
@@ -680,22 +682,27 @@ theorem four_one_part_five (χ : TopEdgeLabelling V (Fin 2)) {b : ℕ} {X U : Fi
         ∑ v ∈ X \ U, if v ∈ commonBlues χ S then 1 else 0 :=
     by
     intro S
-    rw [sum_boole, filter_mem_eq_inter, inter_comm]
+    rw [Finset.sum_boole (R := ℝ) (fun v => v ∈ commonBlues χ S) (X \ U),
+      filter_mem_eq_inter, inter_comm]
   simp_rw [this]
-  rw [sum_comm]
-  refine' sum_congr rfl _
-  intro v hv
-  rw [sum_boole, ← card_powerset_len]
+  rw [Finset.sum_comm (s := powersetCard b U) (t := X \ U)
+    (f := fun S v => if v ∈ commonBlues χ S then (1 : ℝ) else 0)]
+  rw [Nat.cast_sum]
+  change (∑ v ∈ X \ U, (∑ S ∈ powersetCard b U,
+      (if v ∈ commonBlues χ S then (1 : ℝ) else 0))) =
+    ∑ v ∈ X \ U, (((blue_neighbors χ) v ∩ U).card.choose b : ℝ)
+  refine' Finset.sum_congr rfl (fun v hv => ?_)
+  rw [Finset.sum_boole (R := ℝ) (fun S => v ∈ commonBlues χ S) (powersetCard b U),
+    ← card_powerset_len]
   congr 2
   ext S
-  simp only [mem_powerset_len, mem_filter, commonBlues, mem_univ, true_and_iff, subset_inter_iff,
-    and_assoc']
-  rw [← and_rotate]
-  refine' and_congr_left' _
-  rw [subset_iff]
-  refine' ball_congr _
-  intro x hx
-  rw [mem_col_neighbors_comm]
+  simp [commonBlues, subset_iff, mem_colNeighbors_comm, and_assoc, and_comm]
+  intro _hcard
+  constructor
+  · rintro ⟨hU, hblue⟩ x hx
+    exact ⟨hU hx, hblue x hx⟩
+  · intro h
+    exact ⟨fun x hx => (h hx).1, fun x hx => (h hx).2⟩
 
 theorem four_one_part_six (χ : TopEdgeLabelling V (Fin 2)) {m b : ℕ} {X U : Finset V} (σ : ℝ)
     (hU : U.card = m) (hb : b ≠ 0) (hσ' : σ = (blue_density χ) U (X \ U)) :
@@ -719,23 +726,23 @@ theorem four_one_part_seven {V : Type*} [DecidableEq V] {m b : ℕ} {X U : Finse
     rw [ramseyNumber_pair_swap]
     refine' (hMul_sub_two_le_ramseyNumber hm).trans_eq' _
     rw [mul_comm]
-    norm_num1
   have h₁ : 3 / 4 * (X.card : ℝ) ≤ (X \ U).card :=
     by
-    rw [← @Nat.cast_le ℝ, Nat.cast_mul, Nat.cast_ofNat, Nat.cast_two] at this
+    have this' : (4 : ℝ) * m ≤ X.card := by exact_mod_cast this
     rw [cast_card_sdiff hUX, hU]
-    linarith only [this]
+    linarith only [this']
   have : μ * (1 - 2 / (μ * k)) ≤ σ := by
     rwa [mul_one_sub, mul_div_assoc', mul_div_mul_left _ _ hμ₀.ne']
   have h₂ : μ * exp (-4 / (μ * k)) ≤ σ :=
     by
     refine' this.trans' (mul_le_mul_of_nonneg_left _ hμ₀.le)
     refine' (exp_thing (by positivity) _).trans_eq' _
-    · rwa [← div_div, div_le_div_iff₀, one_mul, div_mul_eq_mul_div, ← bit0_eq_two_mul]
+    · rw [← div_div, div_le_div_iff₀, one_mul, div_mul_eq_mul_div, ← bit0_eq_two_mul]
+      · simpa [show (2 + 2 : ℝ) = 4 by norm_num] using hkμ
       · rw [Nat.cast_pos]
         exact hk.trans_lt' (by norm_num1)
-      norm_num1
-    rw [mul_div_assoc', neg_mul, ← bit0_eq_two_mul]
+      · norm_num
+    · ring_nf
   rw [sub_eq_add_neg, neg_div, Real.exp_add, mul_right_comm _ (Real.exp _), ← mul_assoc]
   refine' mul_le_mul_of_nonneg_right _ (exp_pos _).le
   rw [mul_right_comm _ (m.choose b : ℝ), mul_right_comm, mul_right_comm _ (m.choose b : ℝ)]
@@ -803,28 +810,30 @@ theorem four_one_part_nine (hμ₀ : 0 < μ₀) :
     t.eventually this] with l hl hl' hl'' hl''' hl'''' k hlk μ σ b m hμ hσ hσ' hb hm
   --
   suffices (2 / 3 : ℝ) ≤ exp (-4 * b / (μ * k) - b ^ 2 / (σ * m)) by linarith only [this]
-  have : μ / 2 ≤ σ := hl' k hlk μ hμ σ hσ
+  have hσbound : μ / 2 ≤ σ := hl' k hlk μ hμ σ hσ
   rw [← log_le_iff_le_exp]
   swap
   · norm_num1
-  have : 0 < m := by
+  have hmpos : 0 < m := by
     rw [hm, Nat.ceil_pos]
     positivity
   rw [neg_mul, neg_div, neg_sub_left, le_neg, ← log_inv, inv_div]
   have hμ' : 0 < μ := hμ₀.trans_le hμ
-  have : (b : ℝ) ^ 2 / (σ * m) ≤ b ^ 2 / m * (2 / μ) :=
+  have hfirst : (b : ℝ) ^ 2 / (σ * m) ≤ b ^ 2 / m * (2 / μ) :=
     by
     rw [mul_comm, ← div_div, div_eq_mul_inv _ σ]
     refine' mul_le_mul_of_nonneg_left _ (by positivity)
-    refine' inv_le_of_inv_le (by positivity) _
-    rwa [inv_div]
-  refine' (add_le_add_right this _).trans _
+    have hσpos : 0 < σ := (div_pos hμ' (by norm_num : (0 : ℝ) < 2)).trans_le hσbound
+    have hinv : σ⁻¹ ≤ (μ / 2)⁻¹ :=
+      (inv_le_inv₀ hσpos (div_pos hμ' (by norm_num : (0 : ℝ) < 2))).2 hσbound
+    simpa [inv_div] using hinv
+  refine' (add_le_add_left hfirst _).trans _
   have h' := ceil_le_two_hMul hl
   dsimp at h'
   have : (b ^ 2 : ℝ) / m ≤ 4 * l ^ (-(2 / 3 - (1 / 4 : ℝ) * 2)) :=
     by
     rw [neg_sub, rpow_sub hl'', rpow_mul (Nat.cast_nonneg _), rpow_two, mul_div_assoc']
-    refine' div_le_div (by positivity) _ (rpow_pos_of_pos hl'' _) _
+    gcongr
     · rw [hb]
       refine' (pow_le_pow_left₀ (by positivity) h' 2).trans_eq _
       rw [mul_pow]
@@ -832,22 +841,26 @@ theorem four_one_part_nine (hμ₀ : 0 < μ₀) :
       norm_num1
     rw [hm]
     exact Nat.le_ceil _
-  refine' (add_le_add_right (mul_le_mul_of_nonneg_right this (by positivity)) _).trans _
+  refine' (add_le_add_left (mul_le_mul_of_nonneg_right this (by positivity)) _).trans _
   have : (4 : ℝ) * b / (μ * k) ≤ l ^ (-(1 - (1 / 4 : ℝ))) * (4 * 2 / μ) :=
     by
     rw [neg_sub, rpow_sub hl'', rpow_one, div_mul_div_comm, mul_comm _ (_ * _ : ℝ), mul_assoc,
       mul_comm μ, hb]
-    refine'
-      div_le_div (by positivity) (mul_le_mul_of_nonneg_left h' (by positivity)) (by positivity)
-        (mul_le_mul_of_nonneg_right _ hμ'.le)
+    gcongr
     rwa [Nat.cast_le]
-  refine' (add_le_add_left this _).trans _
-  rw [mul_comm (4 : ℝ), mul_assoc, mul_div_assoc', ← add_mul, ← le_div_iff, div_div_eq_mul_div]
-  swap
-  · exact div_pos (by norm_num1) hμ'
-  exact
-    hl''''.trans
-      (div_le_div_of_le (by norm_num1) (mul_le_mul_of_nonneg_left hμ (log_pos (by norm_num1)).le))
+  refine' (add_le_add_right this _).trans _
+  rw [mul_comm (4 : ℝ), mul_assoc, mul_div_assoc', ← add_mul]
+  have hfactor : 4 * 2 / μ ≤ 4 * 2 / μ₀ :=
+    div_le_div_of_le_left (by norm_num : (0 : ℝ) ≤ 4 * 2) hμ₀ hμ
+  have hlog_nonneg : 0 ≤ log (3 / 2) := (log_pos (by norm_num)).le
+  calc
+    (↑l ^ (-(2 / 3 - 1 / 4 * 2)) + ↑l ^ (-(1 - 1 / 4))) * (4 * 2 / μ)
+        ≤ (log (3 / 2) * μ₀ / (4 * 2)) * (4 * 2 / μ) :=
+      mul_le_mul_of_nonneg_right hl'''' (by positivity)
+    _ ≤ (log (3 / 2) * μ₀ / (4 * 2)) * (4 * 2 / μ₀) :=
+      mul_le_mul_of_nonneg_left hfactor (by positivity)
+    _ = log (3 / 2) := by
+      field_simp [hμ₀.ne']
 
 -- lemma 4.1
 -- (9)
@@ -893,7 +906,7 @@ theorem four_one (hμ₀ : 0 < μ₀) :
   specialize hl' k hlk μ hμ σ h11
   set b := ⌈(l : ℝ) ^ (1 / 4 : ℝ)⌉₊
   have hb : b ≠ 0 := by
-    rw [Ne.def, Nat.ceil_eq_zero, not_le]
+    rw [ne_eq, Nat.ceil_eq_zero, not_le]
     refine' rpow_pos_of_pos _ _
     rw [Nat.cast_pos]
     linarith only [hl]
@@ -905,9 +918,8 @@ theorem four_one (hμ₀ : 0 < μ₀) :
     rwa [Nat.cast_le]
   have hσ₀ : 0 < σ := this.trans_lt' (by positivity)
   have hσ₁ : σ ≤ 1 := by
-    change (SimpleGraph.edgeDensity _ _ _ : ℝ) ≤ 1
-    rw [← Rat.cast_one, Rat.cast_le]
-    exact edge_density_le_one _ _ _
+    dsimp [σ]
+    exact colDensity_le_one
   have h₁ :
     μ ^ b * C.X.card / 2 * m.choose b ≤
       ∑ S ∈ powerset_len b U, ((commonBlues χ S ∩ (C.X \ U)).card : ℝ) :=
@@ -922,14 +934,14 @@ theorem four_one (hμ₀ : 0 < μ₀) :
   obtain ⟨S, hSU, hScard, hT⟩ := four_one_part_eight Usize hbm h₁
   refine' ⟨S, commonBlues χ S ∩ (C.X \ U), _, _, _, _, _, _, _⟩
   · exact hSU.trans UX
-  · exact (inter_subset_right _ _).trans (sdiff_subset _ _)
+  · exact Finset.inter_subset_right.trans Finset.sdiff_subset
   · refine' Disjoint.inf_right' _ _
     refine' Disjoint.mono_left hSU _
     exact disjoint_sdiff
   · refine' Ublue.subset _
     exact hSU
-  · refine' MonochromaticBetween_commonBlues.subset_right _
-    exact inter_subset_left _ _
+  · refine' monochromaticBetween_commonBlues.subset_right _
+    exact Finset.inter_subset_left
   · rw [hScard]
     exact Nat.le_ceil _
   rwa [hScard]
@@ -994,23 +1006,23 @@ theorem four_three_aux' (hμ₀ : 0 < μ₀) :
   induction' i with i ih
   · rw [range_zero, inter_empty, card_empty, Nat.cast_zero, MulZeroClass.mul_zero]
     exact Nat.cast_nonneg _
-  rw [range_succ]
+  rw [range_add_one]
   rw [Nat.succ_le_iff] at hi
   specialize ih hi.le
-  by_cases i ∈ bigBlueSteps μ k l init
+  by_cases hstep : i ∈ bigBlueSteps μ k l init
   swap
-  · rw [inter_insert_of_not_mem h]
+  · rw [Finset.inter_insert_of_notMem hstep]
     refine' ih.trans _
     rw [Nat.cast_le]
-    exact card_le_of_subset (B_subset hi)
-  rw [inter_insert_of_mem h, card_insert_of_not_mem]
+    exact card_le_of_subset (b_subset hi)
+  rw [Finset.inter_insert_of_mem hstep, card_insert_of_notMem]
   swap
   · simp
-  rw [big_blue_applied h, BookConfig.bigBlueStep_B, Nat.cast_add_one, mul_add_one,
-    card_disjoint_union, Nat.cast_add]
+  rw [big_blue_applied hstep, BookConfig.bigBlueStep_b, Nat.cast_add_one, mul_add_one,
+    card_union_of_disjoint, Nat.cast_add]
   · refine' add_le_add ih _
-    rw [bigBlueSteps, mem_filter] at h
-    exact hl k hlk μ hμ n χ hχ _ h.2.2
+    rw [bigBlueSteps, mem_filter] at hstep
+    exact hl k hlk μ hμ n χ hχ _ hstep.2.2
   refine' Disjoint.mono_right BookConfig.getBook_fst_subset _
   exact (algorithm μ k l init i).hXB.symm
 
@@ -1028,23 +1040,22 @@ theorem four_three (hμ₀ : 0 < μ₀) :
                       ((bigBlueSteps μ k l init).card : ℝ) ≤ (l : ℝ) ^ (3 / 4 : ℝ) :=
   by
   filter_upwards [four_three_aux' hμ₀, Filter.eventually_gt_atTop 0] with l hl hl₀ k hlk μ hμ n χ hχ init
-  simp only [Fin.exists_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+  simp only [Fin.exists_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one,
     exists_or, not_or] at hχ
   obtain ⟨hχr, hχb⟩ := hχ
   specialize hl k hlk μ hμ n χ hχr init (finalStep μ k l init) le_rfl
   have : bigBlueSteps μ k l init ∩ range (finalStep μ k l init) = bigBlueSteps μ k l init :=
     by
-    rw [inter_eq_left_iff_subset, bigBlueSteps]
+    rw [Finset.inter_eq_left, bigBlueSteps]
     exact filter_subset _ _
   rw [this] at hl
   push_neg at hχb
-  by_contra'
-  refine' ((mul_le_mul_of_nonneg_left this.le (by positivity)).trans hl).not_lt _
-  rw [← rpow_add, div_add_div_same, add_comm, bit1, add_assoc, ← bit0, ← bit0, div_self, rpow_one,
-    Nat.cast_lt]
-  · exact hχb (end_state μ k l init).B (end_state μ k l init).blue_b
-  · norm_num1
-  rwa [Nat.cast_pos]
+  by_contra hcontra
+  rw [not_le] at hcontra
+  refine' (not_lt_of_ge ((mul_le_mul_of_nonneg_left hcontra.le (by positivity)).trans hl)) _
+  rw [← rpow_add (by exact_mod_cast hl₀),
+    show (1 / 4 + 3 / 4 : ℝ) = 1 by norm_num, rpow_one, Nat.cast_lt]
+  exact hχb (endState μ k l init).B (endState μ k l init).blue_b
 
 theorem four_four_red_aux {μ : ℝ} {k l : ℕ} (ini : BookConfig χ) (i : ℕ)
     (hi : i ≤ finalStep μ k l ini) :
@@ -1053,20 +1064,20 @@ theorem four_four_red_aux {μ : ℝ} {k l : ℕ} (ini : BookConfig χ) (i : ℕ)
   induction' i with i ih
   · rw [range_zero, inter_empty, card_empty]
     simp
-  rw [range_succ]
+  rw [range_add_one]
   rw [Nat.succ_le_iff] at hi
   specialize ih hi.le
-  by_cases i ∈ redSteps μ k l ini
+  by_cases hstep : i ∈ redSteps μ k l ini
   swap
-  · rw [inter_insert_of_not_mem h]
+  · rw [Finset.inter_insert_of_notMem hstep]
     refine' ih.trans _
-    exact card_le_of_subset (A_subset hi)
-  rw [inter_insert_of_mem h, card_insert_of_not_mem]
+    exact card_le_of_subset (a_subset hi)
+  rw [Finset.inter_insert_of_mem hstep, card_insert_of_notMem]
   swap
   · simp
-  rwa [red_applied h, BookConfig.redStepBasic_A, card_insert_of_not_mem, add_le_add_iff_right]
+  rwa [red_applied hstep, BookConfig.redStepBasic_a, card_insert_of_notMem, add_le_add_iff_right]
   refine' Finset.disjoint_left.1 (algorithm μ k l ini i).hXA _
-  exact BookConfig.getCentralVertex_mem_X _ _ _
+  exact BookConfig.getCentralVertex_mem_x _ _ _
 
 theorem four_four_blue_density_aux {μ : ℝ} {k l : ℕ} (hk : k ≠ 0) (hl : l ≠ 0) (ini : BookConfig χ)
     (i : ℕ) (hi : i ≤ finalStep μ k l ini) :
@@ -1076,28 +1087,31 @@ theorem four_four_blue_density_aux {μ : ℝ} {k l : ℕ} (hk : k ≠ 0) (hl : l
   induction' i with i ih
   · rw [range_zero, inter_empty, card_empty]
     simp
-  rw [range_succ]
+  rw [range_add_one]
   rw [Nat.succ_le_iff] at hi
   specialize ih hi.le
-  by_cases i ∈ bigBlueSteps μ k l ini ∪ densitySteps μ k l ini
+  by_cases hstep : i ∈ bigBlueSteps μ k l ini ∪ densitySteps μ k l ini
   swap
-  · rw [inter_insert_of_not_mem h]
-    exact ih.trans (card_le_of_subset (B_subset hi))
-  rw [inter_insert_of_mem h, card_insert_of_not_mem]
+  · rw [Finset.inter_insert_of_notMem hstep]
+    exact ih.trans (card_le_of_subset (b_subset hi))
+  rw [Finset.inter_insert_of_mem hstep, card_insert_of_notMem]
   swap
   · simp
-  refine' (add_le_add_right ih 1).trans _
-  rw [mem_union] at h
-  cases h
-  · rw [big_blue_applied h, BookConfig.bigBlueStep_B, card_disjoint_union, add_le_add_iff_left]
+  refine' (show #((bigBlueSteps μ k l ini ∪ densitySteps μ k l ini) ∩ range i) + 1 ≤
+      #(algorithm μ k l ini i).B + 1 by simpa [add_comm] using add_le_add_right ih 1).trans _
+  rw [mem_union] at hstep
+  cases hstep with
+  | inl hbig =>
+    rw [big_blue_applied hbig, BookConfig.bigBlueStep_b, card_union_of_disjoint, add_le_add_iff_left]
     swap
     · refine' Disjoint.mono_right BookConfig.getBook_fst_subset _
       exact (algorithm μ k l ini i).hXB.symm
-    rw [bigBlueSteps, mem_filter] at h
-    exact BookConfig.one_le_card_getBook_fst (BookConfig.get_book_condition hk hl h.2.2)
-  rw [density_applied h, BookConfig.densityBoostStepBasic_B, card_insert_of_not_mem]
-  refine' Finset.disjoint_left.1 (algorithm μ k l ini i).hXB _
-  exact BookConfig.getCentralVertex_mem_X _ _ _
+    rw [bigBlueSteps, mem_filter] at hbig
+    exact BookConfig.one_le_card_getBook_fst (BookConfig.get_book_condition hk hl hbig.2.2)
+  | inr hdens =>
+    rw [density_applied hdens, BookConfig.densityBoostStepBasic_b, card_insert_of_notMem]
+    refine' Finset.disjoint_left.1 (algorithm μ k l ini i).hXB _
+    exact BookConfig.getCentralVertex_mem_x _ _ _
 
 theorem t_le_a_card (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) :
     (redSteps μ k l ini).card ≤ (endState μ k l ini).A.card :=
@@ -1105,8 +1119,8 @@ theorem t_le_a_card (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) :
   have hl := four_four_red_aux ini (finalStep μ k l ini) le_rfl
   have : redSteps μ k l ini ∩ range (finalStep μ k l ini) = redSteps μ k l ini :=
     by
-    rw [inter_eq_left_iff_subset]
-    exact redSteps_subset_red_or_densitySteps.trans (filter_subset _ _)
+    rw [Finset.inter_eq_left]
+    exact redSteps_subset_redOrDensitySteps.trans (filter_subset _ _)
   rwa [this] at hl
 
 -- observation 4.4
@@ -1114,10 +1128,10 @@ theorem four_four_red (μ : ℝ) {k l : ℕ}
     (h : ¬∃ (m : Finset V) (c : Fin 2), χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card)
     (ini : BookConfig χ) : (redSteps μ k l ini).card ≤ k :=
   by
-  have hl := t_le_A_card μ k l ini
-  simp only [Fin.exists_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+  have hl := t_le_a_card μ k l ini
+  simp only [Fin.exists_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one,
     exists_or, not_or, not_exists, not_and, not_le] at h
-  exact hl.trans (h.1 _ (end_state μ k l ini).red_a).le
+  exact hl.trans (h.1 _ (endState μ k l ini).red_a).le
 
 -- observation 4.4
 theorem four_four_blue_density (μ : ℝ) {k l : ℕ} (hk : k ≠ 0) (hl : l ≠ 0)
@@ -1129,21 +1143,21 @@ theorem four_four_blue_density (μ : ℝ) {k l : ℕ} (hk : k ≠ 0) (hl : l ≠
     (bigBlueSteps μ k l ini ∪ densitySteps μ k l ini) ∩ range (finalStep μ k l ini) =
       bigBlueSteps μ k l ini ∪ densitySteps μ k l ini :=
     by
-    rw [inter_eq_left_iff_subset, union_subset_iff]
-    exact ⟨filter_subset _ _, densitySteps_subset_red_or_densitySteps.trans (filter_subset _ _)⟩
-  rw [← card_disjoint_union, ← this]
-  · simp only [Fin.exists_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+    rw [Finset.inter_eq_left, union_subset_iff]
+    exact ⟨filter_subset _ _, densitySteps_subset_redOrDensitySteps.trans (filter_subset _ _)⟩
+  rw [← card_union_of_disjoint, ← this]
+  · simp only [Fin.exists_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one,
       exists_or, not_or, not_exists, not_and, not_le] at h
-    exact hl.trans (h.2 _ (end_state μ k l ini).blue_b).le
-  refine' bigBlueSteps_disjoint_red_or_densitySteps.mono_right _
-  exact densitySteps_subset_red_or_densitySteps
+    exact hl.trans (h.2 _ (endState μ k l ini).blue_b).le
+  refine' bigBlueSteps_disjoint_redOrDensitySteps.mono_right _
+  exact densitySteps_subset_redOrDensitySteps
 
 -- observation 4.4
 theorem four_four_degree (μ : ℝ) {k l : ℕ} (hk : k ≠ 0) (hl : l ≠ 0)
     (h : ¬∃ (m : Finset V) (c : Fin 2), χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card)
     (ini : BookConfig χ) : (degreeSteps μ k l ini).card ≤ k + l + 1 :=
   by
-  refine' num_degree_steps_le_add.trans _
+  refine' num_degreeSteps_le_add.trans _
   rw [add_le_add_iff_right, add_assoc]
   exact add_le_add (four_four_red μ h _) (four_four_blue_density μ hk hl h _)
 
