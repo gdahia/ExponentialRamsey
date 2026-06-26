@@ -14,18 +14,12 @@ noncomputable section
 
 open Real
 
-theorem logb_pow {b x : ℝ} (m : ℕ) : logb b (x ^ m) = m * logb b x := by
-  rw [logb, log_pow, mul_div_assoc, logb]
-
 theorem logb_zpow {b x : ℝ} (m : ℤ) : logb b (x ^ m) = m * logb b x := by
   rw [logb, log_zpow, mul_div_assoc, logb]
 
-theorem log_le_log_of_le {x y : ℝ} (hx : 0 < x) (hy : x ≤ y) : log x ≤ log y :=
-  Real.log_le_log hx hy
-
 theorem logb_le_logb_of_le {b x y : ℝ} (hb : 1 ≤ b) (hx : 0 < x) (hy : x ≤ y) :
     logb b x ≤ logb b y :=
-  div_le_div_of_nonneg_right (log_le_log_of_le hx hy) (log_nonneg hb)
+  div_le_div_of_nonneg_right (Real.log_le_log hx hy) (log_nonneg hb)
 
 theorem logb_base {b : ℝ} (hb : 0 < b) (hb' : b ≠ 1) : logb b b = 1 :=
   div_self (log_ne_zero_of_pos_of_ne_one hb hb')
@@ -40,7 +34,7 @@ def LogBase2Goal (x₁ x₂ a₁ a₂ : ℝ) : Prop :=
 
 theorem log_base2_square {x₁ x₂ a₁ a₂ : ℝ} (h : LogBase2Goal (x₁ ^ 2) (x₂ ^ 2) (2 * a₁) (2 * a₂)) :
     LogBase2Goal x₁ x₂ a₁ a₂ := fun hx₁ hx₂ => by
-  simpa [_root_.logb_pow] using h (pow_pos hx₁ _) (pow_le_pow_left₀ hx₁.le hx₂ _)
+  simpa [logb_pow] using h (pow_pos hx₁ _) (pow_le_pow_left₀ hx₁.le hx₂ _)
 
 theorem log_base2_weaken {x₁ x₂ a₁ a₂ : ℝ} (x₃ x₄ : ℝ) (h : LogBase2Goal x₃ x₄ a₁ a₂) (h₁ : x₃ ≤ x₁)
     (h₂ : x₂ ≤ x₄) (h₃ : 0 < x₃) : LogBase2Goal x₁ x₂ a₁ a₂ :=
@@ -58,8 +52,7 @@ theorem log_base2_half {x₁ x₂ a₁ a₂ : ℝ} (h : LogBase2Goal (x₁ / 2) 
     h (half_pos hx₁) (div_le_div_of_nonneg_right hx₂ zero_le_two)
 
 theorem log_base2_scale {x₁ x₂ a₁ a₂ : ℝ} (m : ℤ)
-    (h : LogBase2Goal (x₁ * 2 ^ m) (x₂ * 2 ^ m) (a₁ + m) (a₂ + m)) : LogBase2Goal x₁ x₂ a₁ a₂ :=
-  by
+    (h : LogBase2Goal (x₁ * 2 ^ m) (x₂ * 2 ^ m) (a₁ + m) (a₂ + m)) : LogBase2Goal x₁ x₂ a₁ a₂ := by
   intro hx₁ hx₂
   have i : 0 < (2 : ℝ) ^ m := zpow_pos zero_lt_two _
   have := h (mul_pos hx₁ i) (mul_le_mul_of_nonneg_right hx₂ i.le)
@@ -71,9 +64,23 @@ theorem log_base2_start {x₁ x₂ a₁ a₂ : ℝ} (hx₁ : 0 < x₁) (hx₂ : 
   h hx₁ hx₂
 
 theorem log_base2_end {x₁ x₂ a₁ a₂ : ℝ} (hx₁ : 1 < x₁) (hx₂ : x₂ < 2) (ha₁ : a₁ ≤ 0)
-    (ha₂ : 1 ≤ a₂) : LogBase2Goal x₁ x₂ a₁ a₂ :=
-  by
+    (ha₂ : 1 ≤ a₂) : LogBase2Goal x₁ x₂ a₁ a₂ := by
   rintro - h
   refine' ⟨ha₁.trans_lt (div_pos (log_pos hx₁) (log_pos one_lt_two)), lt_of_lt_of_le _ ha₂⟩
   rw [logb, div_lt_one (log_pos one_lt_two)]
   exact log_lt_log ((zero_le_one.trans_lt hx₁).trans_le h) hx₂
+
+-- TODO: either temporarily restore `weaken` macro, or create a log library under b-mehta somewhere
+-- namespace Tactic
+--
+-- namespace Interactive
+--
+-- /- ./././Mathport/Syntax/Translate/Tactic/Mathlib/Core.lean:38:34: unsupported: setup_tactic_parser -/
+-- /- ./././Mathport/Syntax/Translate/Expr.lean:337:4: warning: unsupported (TODO): `[tacs] -/
+-- /-- a quick macro to simplify log2 estimate proofs -/
+-- unsafe def weaken (t u : parse parser.pexpr) : tactic Unit :=
+--   sorry
+--
+-- end Interactive
+--
+-- end Tactic
