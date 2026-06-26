@@ -10,7 +10,6 @@ on:
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
-  pages: write
   id-token: write
 
 jobs:
@@ -45,7 +44,3 @@ jobs:
 
       - name: Build project
         run: ~/.elan/bin/lake build ExponentialRamsey
-        with:
-          working-directory: docs
-          ruby-version: "3.0"  # Specify Ruby version
-          bundler-cache: true  # Enable caching for bundler
