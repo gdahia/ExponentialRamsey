@@ -449,6 +449,7 @@ theorem mem_usefulBlueBooks {μ : ℝ} {X : Finset V} {ST : Finset V × Finset V
           Disjoint ST.1 ST.2 ∧
             χ.MonochromaticOf ST.1 1 ∧
               χ.MonochromaticBetween ST.1 ST.2 1 ∧ μ ^ ST.1.card * X.card / 2 ≤ ST.2.card :=
+  -- TODO: revisit this proof
   by
   rw [usefulBlueBooks, mem_filter]
   constructor
