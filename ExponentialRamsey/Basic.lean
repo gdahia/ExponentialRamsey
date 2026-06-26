@@ -13,7 +13,6 @@ import Mathlib.Combinatorics.SimpleGraph.Density
 Define the book algorithm with its prerequisites.
 -/
 
-
 open Finset Real
 
 namespace SimpleGraph
@@ -28,8 +27,8 @@ theorem cast_card_sdiff {α R : Type*} [AddGroupWithOne R] [DecidableEq α] {s t
 
 /-- For `χ` a labelling and vertex sets `X` `Y` and a label `k`, give the edge density of
 `k`-labelled edges between `X` and `Y`. -/
-def colDensity [DecidableEq V] [DecidableEq K] (χ : TopEdgeLabelling V K) (k : K) (X Y : Finset V) :
-    ℝ :=
+def colDensity [DecidableEq V] [DecidableEq K] (χ : TopEdgeLabelling V K) (k : K)
+    (X Y : Finset V) : ℝ :=
   edgeDensity (χ.labelGraph k) X Y
 
 theorem colDensity_comm [DecidableEq V] [DecidableEq K] (χ : TopEdgeLabelling V K) (k : K)
@@ -128,7 +127,8 @@ variable [Fintype V]
 /-- Define the weight of an ordered pair for the book algorithm.
 `pair_weight χ X Y x y` corresponds to `ω(x, y)` in the paper, see equation (3).
 -/
-noncomputable def pairWeight [DecidableEq (Fin 2)] (χ : TopEdgeLabelling V (Fin 2)) (X Y : Finset V) (x y : V) : ℝ :=
+noncomputable def pairWeight [DecidableEq (Fin 2)] (χ : TopEdgeLabelling V (Fin 2))
+    (X Y : Finset V) (x y : V) : ℝ :=
   (Y.card : ℝ)⁻¹ *
     (((red_neighbors χ) x ∩ (red_neighbors χ) y ∩ Y).card -
       (red_density χ) X Y * ((red_neighbors χ) x ∩ Y).card)
@@ -136,7 +136,8 @@ noncomputable def pairWeight [DecidableEq (Fin 2)] (χ : TopEdgeLabelling V (Fin
 /-- Define the weight of a vertex for the book algorithm.
 `pair_weight χ X Y x` corresponds to `ω(x)` in the paper, see equation (4).
 -/
-noncomputable def weight [DecidableEq (Fin 2)] (χ : TopEdgeLabelling V (Fin 2)) (X Y : Finset V) (x : V) : ℝ :=
+noncomputable def weight [DecidableEq (Fin 2)] (χ : TopEdgeLabelling V (Fin 2))
+    (X Y : Finset V) (x : V) : ℝ :=
   ∑ y ∈ X.erase x, pairWeight χ X Y x y
 
 end
@@ -151,12 +152,14 @@ theorem qFunction_zero {k : ℕ} {p₀ : ℝ} : qFunction k p₀ 0 = p₀ := by
 theorem qFunction_one {k : ℕ} {p₀ : ℝ} : qFunction k p₀ 1 = p₀ + k ^ (-1 / 4 : ℝ) / k := by
   rw [qFunction, pow_one, add_sub_cancel_left]
 
-theorem q_increasing {k h₁ h₂ : ℕ} {p₀ : ℝ} (h : h₁ ≤ h₂) : qFunction k p₀ h₁ ≤ qFunction k p₀ h₂ := by
+theorem q_increasing {k h₁ h₂ : ℕ} {p₀ : ℝ} (h : h₁ ≤ h₂) :
+    qFunction k p₀ h₁ ≤ qFunction k p₀ h₂ := by
   simp only [qFunction, add_le_add_iff_left]
   cases k
   · simp
   · rw [div_le_div_iff_of_pos_right (by positivity)]
-    exact sub_le_sub_right (pow_le_pow_right₀ (le_add_of_nonneg_right (Real.rpow_nonneg (Nat.cast_nonneg _) _)) h) 1
+    exact sub_le_sub_right
+      (pow_le_pow_right₀ (le_add_of_nonneg_right (Real.rpow_nonneg (Nat.cast_nonneg _) _)) h) 1
 
 theorem qFunction_weak_lower {k : ℕ} {p₀ : ℝ} {h : ℕ} :
     p₀ + h * k ^ (-1 / 4 : ℝ) / k ≤ qFunction k p₀ h :=
@@ -241,8 +244,7 @@ instance : Inhabited (BookConfig χ) :=
   ⟨start ∅⟩
 
 /-- Take a red step for the book algorithm, given `x ∈ X`. -/
-def redStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookConfig χ
-    where
+def redStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookConfig χ where
   X := (red_neighbors χ) x ∩ C.X
   y := (red_neighbors χ) x ∩ C.y
   A := insert x C.A
@@ -328,8 +330,7 @@ def bigBlueStepBasic (C : BookConfig χ) (S T : Finset V) (hS : S ⊆ C.X) (hT :
 variable [Fintype V]
 
 /-- Take a density boost step for the book algorithm, given `x ∈ X`. -/
-def densityBoostStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookConfig χ
-    where
+def densityBoostStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookConfig χ where
   X := (blue_neighbors χ) x ∩ C.X
   y := (red_neighbors χ) x ∩ C.y
   A := C.A
@@ -355,11 +356,13 @@ def densityBoostStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookCon
     · exact Set.mem_union_right _ (Finset.coe_subset.2 inter_subset_right ha))
   blue_b := by
     rw [insert_eq, coe_union, EdgeLabelling.monochromaticOf_union, coe_singleton]
-    exact ⟨EdgeLabelling.monochromaticOf_singleton, C.blue_b, C.blue_XB.subset_left (by simpa using hx)⟩
+    exact
+      ⟨EdgeLabelling.monochromaticOf_singleton, C.blue_b, C.blue_XB.subset_left (by simpa using hx)⟩
   blue_XB :=
     by
     rw [insert_eq, Finset.coe_union, Finset.coe_singleton,
-      EdgeLabelling.monochromaticBetween_union_right, EdgeLabelling.monochromaticBetween_singleton_right]
+      EdgeLabelling.monochromaticBetween_union_right,
+      EdgeLabelling.monochromaticBetween_singleton_right]
     refine' ⟨_, C.blue_XB.subset_left (Finset.coe_subset.2 inter_subset_right)⟩
     simp (config := { contextual := true }) [mem_colNeighbors']
 
@@ -459,7 +462,13 @@ theorem mem_usefulBlueBooks {μ : ℝ} {X : Finset V} {ST : Finset V × Finset V
           Disjoint ST.1 ST.2 ∧
             χ.MonochromaticOf ST.1 1 ∧
               χ.MonochromaticBetween ST.1 ST.2 1 ∧ μ ^ ST.1.card * X.card / 2 ≤ ST.2.card :=
-  by rw [usefulBlueBooks, mem_filter]; constructor <;> simp [Finset.mem_product, mem_powerset] <;> tauto
+  by
+  rw [usefulBlueBooks, mem_filter]
+  constructor
+  · simp [Finset.mem_product, mem_powerset]
+    tauto
+  · simp [Finset.mem_product, mem_powerset]
+    tauto
 
 theorem mem_usefulBlueBooks' {μ : ℝ} {X S T : Finset V} :
     (S, T) ∈ usefulBlueBooks χ μ X ↔
@@ -474,9 +483,9 @@ theorem exists_useful_blue_book (μ : ℝ) (X : Finset V) : (usefulBlueBooks χ 
   by
   use(∅, X)
   rw [mem_usefulBlueBooks']
-  simp only [empty_subset, Subset.rfl, disjoint_empty_left, coe_empty, EdgeLabelling.monochromaticOf_empty,
-    EdgeLabelling.monochromaticBetween_empty_left, card_empty, pow_zero, one_mul,
-    true_and]
+  simp only [empty_subset, Subset.rfl, disjoint_empty_left, coe_empty,
+    EdgeLabelling.monochromaticOf_empty, EdgeLabelling.monochromaticBetween_empty_left, card_empty,
+    pow_zero, one_mul, true_and]
   exact half_le_self (Nat.cast_nonneg _)
 
 theorem exists_blue_book_one_le_S [Fintype V] (μ : ℝ) (X : Finset V)
@@ -488,8 +497,8 @@ theorem exists_blue_book_one_le_S [Fintype V] (μ : ℝ) (X : Finset V)
   · refine' ⟨⟨{x}, ∅⟩, _, by simp⟩
     rw [mem_usefulBlueBooks']
     simp only [singleton_subset_iff, empty_subset, disjoint_singleton_left, Finset.notMem_empty,
-      not_false_iff, coe_singleton, EdgeLabelling.monochromaticOf_singleton, true_and, hx, Nat.cast_zero,
-      card_singleton, pow_one, card_empty]
+      not_false_iff, coe_singleton, EdgeLabelling.monochromaticOf_singleton, true_and, hx,
+      Nat.cast_zero, card_singleton, pow_one, card_empty]
     constructor
     · rw [Finset.coe_empty]; exact EdgeLabelling.monochromaticBetween_empty_right
     · exact div_nonpos_of_nonpos_of_nonneg
@@ -498,10 +507,9 @@ theorem exists_blue_book_one_le_S [Fintype V] (μ : ℝ) (X : Finset V)
   refine' ⟨⟨{x}, (blue_neighbors χ) x ∩ X⟩, _, by simp⟩
   rw [mem_usefulBlueBooks']
   simp (config := { contextual := true }) only [hx, singleton_subset_iff, disjoint_singleton_left,
-    mem_inter, and_true, coe_singleton, EdgeLabelling.monochromaticOf_singleton, card_singleton, pow_one,
-    true_and, inter_subset_right, not_false_iff, not_mem_colNeighbors,
-    EdgeLabelling.monochromaticBetween_singleton_left, and_imp, mem_colNeighbors,
-    eq_self_iff_true, IsEmpty.exists_iff, forall_exists_index, imp_true_iff]
+    mem_inter, and_true, coe_singleton, EdgeLabelling.monochromaticOf_singleton, card_singleton,
+    pow_one, true_and, inter_subset_right, not_false_iff, not_mem_colNeighbors,
+    EdgeLabelling.monochromaticBetween_singleton_left]
   constructor
   · intro y hy h
     exact (mem_colNeighbors.mp (mem_inter.mp hy).1).choose_spec
@@ -646,17 +654,17 @@ theorem getCentralVertex_condition {μ : ℝ} {k l : ℕ} (C : BookConfig χ)
   have hrpow : (l : ℝ) ^ (2 / 3 : ℝ) ≤ (l : ℝ) ^ (3 / 4 : ℝ) := by
     by_cases hl : 1 ≤ l
     · exact Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast hl) (by norm_num)
-    · push_neg at hl; interval_cases l <;> norm_num
+    · push_neg at hl
+      interval_cases l
+      norm_num
   have hceil : ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊ ≤ ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊ :=
     Nat.ceil_le.2 (hrpow.trans (Nat.le_ceil _))
   have hle : numBigBlues μ C < C.X.card :=
     h₂.trans_le ((ramseyNumber.mono_two le_rfl hceil).trans h₁.le)
-  by_contra hall
-  push_neg at hall
+  by_contra! hall
   have key : (C.X.filter fun x => μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card) = C.X :=
     Finset.filter_true_of_mem (fun x hx => le_of_lt (hall x hx))
-  have : C.X.card ≤ numBigBlues μ C := by
-    rw [numBigBlues, key]
+  have : C.X.card ≤ numBigBlues μ C := by rw [numBigBlues, key]
   omega
 
 end
@@ -696,8 +704,7 @@ theorem algorithmOption_stays_none {i : ℕ} (hi : algorithmOption μ k l ini i 
 
 theorem algorithmOption_is_some_of {i : ℕ} (hi : ∃ C, algorithmOption μ k l ini (i + 1) = some C) :
     ∃ C, algorithmOption μ k l ini i = some C := by
-  by_contra h
-  push_neg at h
+  by_contra! h
   have h1 : algorithmOption μ k l ini i = none := Option.eq_none_iff_forall_not_mem.mpr h
   have h2 : algorithmOption μ k l ini (i + 1) = none := algorithmOption_stays_none h1
   obtain ⟨C, hC⟩ := hi
@@ -821,7 +828,7 @@ theorem some_algorithm_of_finalStep_le (hi : i ≤ finalStep μ k l ini) :
       omega
     cases h : algorithmOption μ k l ini (Nat.succ i) with
     | none => exact absurd h hnotin
-    | some C => simp [Option.getD_some, h]
+    | some C => simp [Option.getD_some]
 
 theorem condition_fails_at_end (hk : k ≠ 0) (hl : l ≠ 0) :
     (endState μ k l ini).X.card ≤ ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] ∨
@@ -966,8 +973,8 @@ theorem redSteps_subset_redOrDensitySteps : redSteps μ k l ini ⊆ redOrDensity
   by
   intro i hi
   rw [redSteps] at hi
-  simp only [mem_image, exists_prop, mem_filter, mem_attach, Subtype.exists, exists_eq_right,
-    true_and, exists_and_right, Subtype.coe_mk] at hi
+  simp only [mem_image, mem_filter, mem_attach, Subtype.exists, exists_eq_right, true_and,
+    exists_and_right] at hi
   exact hi.1
 
 theorem densitySteps_subset_redOrDensitySteps :
@@ -975,8 +982,8 @@ theorem densitySteps_subset_redOrDensitySteps :
   by
   intro i hi
   rw [densitySteps] at hi
-  simp only [mem_image, exists_prop, mem_filter, mem_attach, Subtype.exists, exists_eq_right,
-    true_and, exists_and_right, Subtype.coe_mk] at hi
+  simp only [mem_image, mem_filter, mem_attach, Subtype.exists, exists_eq_right, true_and,
+    exists_and_right] at hi
   exact hi.1
 
 theorem redSteps_union_densitySteps :
@@ -988,8 +995,8 @@ theorem redSteps_union_densitySteps :
       _
   rw [redSteps, densitySteps, ← image_union, ← filter_or]
   intro i hi
-  simp only [mem_image, Subtype.exists, Subtype.coe_mk, exists_prop, mem_filter, mem_attach,
-    true_and, exists_eq_right, exists_and_right]
+  simp only [mem_image, Subtype.exists, mem_filter, mem_attach, true_and, exists_eq_right,
+    exists_and_right]
   refine' ⟨hi, _⟩
   exact (Classical.em _).imp_right not_le.mp
 
@@ -1020,8 +1027,8 @@ theorem red_applied {i : ℕ} (hi : i ∈ redSteps μ k l ini) :
         (BookConfig.getCentralVertex_mem_x _ _ _) :=
   by
   rw [redSteps, mem_image] at hi
-  simp only [Subtype.coe_mk, mem_filter, mem_attach, true_and, exists_prop, Subtype.exists,
-    exists_and_right, exists_eq_right] at hi
+  simp only [mem_filter, mem_attach, true_and, Subtype.exists, exists_and_right,
+    exists_eq_right] at hi
   obtain ⟨hi', hi''⟩ := hi
   rw [redOrDensitySteps, mem_filter, ← not_le, mem_range] at hi'
   rw [algorithm_succ hi'.1]
@@ -1037,8 +1044,8 @@ theorem density_applied {i : ℕ} (hi : i ∈ densitySteps μ k l ini) :
         (BookConfig.getCentralVertex_mem_x _ _ _) :=
   by
   rw [densitySteps, mem_image] at hi
-  simp only [Subtype.coe_mk, mem_filter, mem_attach, true_and, exists_prop, Subtype.exists,
-    exists_and_right, exists_eq_right] at hi
+  simp only [mem_filter, mem_attach, true_and, Subtype.exists, exists_and_right,
+    exists_eq_right] at hi
   obtain ⟨hi', hi''⟩ := hi
   rw [redOrDensitySteps, mem_filter, ← not_le, mem_range] at hi'
   rw [algorithm_succ hi'.1]
@@ -1068,13 +1075,13 @@ theorem filter_even_thing {n : ℕ} :
   by
   have : ((range n).filter Even).image Nat.succ ⊆ (range (n + 1)).filter fun i => ¬Even i :=
     by
-    simp only [Finset.subset_iff, mem_filter, mem_image, and_imp, exists_prop, and_assoc,
-      mem_range, forall_exists_index, Nat.succ_eq_add_one]
+    simp only [Finset.subset_iff, mem_filter, mem_image, and_imp, and_assoc, mem_range,
+      forall_exists_index, Nat.succ_eq_add_one]
     rintro _ y hy hy' rfl
     simp [hy, hy', parity_simps]
   rw [← Finset.card_image_of_injective _ Nat.succ_injective]
   refine' (card_le_card this).trans _
-  rw [range_succ, filter_insert]
+  rw [range_add_one, filter_insert]
   split_ifs
   · exact Nat.le_succ _
   exact card_insert_le _ _
