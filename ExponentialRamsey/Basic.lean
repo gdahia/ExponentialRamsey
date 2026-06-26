@@ -931,8 +931,7 @@ theorem redSteps_union_densitySteps :
   intro i hi
   simp only [mem_image, Subtype.exists, mem_filter, mem_attach, true_and, exists_eq_right,
     exists_and_right]
-  refine' ⟨hi, _⟩
-  exact (Classical.em _).imp_right not_le.mp
+  grind
 
 theorem redSteps_disjoint_densitySteps : Disjoint (redSteps μ k l ini) (densitySteps μ k l ini) := by
   rw [redSteps, densitySteps, disjoint_image Subtype.coe_injective, disjoint_filter]
