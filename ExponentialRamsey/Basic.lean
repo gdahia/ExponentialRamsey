@@ -102,8 +102,7 @@ theorem interedges_card_eq_sum {V : Type*} [DecidableEq V] [Fintype V] {G : Simp
     singleton_product, filter_map, card_map, inter_comm, ← filter_mem_eq_inter]
   congr 1
   refine' filter_congr _
-  simp only [Function.Embedding.coeFn_mk, mem_neighborFinset]
-  exact fun _ _ => Iff.rfl
+  simp only [Function.Embedding.coeFn_mk, Function.comp_apply, mem_neighborFinset, implies_true]
 
 theorem colDensity_eq_sum {K : Type*} [Fintype V] [DecidableEq K] {χ : TopEdgeLabelling V K}
     {k : K} {A B : Finset V} :
