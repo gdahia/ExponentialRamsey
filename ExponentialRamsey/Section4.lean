@@ -63,8 +63,7 @@ theorem rpow_nat_cast (x : ℝ) (n : ℕ) : x ^ (n : ℝ) = x ^ n :=
 
 theorem ConvexOn.hMul {f g : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) (hg : ConvexOn ℝ s g)
     (hf' : MonotoneOn f s) (hg' : MonotoneOn g s) (hf'' : ∀ x ∈ s, 0 ≤ f x)
-    (hg'' : ∀ x ∈ s, 0 ≤ g x) : ConvexOn ℝ s fun x => f x * g x :=
-  by
+    (hg'' : ∀ x ∈ s, 0 ≤ g x) : ConvexOn ℝ s fun x => f x * g x := by
   refine' LinearOrder.convexOn_of_lt hf.1 _
   intro x hx y hy hxy a b ha hb hab
   replace hg := hg.2 hx hy ha.le hb.le hab
@@ -106,8 +105,7 @@ theorem Convex.union {s t : Set ℝ} (hs : Convex ℝ s) (ht : Convex ℝ t) (hs
           ((Convex.ordConnected hs).uIcc_subset has hy))
   · exact ((Convex.ordConnected ht).uIcc_subset hx hy).trans Set.subset_union_right
 
-theorem convexOn_univ_max {k : ℝ} : ConvexOn ℝ Set.univ (max k) :=
-  by
+theorem convexOn_univ_max {k : ℝ} : ConvexOn ℝ Set.univ (max k) := by
   refine' LinearOrder.convexOn_of_lt convex_univ _
   rintro x - y - hxy a b ha hb hab
   simp only [smul_eq_mul]
@@ -196,8 +194,7 @@ theorem descFactorial_convex :
     simp
 
 theorem my_convex {k : ℝ} {f : ℝ → ℝ} (hf : ConvexOn ℝ (Set.Ici k) f)
-    (hf' : MonotoneOn f (Set.Ici k)) (hk : ∀ x < k, f x = f k) : ConvexOn ℝ Set.univ f :=
-  by
+    (hf' : MonotoneOn f (Set.Ici k)) (hk : ∀ x < k, f x = f k) : ConvexOn ℝ Set.univ f := by
   have : f = f ∘ max k := by
     ext x
     rw [Function.comp_apply]
@@ -225,15 +222,13 @@ noncomputable def myDescFactorial (x : ℝ) (k : ℕ) : ℝ :=
   if x < k - 1 then 0 else descFactorial x k
 
 theorem myDescFactorial_eqOn {k : ℕ} :
-    (Set.Ici ((k : ℝ) - 1)).EqOn (fun x => myDescFactorial x k) fun x => descFactorial x k :=
-  by
+    (Set.Ici ((k : ℝ) - 1)).EqOn (fun x => myDescFactorial x k) fun x => descFactorial x k := by
   intro x hx
   dsimp
   rw [myDescFactorial, if_neg]
   rwa [not_lt]
 
-theorem myDescFactorial_eq_nat_descFactorial {n k : ℕ} : myDescFactorial n k = n.descFactorial k :=
-  by
+theorem myDescFactorial_eq_nat_descFactorial {n k : ℕ} : myDescFactorial n k = n.descFactorial k := by
   rw [myDescFactorial, descFactorial_cast_nat, ite_eq_right_iff, eq_comm, Nat.cast_eq_zero,
     Nat.descFactorial_eq_zero_iff_lt]
   intro h
@@ -245,15 +240,13 @@ theorem myDescFactorial_convexOn_Ici (k : ℕ) :
   (descFactorial_convex _).congr' myDescFactorial_eqOn.symm
 
 theorem myDescFactorial_convex {k : ℕ} (hk : k ≠ 0) :
-    ConvexOn ℝ Set.univ fun x => myDescFactorial x k :=
-  by
+    ConvexOn ℝ Set.univ fun x => myDescFactorial x k := by
   refine'
     my_convex ((descFactorial_convex _).congr' myDescFactorial_eqOn.symm)
       ((descFactorial_monotoneOn _).congr myDescFactorial_eqOn.symm) _
   intro x hx
   rw [myDescFactorial, if_pos hx, myDescFactorial, if_neg (lt_irrefl _)]
-  have h : (k : ℝ) - 1 = (k - 1 : ℕ) :=
-    by
+  have h : (k : ℝ) - 1 = (k - 1 : ℕ) := by
     rw [Nat.cast_sub, Nat.cast_one]
     rwa [Nat.succ_le_iff, pos_iff_ne_zero]
   rw [h, descFactorial_cast_nat, eq_comm, Nat.cast_eq_zero, Nat.descFactorial_eq_zero_iff_lt]
@@ -263,8 +256,7 @@ theorem myDescFactorial_convex {k : ℕ} (hk : k ≠ 0) :
 noncomputable def myGeneralizedBinomial (x : ℝ) (k : ℕ) : ℝ :=
   (k.factorial : ℝ)⁻¹ • myDescFactorial x k
 
-theorem myGeneralizedBinomial_nat (n k : ℕ) : myGeneralizedBinomial n k = n.choose k :=
-  by
+theorem myGeneralizedBinomial_nat (n k : ℕ) : myGeneralizedBinomial n k = n.choose k := by
   rw [myGeneralizedBinomial, myDescFactorial_eq_nat_descFactorial, smul_eq_mul,
     Nat.descFactorial_eq_factorial_mul_choose, Nat.cast_mul, inv_mul_cancel_left₀]
   positivity
@@ -295,13 +287,11 @@ theorem cast_card_sdiff {α : Type*} [DecidableEq α] {s t : Finset α} (h : s �
   rw [Finset.card_sdiff_of_subset h, Nat.cast_sub (card_le_of_subset h)]
 
 theorem my_thing {α : Type*} {s : Finset α} (f : α → ℕ) (b : ℕ) (hb : b ≠ 0) :
-    myGeneralizedBinomial ((∑ i ∈ s, f i) / s.card) b * s.card ≤ ∑ i ∈ s, (f i).choose b :=
-  by
+    myGeneralizedBinomial ((∑ i ∈ s, f i) / s.card) b * s.card ≤ ∑ i ∈ s, (f i).choose b := by
   cases' eq_or_ne s.card 0 with hs hs
   · simp only [hs, Nat.cast_zero, MulZeroClass.mul_zero]
     exact Nat.cast_nonneg _
-  have h₁ : ∑ i ∈ s, (s.card : ℝ)⁻¹ = 1 :=
-    by
+  have h₁ : ∑ i ∈ s, (s.card : ℝ)⁻¹ = 1 := by
     rw [Finset.sum_const, nsmul_eq_mul, mul_inv_cancel₀]
     exact_mod_cast hs
   have h₂ : ∀ i ∈ s, (f i : ℝ) ∈ (Set.univ : Set ℝ) := by intro i hi; simp
@@ -328,8 +318,7 @@ theorem b_le_m {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ₀ : 
 
 theorem four_two_aux_aux {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ : 0 < σ) :
     myGeneralizedBinomial (σ * m) b * (m.choose b : ℝ)⁻¹ =
-      descFactorial (σ * m) b / descFactorial (m : ℝ) b :=
-  by
+      descFactorial (σ * m) b / descFactorial (m : ℝ) b := by
   have hdesc : myDescFactorial (σ * m) b = descFactorial (σ * m) b := by
     refine' myDescFactorial_eqOn _
     rw [Set.mem_Ici]
@@ -355,8 +344,7 @@ theorem four_two_aux_aux {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) 
 
 theorem four_two_aux {m b : ℕ} {σ : ℝ} :
     descFactorial (σ * m) b / descFactorial (m : ℝ) b =
-      ∏ i ∈ Finset.range b, (σ * m - i) / (m - i) :=
-  by
+      ∏ i ∈ Finset.range b, (σ * m - i) / (m - i) := by
   induction' b with b ih
   · simp [descFactorial]
   rw [descFactorial, descFactorial, Finset.prod_range_succ, ← ih, div_mul_div_comm, mul_comm,
@@ -364,8 +352,7 @@ theorem four_two_aux {m b : ℕ} {σ : ℝ} :
 
 theorem four_two_aux' {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ₀ : 0 < σ) (hσ₁ : σ ≤ 1) :
     ∏ i ∈ Finset.range b, (σ * m - i) / (m - i) =
-      σ ^ b * ∏ i ∈ Finset.range b, (1 - (1 - σ) * i / (σ * (m - i))) :=
-  by
+      σ ^ b * ∏ i ∈ Finset.range b, (1 - (1 - σ) * i / (σ * (m - i))) := by
   rw [Finset.pow_eq_prod_const, ← Finset.prod_mul_distrib]
   refine' Finset.prod_congr rfl _
   intro i hi
@@ -379,8 +366,7 @@ theorem four_two_aux' {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (h�
   exact mul_le_of_le_one_left (Nat.cast_nonneg _) hσ₁
 
 theorem four_two_aux'' {m b i : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ₀ : 0 ≤ σ) (hσ₁ : σ ≤ 1)
-    (hi : i ∈ Finset.range b) : (1 : ℝ) - i / (σ * m) ≤ 1 - (1 - σ) * i / (σ * (m - i)) :=
-  by
+    (hi : i ∈ Finset.range b) : (1 : ℝ) - i / (σ * m) ≤ 1 - (1 - σ) * i / (σ * (m - i)) := by
   rw [Finset.mem_range] at hi
   have : (i : ℝ) < m := by
     rw [Nat.cast_lt]
@@ -396,8 +382,7 @@ theorem four_two_aux'' {m b i : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) 
   rw [div_le_iff₀ hden, one_div, inv_mul_eq_div, le_div_iff₀ hmpos]
   linarith
 
-theorem exp_thing {x : ℝ} (hx₀ : 0 ≤ x) (hx₁ : x ≤ 1 / 2) : Real.exp (-2 * x) ≤ 1 - x :=
-  by
+theorem exp_thing {x : ℝ} (hx₀ : 0 ≤ x) (hx₁ : x ≤ 1 / 2) : Real.exp (-2 * x) ≤ 1 - x := by
   let a := 2 * x
   have ha : 0 ≤ a := mul_nonneg (by norm_num1) hx₀
   have ha' : 0 ≤ 1 - a := by
@@ -417,8 +402,7 @@ theorem exp_thing {x : ℝ} (hx₀ : 0 ≤ x) (hx₁ : x ≤ 1 / 2) : Real.exp (
   linarith
 
 theorem four_two_aux''' {m b i : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ₀ : 0 ≤ σ)
-    (hi : i ∈ Finset.range b) : Real.exp (-2 / (σ * m) * i) ≤ (1 : ℝ) - i / (σ * m) :=
-  by
+    (hi : i ∈ Finset.range b) : Real.exp (-2 / (σ * m) * i) ≤ (1 : ℝ) - i / (σ * m) := by
   rw [div_mul_comm, mul_comm]
   refine' exp_thing (by positivity) _
   rw [Finset.mem_range] at hi
@@ -430,8 +414,7 @@ theorem four_two_aux''' {m b i : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2)
 
 theorem four_two_aux'''' {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ₀ : 0 ≤ σ) (hσ₁ : σ ≤ 1) :
     Real.exp (-2 / (σ * m) * ∑ i ∈ Finset.range b, i) ≤
-      ∏ i ∈ Finset.range b, (1 - (1 - σ) * i / (σ * (m - i))) :=
-  by
+      ∏ i ∈ Finset.range b, (1 - (1 - σ) * i / (σ * (m - i))) := by
   rw [show ((∑ i ∈ Finset.range b, i : ℕ) : ℝ) = ∑ i ∈ Finset.range b, (i : ℝ) by
     exact Nat.cast_sum _ _]
   rw [Finset.mul_sum, Real.exp_sum]
@@ -443,8 +426,7 @@ theorem four_two_aux'''' {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) 
 
 -- Fact 4.2
 theorem four_two_left {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ₀ : 0 < σ) (hσ₁ : σ ≤ 1) :
-    σ ^ b * m.choose b * exp (-b ^ 2 / (σ * m)) ≤ myGeneralizedBinomial (σ * m) b :=
-  by
+    σ ^ b * m.choose b * exp (-b ^ 2 / (σ * m)) ≤ myGeneralizedBinomial (σ * m) b := by
   have : 0 < (m.choose b : ℝ) := by
     rw [Nat.cast_pos]
     exact Nat.choose_pos (b_le_m hb hσ₀.le hσ₁)
@@ -468,8 +450,7 @@ theorem four_one_part_one [Fintype V] (μ : ℝ) (l k : ℕ) (C : BookConfig χ)
     ∃ U : Finset V,
       χ.MonochromaticOf U 1 ∧
         U.card = ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊ ∧
-          U ⊆ C.X ∧ ∀ x ∈ U, μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card :=
-  by
+          U ⊆ C.X ∧ ∀ x ∈ U, μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card := by
   let W := C.X.filter fun x => μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card
   have : ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ W.card := hC
   rw [← Fintype.card_coe W, ramseyNumber_le_iff, isRamseyValid_iff_eq] at this
@@ -494,8 +475,7 @@ theorem four_one_part_one [Fintype V] (μ : ℝ) (l k : ℕ) (C : BookConfig χ)
     exact (Finset.mem_filter.mp y.property).2
 
 theorem colDensity_hMul [Fintype V] {k : Fin 2} {A B : Finset V} :
-    colDensity χ k A B * A.card = (∑ x ∈ B, (colNeighbors χ k x ∩ A).card) / B.card :=
-  by
+    colDensity χ k A B * A.card = (∑ x ∈ B, (colNeighbors χ k x ∩ A).card) / B.card := by
   rcases A.eq_empty_or_nonempty with (rfl | hA)
   · rw [colDensity_empty_left]
     simp only [inter_empty, card_empty, Nat.cast_zero, sum_const_zero, zero_div,
@@ -504,8 +484,7 @@ theorem colDensity_hMul [Fintype V] {k : Fin 2} {A B : Finset V} :
   rwa [Nat.cast_ne_zero, ← pos_iff_ne_zero, card_pos]
 
 theorem colDensity_hMul_hMul [Fintype V] {k : Fin 2} {A B : Finset V} :
-    colDensity χ k A B * (A.card * B.card) = ∑ x ∈ B, (colNeighbors χ k x ∩ A).card :=
-  by
+    colDensity χ k A B * (A.card * B.card) = ∑ x ∈ B, (colNeighbors χ k x ∩ A).card := by
   rcases B.eq_empty_or_nonempty with (rfl | hA)
   · simp [colDensity_empty_right]
   rw [← mul_assoc, colDensity_hMul, div_mul_cancel₀]
@@ -515,15 +494,13 @@ theorem colDensity_hMul_hMul [Fintype V] {k : Fin 2} {A B : Finset V} :
 theorem four_one_part_two [Fintype V] (μ : ℝ) {l : ℕ} {C : BookConfig χ} {U : Finset V} (hl : l ≠ 0)
     (hU : U.card = ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊) (hU' : U ⊆ C.X)
     (hU'' : ∀ x ∈ U, μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card) :
-    (μ * C.X.card - U.card) / (C.X.card - U.card) ≤ (blue_density χ) U (C.X \ U) :=
-  by
+    (μ * C.X.card - U.card) / (C.X.card - U.card) ≤ (blue_density χ) U (C.X \ U) := by
   rw [colDensity_eq_sum, Finset.card_sdiff_of_subset hU', ← Nat.cast_sub (card_le_of_subset hU'), ← div_div]
   refine' div_le_div_of_nonneg_right _ (Nat.cast_nonneg _)
   rw [le_div_iff₀]
   have :
       U.card • (μ * C.X.card - U.card) ≤
-        ∑ x ∈ U, (((blue_neighbors χ) x ∩ (C.X \ U)).card : ℝ) :=
-    by
+        ∑ x ∈ U, (((blue_neighbors χ) x ∩ (C.X \ U)).card : ℝ) := by
     rw [← Finset.sum_const]
     refine' sum_le_sum _
     intro x hx
@@ -541,11 +518,9 @@ theorem four_one_part_two [Fintype V] (μ : ℝ) {l : ℕ} {C : BookConfig χ} {
 omit [DecidableEq V] in theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : BookConfig χ} {U : Finset V} (hμ : 0 ≤ μ)
     (hk₆ : 6 ≤ k) (hl : 3 ≤ l) (hU : U.card = ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊)
     (hX : ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ C.X.card) :
-    μ - 2 / k ≤ (μ * C.X.card - U.card) / (C.X.card - U.card) :=
-  by
+    μ - 2 / k ≤ (μ * C.X.card - U.card) / (C.X.card - U.card) := by
   set m : ℕ := ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊
-  have hm₃ : 3 ≤ m :=
-    by
+  have hm₃ : 3 ≤ m := by
     rw [Nat.add_one_le_ceil_iff, Nat.cast_two, div_eq_mul_inv, rpow_mul (Nat.cast_nonneg _), ←
       rpow_lt_rpow_iff, ← rpow_mul, inv_mul_cancel₀ (by norm_num : (3 : ℝ) ≠ 0), rpow_one]
     · norm_cast
@@ -565,8 +540,7 @@ omit [DecidableEq V] in theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : 
   rw [sub_div' hk₀.ne', div_le_div_iff₀ hk₀ this, sub_mul, sub_mul, mul_sub, mul_sub, hU,
     sub_sub, mul_right_comm, sub_le_sub_iff_left]
   suffices (m : ℝ) * (k / 2 * (1 - μ) + 1) ≤ C.X.card by linarith
-  have : (m : ℝ) * (k / 2 * (1 - μ) + 1) ≤ (m : ℝ) * (k / 2 + 1) :=
-    by
+  have : (m : ℝ) * (k / 2 * (1 - μ) + 1) ≤ (m : ℝ) * (k / 2 + 1) := by
     refine' mul_le_mul_of_nonneg_left _ (Nat.cast_nonneg _)
     have hmul : k / 2 * (1 - μ) ≤ k / 2 := by
       refine' mul_le_of_le_one_right (half_pos hk₀).le _
@@ -586,8 +560,7 @@ omit [DecidableEq V] in theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : 
 
 variable [Fintype V] {k l : ℕ} {C : BookConfig χ} {U : Finset V} {μ₀ : ℝ}
 
-theorem ceil_lt_two_hMul {x : ℝ} (hx : 1 / 2 < x) : (⌈x⌉₊ : ℝ) < 2 * x :=
-  by
+theorem ceil_lt_two_hMul {x : ℝ} (hx : 1 / 2 < x) : (⌈x⌉₊ : ℝ) < 2 * x := by
   cases lt_or_ge x 1
   · have : ⌈x⌉₊ = 1 := by
       rw [Nat.ceil_eq_iff]
@@ -600,16 +573,14 @@ theorem ceil_lt_two_hMul {x : ℝ} (hx : 1 / 2 < x) : (⌈x⌉₊ : ℝ) < 2 * x
   · linarith
   · linarith
 
-theorem ceil_le_two_hMul {x : ℝ} (hx : 1 / 2 ≤ x) : (⌈x⌉₊ : ℝ) ≤ 2 * x :=
-  by
+theorem ceil_le_two_hMul {x : ℝ} (hx : 1 / 2 ≤ x) : (⌈x⌉₊ : ℝ) ≤ 2 * x := by
   rcases eq_or_lt_of_le hx with (rfl | hx')
   · norm_num
   exact (ceil_lt_two_mul hx').le
 
 -- l ≥ 4 / μ₀
 theorem mu_div_two_le_sigma (hμ₀ : 0 < μ₀) :
-    ∀ᶠ l : ℕ in atTop, ∀ k, l ≤ k → ∀ μ : ℝ, μ₀ ≤ μ → ∀ σ : ℝ, μ - 2 / k ≤ σ → μ / 2 ≤ σ :=
-  by
+    ∀ᶠ l : ℕ in atTop, ∀ k, l ≤ k → ∀ μ : ℝ, μ₀ ≤ μ → ∀ σ : ℝ, μ - 2 / k ≤ σ → μ / 2 ≤ σ := by
   have t : Filter.Tendsto (coe : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
   filter_upwards [t.eventually_ge_atTop (4 / μ₀)] with l hl k hlk μ hμ σ hσ
   have hk : 4 / μ ≤ k :=
@@ -633,8 +604,7 @@ theorem four_one_part_four (hμ₀ : 0 < μ₀) :
           ∀ μ : ℝ,
             μ₀ ≤ μ →
               ∀ σ : ℝ,
-                μ - 2 / k ≤ σ → (⌈(l : ℝ) ^ (1 / 4 : ℝ)⌉₊ : ℝ) ≤ σ * ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊ / 2 :=
-  by
+                μ - 2 / k ≤ σ → (⌈(l : ℝ) ^ (1 / 4 : ℝ)⌉₊ : ℝ) ≤ σ * ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊ / 2 := by
   have t : Filter.Tendsto (coe : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
   have h3 : (0 : ℝ) < 2 / 3 - 1 / 4 := by norm_num1
   have h4 : (0 : ℝ) < 1 / 4 := by norm_num1
@@ -663,8 +633,7 @@ def commonBlues (χ : TopEdgeLabelling V (Fin 2)) (S : Finset V) : Finset V :=
   univ.filter fun i => ∀ j ∈ S, i ∈ (blue_neighbors χ) j
 
 theorem monochromaticBetween_commonBlues {S : Finset V} :
-    χ.MonochromaticBetween S (commonBlues χ S) 1 :=
-  by
+    χ.MonochromaticBetween S (commonBlues χ S) 1 := by
   intro x hx y hy h
   simp [commonBlues] at hy
   have := hy x hx
@@ -674,13 +643,11 @@ theorem monochromaticBetween_commonBlues {S : Finset V} :
 
 theorem four_one_part_five (χ : TopEdgeLabelling V (Fin 2)) {b : ℕ} {X U : Finset V} :
     ∑ S ∈ powersetCard b U, ((commonBlues χ S ∩ (X \ U)).card : ℝ) =
-      ∑ v ∈ X \ U, ((blue_neighbors χ) v ∩ U).card.choose b :=
-  by
+      ∑ v ∈ X \ U, ((blue_neighbors χ) v ∩ U).card.choose b := by
   have :
     ∀ S,
       ((commonBlues χ S ∩ (X \ U)).card : ℝ) =
-        ∑ v ∈ X \ U, if v ∈ commonBlues χ S then 1 else 0 :=
-    by
+        ∑ v ∈ X \ U, if v ∈ commonBlues χ S then 1 else 0 := by
     intro S
     rw [Finset.sum_boole (R := ℝ) (fun v => v ∈ commonBlues χ S) (X \ U),
       filter_mem_eq_inter, inter_comm]
@@ -707,8 +674,7 @@ theorem four_one_part_five (χ : TopEdgeLabelling V (Fin 2)) {b : ℕ} {X U : Fi
 theorem four_one_part_six (χ : TopEdgeLabelling V (Fin 2)) {m b : ℕ} {X U : Finset V} (σ : ℝ)
     (hU : U.card = m) (hb : b ≠ 0) (hσ' : σ = (blue_density χ) U (X \ U)) :
     myGeneralizedBinomial (σ * ↑m) b * (X \ U).card ≤
-      ∑ v ∈ X \ U, ((blue_neighbors χ) v ∩ U).card.choose b :=
-  by
+      ∑ v ∈ X \ U, ((blue_neighbors χ) v ∩ U).card.choose b := by
   refine' (my_thing _ _ hb).trans' _
   rw [← colDensity_hMul, ← hσ', hU]
 
@@ -717,8 +683,7 @@ theorem four_one_part_seven {V : Type*} [DecidableEq V] {m b : ℕ} {X U : Finse
     (hk : 6 ≤ k) (hm : 3 ≤ m) (hkμ : 4 / μ ≤ k) (hUX : U ⊆ X) (hU : U.card = m)
     (hX : ramseyNumber ![k, m] ≤ X.card) :
     μ ^ b * X.card * m.choose b * (3 / 4) * exp (-4 * b / (μ * k) - b ^ 2 / (σ * m)) ≤
-      myGeneralizedBinomial (σ * ↑m) b * (X \ U).card :=
-  by
+      myGeneralizedBinomial (σ * ↑m) b * (X \ U).card := by
   refine' (mul_le_mul_of_nonneg_right (four_two_left hσ hσ₀ hσ₁) (Nat.cast_nonneg _)).trans' _
   have : 4 * m ≤ X.card := by
     refine' hX.trans' _
@@ -758,8 +723,7 @@ theorem four_one_part_eight {μ : ℝ} {m b : ℕ} {U X : Finset V} (hU : U.card
     (h :
       μ ^ b * X.card / 2 * m.choose b ≤
         ∑ S ∈ powersetCard b U, ((commonBlues χ S ∩ (X \ U)).card : ℝ)) :
-    ∃ (S : _) (_ : S ⊆ U), S.card = b ∧ μ ^ b * X.card / 2 ≤ (commonBlues χ S ∩ (X \ U)).card :=
-  by
+    ∃ (S : _) (_ : S ⊆ U), S.card = b ∧ μ ^ b * X.card / 2 ≤ (commonBlues χ S ∩ (X \ U)).card := by
   have : (powerset_len b U).Nonempty :=
     by
     apply powerset_len_nonempty
@@ -773,8 +737,7 @@ theorem four_one_part_eight {μ : ℝ} {m b : ℕ} {U X : Finset V} (hU : U.card
 
 theorem four_one_part_nine_aux :
     Tendsto (fun l : ℝ => l ^ (-(2 / 3 - 1 / 4 * 2 : ℝ)) + l ^ (-(1 - 1 / 4 : ℝ))) atTop
-      (nhds (0 + 0)) :=
-  by
+      (nhds (0 + 0)) := by
   refine' tendsto.add _ _
   · refine' tendsto_rpow_neg_atTop _
     norm_num
@@ -794,8 +757,7 @@ theorem four_one_part_nine (hμ₀ : 0 < μ₀) :
                 (b : ℝ) ≤ σ * m / 2 →
                   b = ⌈(l : ℝ) ^ (1 / 4 : ℝ)⌉₊ →
                     m = ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊ →
-                      (1 / 2 : ℝ) ≤ 3 / 4 * exp (-4 * b / (μ * k) - b ^ 2 / (σ * m)) :=
-  by
+                      (1 / 2 : ℝ) ≤ 3 / 4 * exp (-4 * b / (μ * k) - b ^ 2 / (σ * m)) := by
   have t : Filter.Tendsto (coe : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
   have ineq : 0 + 0 < log (3 / 2) * μ₀ / (4 * 2) :=
     by
@@ -882,8 +844,7 @@ theorem four_one (hμ₀ : 0 < μ₀) :
                                 χ.MonochromaticOf s 1 ∧
                                   χ.MonochromaticBetween s t 1 ∧
                                     (l : ℝ) ^ (1 / 4 : ℝ) ≤ s.card ∧
-                                      μ ^ s.card * C.X.card / 2 ≤ t.card :=
-  by
+                                      μ ^ s.card * C.X.card / 2 ≤ t.card := by
   have t : Filter.Tendsto (coe : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
   have h23 : (0 : ℝ) < 2 / 3 := by norm_num
   filter_upwards [Filter.eventually_ge_atTop 6, four_one_part_four hμ₀, four_one_part_nine hμ₀,
@@ -959,8 +920,7 @@ theorem four_one' (hμ₀ : 0 < μ₀) :
                       (¬∃ m : Finset (Fin n), χ.MonochromaticOf m 0 ∧ k ≤ m.card) →
                         ∃ s t : Finset (Fin n),
                           (l : ℝ) ^ (1 / 4 : ℝ) ≤ s.card ∧
-                            (s, t) ∈ BookConfig.usefulBlueBooks χ μ C.X :=
-  by
+                            (s, t) ∈ BookConfig.usefulBlueBooks χ μ C.X := by
   filter_upwards [four_one hμ₀] with l hl k hlk μ hμ n χ C h₁ h₂
   obtain ⟨s, t, hs, ht, hst, hs', hst', hscard, htcard⟩ := hl k hlk μ hμ n χ C h₁ h₂
   refine' ⟨s, t, hscard, _⟩
@@ -978,8 +938,7 @@ theorem four_three_aux (hμ₀ : 0 < μ₀) :
                   (¬∃ m : Finset (Fin n), χ.MonochromaticOf m 0 ∧ k ≤ m.card) →
                     ∀ C : BookConfig χ,
                       ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ C.numBigBlues μ →
-                        (l : ℝ) ^ (1 / 4 : ℝ) ≤ (BookConfig.getBook χ μ C.X).1.card :=
-  by
+                         (l : ℝ) ^ (1 / 4 : ℝ) ≤ (BookConfig.getBook χ μ C.X).1.card := by
   filter_upwards [four_one' hμ₀] with l hl k hlk μ hμ n χ hχ C hC
   obtain ⟨s, t, hs, hst⟩ := hl k hlk μ hμ n χ C hC hχ
   refine' hs.trans _
@@ -999,8 +958,7 @@ theorem four_three_aux' (hμ₀ : 0 < μ₀) :
                       ∀ i : ℕ,
                         i ≤ finalStep μ k l init →
                           (l : ℝ) ^ (1 / 4 : ℝ) * (bigBlueSteps μ k l init ∩ range i).card ≤
-                            (algorithm μ k l init i).B.card :=
-  by
+                             (algorithm μ k l init i).B.card := by
   filter_upwards [Filter.eventually_gt_atTop 0, four_three_aux hμ₀] with l hl₀ hl k hlk μ hμ n χ hχ init i
     hi
   induction' i with i ih
@@ -1037,8 +995,7 @@ theorem four_three (hμ₀ : 0 < μ₀) :
                   (¬∃ (m : Finset (Fin n)) (c : Fin 2),
                         χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card) →
                     ∀ init : BookConfig χ,
-                      ((bigBlueSteps μ k l init).card : ℝ) ≤ (l : ℝ) ^ (3 / 4 : ℝ) :=
-  by
+                           ((bigBlueSteps μ k l init).card : ℝ) ≤ (l : ℝ) ^ (3 / 4 : ℝ) := by
   filter_upwards [four_three_aux' hμ₀, Filter.eventually_gt_atTop 0] with l hl hl₀ k hlk μ hμ n χ hχ init
   simp only [Fin.exists_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one,
     exists_or, not_or] at hχ
@@ -1059,8 +1016,7 @@ theorem four_three (hμ₀ : 0 < μ₀) :
 
 theorem four_four_red_aux {μ : ℝ} {k l : ℕ} (ini : BookConfig χ) (i : ℕ)
     (hi : i ≤ finalStep μ k l ini) :
-    (redSteps μ k l ini ∩ range i).card ≤ (algorithm μ k l ini i).A.card :=
-  by
+    (redSteps μ k l ini ∩ range i).card ≤ (algorithm μ k l ini i).A.card := by
   induction' i with i ih
   · rw [range_zero, inter_empty, card_empty]
     simp
@@ -1082,8 +1038,7 @@ theorem four_four_red_aux {μ : ℝ} {k l : ℕ} (ini : BookConfig χ) (i : ℕ)
 theorem four_four_blue_density_aux {μ : ℝ} {k l : ℕ} (hk : k ≠ 0) (hl : l ≠ 0) (ini : BookConfig χ)
     (i : ℕ) (hi : i ≤ finalStep μ k l ini) :
     ((bigBlueSteps μ k l ini ∪ densitySteps μ k l ini) ∩ range i).card ≤
-      (algorithm μ k l ini i).B.card :=
-  by
+      (algorithm μ k l ini i).B.card := by
   induction' i with i ih
   · rw [range_zero, inter_empty, card_empty]
     simp
@@ -1126,8 +1081,7 @@ theorem t_le_a_card (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) :
 -- observation 4.4
 theorem four_four_red (μ : ℝ) {k l : ℕ}
     (h : ¬∃ (m : Finset V) (c : Fin 2), χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card)
-    (ini : BookConfig χ) : (redSteps μ k l ini).card ≤ k :=
-  by
+     (ini : BookConfig χ) : (redSteps μ k l ini).card ≤ k := by
   have hl := t_le_a_card μ k l ini
   simp only [Fin.exists_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one,
     exists_or, not_or, not_exists, not_and, not_le] at h
@@ -1136,8 +1090,7 @@ theorem four_four_red (μ : ℝ) {k l : ℕ}
 -- observation 4.4
 theorem four_four_blue_density (μ : ℝ) {k l : ℕ} (hk : k ≠ 0) (hl : l ≠ 0)
     (h : ¬∃ (m : Finset V) (c : Fin 2), χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card)
-    (ini : BookConfig χ) : (bigBlueSteps μ k l ini).card + (densitySteps μ k l ini).card ≤ l :=
-  by
+     (ini : BookConfig χ) : (bigBlueSteps μ k l ini).card + (densitySteps μ k l ini).card ≤ l := by
   have hl := four_four_blue_density_aux hk hl ini (finalStep μ k l ini) le_rfl
   have :
     (bigBlueSteps μ k l ini ∪ densitySteps μ k l ini) ∩ range (finalStep μ k l ini) =
@@ -1155,8 +1108,7 @@ theorem four_four_blue_density (μ : ℝ) {k l : ℕ} (hk : k ≠ 0) (hl : l ≠
 -- observation 4.4
 theorem four_four_degree (μ : ℝ) {k l : ℕ} (hk : k ≠ 0) (hl : l ≠ 0)
     (h : ¬∃ (m : Finset V) (c : Fin 2), χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card)
-    (ini : BookConfig χ) : (degreeSteps μ k l ini).card ≤ k + l + 1 :=
-  by
+     (ini : BookConfig χ) : (degreeSteps μ k l ini).card ≤ k + l + 1 := by
   refine' num_degreeSteps_le_add.trans _
   rw [add_le_add_iff_right, add_assoc]
   exact add_le_add (four_four_red μ h _) (four_four_blue_density μ hk hl h _)
