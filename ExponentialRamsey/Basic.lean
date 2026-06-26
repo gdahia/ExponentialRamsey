@@ -147,11 +147,9 @@ theorem qFunction_one {k : ℕ} {p₀ : ℝ} : qFunction k p₀ 1 = p₀ + k ^ (
 theorem q_increasing {k h₁ h₂ : ℕ} {p₀ : ℝ} (h : h₁ ≤ h₂) :
     qFunction k p₀ h₁ ≤ qFunction k p₀ h₂ := by
   simp only [qFunction, add_le_add_iff_left]
-  cases k
-  · simp
-  · rw [div_le_div_iff_of_pos_right (by positivity)]
-    exact sub_le_sub_right
-      (pow_le_pow_right₀ (le_add_of_nonneg_right (Real.rpow_nonneg (Nat.cast_nonneg _) _)) h) 1
+  exact div_le_div_of_nonneg_right (sub_le_sub_right (pow_le_pow_right₀
+    (le_add_of_nonneg_right (Real.rpow_nonneg (Nat.cast_nonneg _) _)) h) 1)
+    (Nat.cast_nonneg _)
 
 theorem qFunction_weak_lower {k : ℕ} {p₀ : ℝ} {h : ℕ} :
     p₀ + h * k ^ (-1 / 4 : ℝ) / k ≤ qFunction k p₀ h := by
