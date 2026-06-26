@@ -3,7 +3,7 @@ Copyright (c) 2023 Bhavik Mehta. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bhavik Mehta
 -/
-import Section12
+import ExponentialRamsey.Section12
 
 /-!
 # Summary of main results
@@ -22,7 +22,7 @@ open SimpleGraph.TopEdgeLabelling
 
 /-- Since `fin t` denotes the numbers `{0, ..., t - 1}`, we can think of a function `fin t → ℕ`
 as being a vector in `ℕ^t`, ie `n = (n₀, n₁, ..., nₜ₋₁)`.
-Then `is_ramsey_valid (fin N) n` means that for any labelling `C` of the edges of the complete graph
+Then `IsRamseyValid (Fin N) n` means that for any labelling `C` of the edges of the complete graph
 on `{0, ..., N - 1}`, there is a finite subset `m` of this graph's vertices, and a label `i` such
 that `|m| ≥ nᵢ`, and all edges between vertices in `m` are labelled `i`.
 In the two-colour case discussed in the blogpost, we would have `t = 2`, and `n = (k, l)`.
@@ -30,16 +30,16 @@ In Lean this is denoted by `![k, l]`, as in the examples below.
 -/
 theorem ramsey_valid_iff {t N : ℕ} (n : Fin t → ℕ) :
     IsRamseyValid (Fin N) n =
-      ∀ C : (completeGraph (Fin N)).edgeSetEmbedding → Fin t,
-        ∃ m : Finset (Fin N), ∃ i : Fin t, MonochromaticOf C m i ∧ n i ≤ m.card :=
+      ∀ C : TopEdgeLabelling (Fin N) (Fin t),
+        ∃ m : Finset (Fin N), ∃ i : Fin t, C.MonochromaticOf m i ∧ n i ≤ m.card :=
   rfl
 
 /-- The ramsey number of the vector `n` is then just the infimum of all `N` such that
-`is_ramsey_valid (fin N) n`.
+`IsRamseyValid (Fin N) n`.
 -/
 theorem ramseyNumber_def {t : ℕ} (n : Fin t → ℕ) :
     ramseyNumber n = sInf {N | IsRamseyValid (Fin N) n} :=
-  (Nat.find_eq_iff _).2 ⟨csInf_mem (ramsey_fin_exists n), fun m => Nat.not_mem_of_lt_sInf⟩
+  (Nat.find_eq_iff _).2 ⟨csInf_mem (ramsey_fin_exists n), fun _ => Nat.notMem_of_lt_sInf⟩
 
 -- We've got a definition of Ramsey numbers, let's first make sure it satisfies some of
 -- the obvious properties.
@@ -89,4 +89,3 @@ theorem exponential_ramsey_improvement : ∃ ε > 0, ∀ k, (ramseyNumber ![k, k
   global_bound
 
 end MainResults
-
