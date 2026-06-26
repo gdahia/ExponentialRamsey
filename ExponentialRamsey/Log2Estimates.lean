@@ -10,7 +10,6 @@ import Mathlib.Algebra.Order.GroupWithZero.Unbundled.Basic
 # Estimates on log base 2 of rationals by iterative squaring
 -/
 
-
 noncomputable section
 
 open Real
@@ -54,7 +53,8 @@ theorem log_base2_weaken {x₁ x₂ a₁ a₂ : ℝ} (x₃ x₄ : ℝ) (h : LogB
 
 theorem log_base2_half {x₁ x₂ a₁ a₂ : ℝ} (h : LogBase2Goal (x₁ / 2) (x₂ / 2) (a₁ - 1) (a₂ - 1)) :
     LogBase2Goal x₁ x₂ a₁ a₂ := fun hx₁ hx₂ => by
-  simpa [logb_div_base', hx₁.ne', show (2 : ℝ) ≠ 1 by norm_num, (hx₁.trans_le hx₂).ne'] using
+  have h_two_ne_one : (2 : ℝ) ≠ 1 := by norm_num
+  simpa [logb_div_base', hx₁.ne', h_two_ne_one, (hx₁.trans_le hx₂).ne'] using
     h (half_pos hx₁) (div_le_div_of_nonneg_right hx₂ zero_le_two)
 
 theorem log_base2_scale {x₁ x₂ a₁ a₂ : ℝ} (m : ℤ)
@@ -64,7 +64,7 @@ theorem log_base2_scale {x₁ x₂ a₁ a₂ : ℝ} (m : ℤ)
   have i : 0 < (2 : ℝ) ^ m := zpow_pos zero_lt_two _
   have := h (mul_pos hx₁ i) (mul_le_mul_of_nonneg_right hx₂ i.le)
   simpa [logb_mul hx₁.ne' i.ne', logb_mul (hx₁.trans_le hx₂).ne' i.ne', logb_zpow, logb_base,
-    show (2 : ℝ) ≠ 1 by norm_num] using this
+    (by norm_num : (2 : ℝ) ≠ 1)] using this
 
 theorem log_base2_start {x₁ x₂ a₁ a₂ : ℝ} (hx₁ : 0 < x₁) (hx₂ : x₁ ≤ x₂)
     (h : LogBase2Goal x₁ x₂ a₁ a₂) : a₁ < logb 2 x₁ ∧ logb 2 x₂ < a₂ :=
