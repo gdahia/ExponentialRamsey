@@ -21,10 +21,6 @@ open scoped BigOperators
 
 variable {V K : Type*}
 
-theorem cast_card_sdiff {α R : Type*} [AddGroupWithOne R] [DecidableEq α] {s t : Finset α}
-    (h : s ⊆ t) : ((t \ s).card : R) = t.card - s.card := by
-  rw [card_sdiff_of_subset h, Nat.cast_sub (card_le_card h)]
-
 /-- For `χ` a labelling and vertex sets `X` `Y` and a label `k`, give the edge density of
 `k`-labelled edges between `X` and `Y`. -/
 def colDensity [DecidableEq V] [DecidableEq K] (χ : TopEdgeLabelling V K) (k : K)
