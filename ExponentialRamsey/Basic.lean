@@ -266,7 +266,15 @@ def redStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookConfig χ
     rw [coe_insert, TopEdgeLabelling.monochromaticOf_insert this, and_iff_right C.red_a]
     intro a ha
     exact C.red_XYA (Or.inl (by exact_mod_cast hx)) ha _
-  red_XYA := sorry
+  red_XYA := by
+    intro a ha b hb h
+    push_cast at ha hb
+    obtain ha_left | ha_right := Finset.mem_union.mp (by exact_mod_cast ha) <;>
+      obtain rfl | hb_in := Finset.mem_insert.mp (by exact_mod_cast hb)
+    · exact (mem_colNeighbors'.mp (Finset.mem_inter.mp ha_left).1).choose_spec ▸ rfl
+    · exact C.red_XYA (Or.inl (Finset.mem_inter.mp ha_left).2) hb_in h
+    · exact (mem_colNeighbors'.mp (Finset.mem_inter.mp ha_right).1).choose_spec ▸ rfl
+    · exact C.red_XYA (Or.inr (Finset.mem_inter.mp ha_right).2) hb_in h
   blue_b := C.blue_b
   blue_XB := C.blue_XB.subset_left (Finset.coe_subset.2 inter_subset_right)
 
@@ -565,10 +573,13 @@ theorem get_book_condition {μ : ℝ} {k l : ℕ} {C : BookConfig χ} (hk : k �
   by
   rw [← filter_nonempty_iff, ← card_pos]
   refine' hX.trans_lt' _
-  rw [ramseyNumber_pos]
-  rw [Fin.forall_fin_two]
+  rw [ramseyNumber_pos, Fin.forall_fin_two]
   simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
-  sorry
+  exact ⟨hk, fun h => by
+    have h0 : (l:ℝ) ^ (2/3:ℝ) ≤ 0 := Nat.ceil_eq_zero.mp h
+    have h1 : 0 < (l:ℝ) := Nat.cast_pos.mpr (Nat.pos_of_ne_zero hl)
+    have h2 : 0 < (l:ℝ) ^ (2/3:ℝ) := Real.rpow_pos_of_pos h1 _
+    linarith⟩
 
 end
 
@@ -628,7 +639,25 @@ theorem getCentralVertex_condition {μ : ℝ} {k l : ℕ} (C : BookConfig χ)
     (h : ¬(C.X.card ≤ ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] ∨ C.p ≤ 1 / k))
     (h' : ¬ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ numBigBlues μ C) :
     ∃ x ∈ C.X, ↑((blue_neighbors χ) x ∩ C.X).card ≤ μ * C.X.card := by
-  sorry
+  have h₁ : ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] < C.X.card :=
+    not_le.mp (not_or.mp h).1
+  have h₂ : numBigBlues μ C < ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] :=
+    not_le.mp h'
+  have hrpow : (l : ℝ) ^ (2 / 3 : ℝ) ≤ (l : ℝ) ^ (3 / 4 : ℝ) := by
+    by_cases hl : 1 ≤ l
+    · exact Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast hl) (by norm_num)
+    · push_neg at hl; interval_cases l <;> norm_num
+  have hceil : ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊ ≤ ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊ :=
+    Nat.ceil_le.2 (hrpow.trans (Nat.le_ceil _))
+  have hle : numBigBlues μ C < C.X.card :=
+    h₂.trans_le ((ramseyNumber.mono_two le_rfl hceil).trans h₁.le)
+  by_contra hall
+  push_neg at hall
+  have key : (C.X.filter fun x => μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card) = C.X :=
+    Finset.filter_true_of_mem (fun x hx => le_of_lt (hall x hx))
+  have : C.X.card ≤ numBigBlues μ C := by
+    rw [numBigBlues, key]
+  omega
 
 end
 
