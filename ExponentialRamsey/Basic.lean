@@ -684,44 +684,44 @@ theorem algorithmOption_x_weak_bound {i : ℕ} (C : BookConfig χ) (hk : k ≠ 0
     (hC : algorithmOption μ k l ini i = some C) : C.X.card + i / 2 ≤ ini.X.card := by
   induction i generalizing C with
   | zero =>
-      simp [algorithmOption] at hC
-      subst C
-      simp
+    simp [algorithmOption] at hC
+    subst C
+    simp
   | succ i ih =>
-      obtain ⟨C', hC'⟩ := algorithmOption_is_some_of ⟨C, hC⟩
-      unfold algorithmOption at hC
-      rw [hC'] at hC
-      simp only at hC
-      split_ifs at hC with hstop heven hbig hred
-      · injection hC with hC; subst C
-        have : (C'.degreeRegularisationStep k ini.p).X.card ≤ C'.X.card :=
-          card_le_card BookConfig.degreeRegularisationStep_x_subset
-        grind
-      · injection hC with hC; subst C
-        have : (C'.bigBlueStep μ).X.card + 1 ≤ C'.X.card := by
-          rw [BookConfig.bigBlueStep_x]
-          exact BookConfig.getBook_snd_card_le_X (BookConfig.get_book_condition hk hl hbig)
-        grind
-      · injection hC with hC; subst C
-        let x := C'.getCentralVertex μ (C'.getCentralVertex_condition hstop hbig)
-        have hx : x ∈ C'.X := BookConfig.getCentralVertex_mem_x _ _ _
-        have : ((red_neighbors χ) x ∩ C'.X).card < C'.X.card := by
-          refine card_lt_card ?_
-          exact (ssubset_iff_of_subset inter_subset_right).2
-            ⟨_, hx, by simp [not_mem_colNeighbors]⟩
-        have : (C'.redStepBasic x hx).X.card + 1 ≤ C'.X.card := by
-          rw [BookConfig.redStepBasic_x]; grind
-        grind
-      · injection hC with hC; subst C
-        let x := C'.getCentralVertex μ (C'.getCentralVertex_condition hstop hbig)
-        have hx : x ∈ C'.X := BookConfig.getCentralVertex_mem_x _ _ _
-        have : ((blue_neighbors χ) x ∩ C'.X).card < C'.X.card := by
-          refine card_lt_card ?_
-          exact (ssubset_iff_of_subset inter_subset_right).2
-            ⟨_, hx, by simp [not_mem_colNeighbors]⟩
-        have : (C'.densityBoostStepBasic x hx).X.card + 1 ≤ C'.X.card := by
-          rw [BookConfig.densityBoostStepBasic_x]; grind
-        grind
+    obtain ⟨C', hC'⟩ := algorithmOption_is_some_of ⟨C, hC⟩
+    unfold algorithmOption at hC
+    rw [hC'] at hC
+    simp only at hC
+    split_ifs at hC with hstop heven hbig hred
+    · injection hC with hC; subst C
+      have : (C'.degreeRegularisationStep k ini.p).X.card ≤ C'.X.card :=
+        card_le_card BookConfig.degreeRegularisationStep_x_subset
+      grind
+    · injection hC with hC; subst C
+      have : (C'.bigBlueStep μ).X.card + 1 ≤ C'.X.card := by
+        rw [BookConfig.bigBlueStep_x]
+        exact BookConfig.getBook_snd_card_le_X (BookConfig.get_book_condition hk hl hbig)
+      grind
+    · injection hC with hC; subst C
+      let x := C'.getCentralVertex μ (C'.getCentralVertex_condition hstop hbig)
+      have hx : x ∈ C'.X := BookConfig.getCentralVertex_mem_x _ _ _
+      have : ((red_neighbors χ) x ∩ C'.X).card < C'.X.card := by
+        refine card_lt_card ?_
+        exact (ssubset_iff_of_subset inter_subset_right).2
+          ⟨_, hx, by simp [not_mem_colNeighbors]⟩
+      have : (C'.redStepBasic x hx).X.card + 1 ≤ C'.X.card := by
+        rw [BookConfig.redStepBasic_x]; grind
+      grind
+    · injection hC with hC; subst C
+      let x := C'.getCentralVertex μ (C'.getCentralVertex_condition hstop hbig)
+      have hx : x ∈ C'.X := BookConfig.getCentralVertex_mem_x _ _ _
+      have : ((blue_neighbors χ) x ∩ C'.X).card < C'.X.card := by
+        refine card_lt_card ?_
+        exact (ssubset_iff_of_subset inter_subset_right).2
+          ⟨_, hx, by simp [not_mem_colNeighbors]⟩
+      have : (C'.densityBoostStepBasic x hx).X.card + 1 ≤ C'.X.card := by
+        rw [BookConfig.densityBoostStepBasic_x]; grind
+      grind
 
 theorem algorithmOption_terminates (μ : ℝ) (ini : BookConfig χ) (hk : k ≠ 0) (hl : l ≠ 0) :
     ∃ i, algorithmOption μ k l ini (i + 1) = none := by
