@@ -11,56 +11,6 @@ import Mathlib.Algebra.Order.Floor.Semifield
 # Section 4
 -/
 
-def tendsto {α β : Type*} (f : α → β) (l₁ : Filter α) (l₂ : Filter β) : Prop :=
-  Filter.Tendsto f l₁ l₂
-
-abbrev at_top {α : Type*} [Preorder α] : Filter α :=
-  Filter.atTop
-
-abbrev coe : ℕ → ℝ :=
-  Nat.cast
-
-theorem tendsto_nat_cast_atTop_atTop : Filter.Tendsto (coe : ℕ → ℝ) Filter.atTop Filter.atTop :=
-  by simpa [coe] using (tendsto_natCast_atTop_atTop : Filter.Tendsto (Nat.cast : ℕ → ℝ) Filter.atTop Filter.atTop)
-
-namespace tendsto
-
-theorem add {α : Type*} {l : Filter α} {f g : α → ℝ} {a b : ℝ}
-    (hf : tendsto f l (nhds a)) (hg : tendsto g l (nhds b)) :
-    tendsto (fun x => f x + g x) l (nhds (a + b)) :=
-  Filter.Tendsto.add hf hg
-
-end tendsto
-
-theorem eventually_gt_at_top {α : Type*} [Preorder α] [NoTopOrder α] (a : α) :
-    ∀ᶠ x in Filter.atTop, a < x :=
-  Filter.eventually_gt_atTop a
-
-theorem eventually_ge_at_top {α : Type*} [Preorder α] (a : α) :
-    ∀ᶠ x in Filter.atTop, a ≤ x :=
-  Filter.eventually_ge_atTop a
-
-theorem eventually_le_of_tendsto_lt {α : Type*} {l : Filter α} {f : α → ℝ} {a b : ℝ}
-    (h : a < b) (hf : Filter.Tendsto f l (nhds a)) : ∀ᶠ x in l, f x ≤ b :=
-  hf.eventually_le_const h
-
-theorem ceil_lt_two_mul {x : ℝ} (hx : 1 / 2 < x) : (⌈x⌉₊ : ℝ) < 2 * x :=
-  Nat.ceil_lt_two_mul (by simpa [one_div] using hx)
-
-theorem bit0_eq_two_mul {α : Type*} [NonAssocSemiring α] (x : α) : x + x = 2 * x :=
-  (two_mul x).symm
-
-theorem div_le_div_of_le_left {a b c : ℝ} (hc : 0 ≤ c) (ha : 0 < a) (h : a ≤ b) :
-    c / b ≤ c / a :=
-  div_le_div_of_nonneg_left hc ha h
-
-theorem card_le_of_subset {α : Type*} {s t : Finset α} (h : s ⊆ t) : s.card ≤ t.card :=
-  Finset.card_le_card h
-
-theorem rpow_nat_cast (x : ℝ) (n : ℕ) : x ^ (n : ℝ) = x ^ n :=
-  Real.rpow_natCast x n
-
-
 theorem ConvexOn.hMul {f g : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) (hg : ConvexOn ℝ s g)
     (hf' : MonotoneOn f s) (hg' : MonotoneOn g s) (hf'' : ∀ x ∈ s, 0 ≤ f x)
     (hg'' : ∀ x ∈ s, 0 ≤ g x) : ConvexOn ℝ s fun x => f x * g x := by
@@ -146,8 +96,7 @@ theorem descFactorial_nat (n : ℕ) : ∀ k : ℕ, descFactorial n k = n.descFac
 
 theorem descFactorial_cast_nat (n : ℕ) : ∀ k : ℕ, descFactorial (n : ℝ) k = n.descFactorial k
   | 0 => by simp [descFactorial]
-  | k + 1 =>
-    by
+  | k + 1 => by
     rw [descFactorial, Nat.descFactorial_succ, descFactorial_cast_nat, Nat.cast_mul]
     cases lt_or_ge n k with
     | inl h => rw [Nat.descFactorial_of_lt h, Nat.cast_zero, MulZeroClass.mul_zero, MulZeroClass.mul_zero]
@@ -266,25 +215,6 @@ theorem myGeneralizedBinomial_convex {k : ℕ} (hk : k ≠ 0) :
   (myDescFactorial_convex hk).smul (by positivity)
 
 open scoped BigOperators ExponentialRamsey
-
-abbrev powerset_len {α : Type*} [DecidableEq α] (n : ℕ) (s : Finset α) : Finset (Finset α) :=
-  Finset.powersetCard n s
-
-theorem mem_powerset_len {α : Type*} [DecidableEq α] {n : ℕ} {s t : Finset α} :
-    s ∈ powerset_len n t ↔ s ⊆ t ∧ s.card = n :=
-  Finset.mem_powersetCard
-
-theorem card_powerset_len {α : Type*} [DecidableEq α] (n : ℕ) (s : Finset α) :
-    (powerset_len n s).card = s.card.choose n :=
-  Finset.card_powersetCard n s
-
-theorem powerset_len_nonempty {α : Type*} [DecidableEq α] {n : ℕ} {s : Finset α}
-    (h : n ≤ s.card) : (powerset_len n s).Nonempty :=
-  Finset.powersetCard_nonempty.2 h
-
-theorem cast_card_sdiff {α : Type*} [DecidableEq α] {s t : Finset α} (h : s ⊆ t) :
-    ((t \ s).card : ℝ) = t.card - s.card := by
-  rw [Finset.card_sdiff_of_subset h, Nat.cast_sub (card_le_of_subset h)]
 
 theorem my_thing {α : Type*} {s : Finset α} (f : α → ℕ) (b : ℕ) (hb : b ≠ 0) :
     myGeneralizedBinomial ((∑ i ∈ s, f i) / s.card) b * s.card ≤ ∑ i ∈ s, (f i).choose b := by
@@ -495,7 +425,7 @@ theorem four_one_part_two [Fintype V] (μ : ℝ) {l : ℕ} {C : BookConfig χ} {
     (hU : U.card = ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊) (hU' : U ⊆ C.X)
     (hU'' : ∀ x ∈ U, μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card) :
     (μ * C.X.card - U.card) / (C.X.card - U.card) ≤ (blue_density χ) U (C.X \ U) := by
-  rw [colDensity_eq_sum, Finset.card_sdiff_of_subset hU', ← Nat.cast_sub (card_le_of_subset hU'), ← div_div]
+  rw [colDensity_eq_sum, Finset.card_sdiff_of_subset hU', ← Nat.cast_sub (Finset.card_le_card hU'), ← div_div]
   refine' div_le_div_of_nonneg_right _ (Nat.cast_nonneg _)
   rw [le_div_iff₀]
   have :
@@ -576,20 +506,19 @@ theorem ceil_lt_two_hMul {x : ℝ} (hx : 1 / 2 < x) : (⌈x⌉₊ : ℝ) < 2 * x
 theorem ceil_le_two_hMul {x : ℝ} (hx : 1 / 2 ≤ x) : (⌈x⌉₊ : ℝ) ≤ 2 * x := by
   rcases eq_or_lt_of_le hx with (rfl | hx')
   · norm_num
-  exact (ceil_lt_two_mul hx').le
+  exact (Nat.ceil_lt_two_mul (by simpa [one_div] using hx')).le
 
 -- l ≥ 4 / μ₀
 theorem mu_div_two_le_sigma (hμ₀ : 0 < μ₀) :
     ∀ᶠ l : ℕ in atTop, ∀ k, l ≤ k → ∀ μ : ℝ, μ₀ ≤ μ → ∀ σ : ℝ, μ - 2 / k ≤ σ → μ / 2 ≤ σ := by
-  have t : Filter.Tendsto (coe : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
+  have t : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   filter_upwards [t.eventually_ge_atTop (4 / μ₀)] with l hl k hlk μ hμ σ hσ
-  have hk : 4 / μ ≤ k :=
-    by
-    refine' (div_le_div_of_le_left (by norm_num1) hμ₀ hμ).trans (hl.trans _)
+  have hk : 4 / μ ≤ k := by
+    refine' (div_le_div_of_nonneg_left (by norm_num1) hμ₀ hμ).trans (hl.trans _)
     rwa [Nat.cast_le]
   refine' hσ.trans' _
   rw [le_sub_comm, sub_half]
-  refine' (div_le_div_of_le_left (by norm_num1) _ hk).trans _
+  refine' (div_le_div_of_nonneg_left (by norm_num1) _ hk).trans _
   · exact div_pos (by norm_num1) (hμ₀.trans_le hμ)
   field_simp [(hμ₀.trans_le hμ).ne']
   nlinarith
@@ -605,7 +534,7 @@ theorem four_one_part_four (hμ₀ : 0 < μ₀) :
             μ₀ ≤ μ →
               ∀ σ : ℝ,
                 μ - 2 / k ≤ σ → (⌈(l : ℝ) ^ (1 / 4 : ℝ)⌉₊ : ℝ) ≤ σ * ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊ / 2 := by
-  have t : Filter.Tendsto (coe : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
+  have t : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have h3 : (0 : ℝ) < 2 / 3 - 1 / 4 := by norm_num1
   have h4 : (0 : ℝ) < 1 / 4 := by norm_num1
   filter_upwards [((tendsto_rpow_atTop h4).comp t).eventually_ge_atTop (1 / 2),
@@ -615,7 +544,7 @@ theorem four_one_part_four (hμ₀ : 0 < μ₀) :
   dsimp at hl hl''
   rw [mul_div_assoc]
   refine' (mul_le_mul_of_nonneg_right hl' (by positivity)).trans' _
-  rw [div_mul_div_comm, ← bit0_eq_two_mul]
+  rw [div_mul_div_comm, two_mul]
   refine' (ceil_le_two_hMul hl).trans _
   rw [le_div_iff₀ (by norm_num : (0 : ℝ) < 2 + 2), mul_comm μ,
     ← div_le_iff₀ (hμ₀.trans_le hμ)]
@@ -625,7 +554,7 @@ theorem four_one_part_four (hμ₀ : 0 < μ₀) :
         (4 * 2 / μ) * (l : ℝ) ^ (1 / 4 : ℝ) := by
     ring
   rw [hmul, ← le_div_iff₀ (Real.rpow_pos_of_pos (by exact_mod_cast hl₀) _), ← rpow_sub]
-  · exact hl''.trans' (div_le_div_of_le_left (by norm_num1) hμ₀ hμ)
+  · exact hl''.trans' (div_le_div_of_nonneg_left (by norm_num1) hμ₀ hμ)
   · rwa [Nat.cast_pos]
 
 /-- the set of vertices which are connected to S by only blue edges -/
@@ -660,7 +589,7 @@ theorem four_one_part_five (χ : TopEdgeLabelling V (Fin 2)) {b : ℕ} {X U : Fi
     ∑ v ∈ X \ U, (((blue_neighbors χ) v ∩ U).card.choose b : ℝ)
   refine' Finset.sum_congr rfl (fun v hv => ?_)
   rw [Finset.sum_boole (R := ℝ) (fun S => v ∈ commonBlues χ S) (powersetCard b U),
-    ← card_powerset_len]
+    ← Finset.card_powersetCard]
   congr 2
   ext S
   simp [commonBlues, subset_iff, mem_colNeighbors_comm, and_assoc, and_comm]
@@ -691,18 +620,16 @@ theorem four_one_part_seven {V : Type*} [DecidableEq V] {m b : ℕ} {X U : Finse
     rw [ramseyNumber_pair_swap]
     refine' (hMul_sub_two_le_ramseyNumber hm).trans_eq' _
     rw [mul_comm]
-  have h₁ : 3 / 4 * (X.card : ℝ) ≤ (X \ U).card :=
-    by
+  have h₁ : 3 / 4 * (X.card : ℝ) ≤ (X \ U).card := by
     have this' : (4 : ℝ) * m ≤ X.card := by exact_mod_cast this
-    rw [cast_card_sdiff hUX, hU]
+    rw [Finset.card_sdiff_of_subset hUX, Nat.cast_sub (Finset.card_le_card hUX), hU]
     linarith only [this']
   have : μ * (1 - 2 / (μ * k)) ≤ σ := by
     rwa [mul_one_sub, mul_div_assoc', mul_div_mul_left _ _ hμ₀.ne']
-  have h₂ : μ * exp (-4 / (μ * k)) ≤ σ :=
-    by
+  have h₂ : μ * exp (-4 / (μ * k)) ≤ σ := by
     refine' this.trans' (mul_le_mul_of_nonneg_left _ hμ₀.le)
     refine' (exp_thing (by positivity) _).trans_eq' _
-    · rw [← div_div, div_le_div_iff₀, one_mul, div_mul_eq_mul_div, ← bit0_eq_two_mul]
+    · rw [← div_div, div_le_div_iff₀, one_mul, div_mul_eq_mul_div, two_mul]
       · simpa [show (2 + 2 : ℝ) = 4 by norm_num] using hkμ
       · rw [Nat.cast_pos]
         exact hk.trans_lt' (by norm_num1)
@@ -716,7 +643,7 @@ theorem four_one_part_seven {V : Type*} [DecidableEq V] {m b : ℕ} {X U : Finse
     mul_comm (X.card : ℝ)]
   refine' mul_le_mul h₁ _ (by positivity) (Nat.cast_nonneg _)
   refine' (pow_le_pow_left₀ (by positivity) h₂ _).trans' _
-  rw [mul_pow, ← rpow_nat_cast (exp _), ← exp_mul, div_mul_eq_mul_div]
+  rw [mul_pow, ← Real.rpow_natCast (exp _), ← exp_mul, div_mul_eq_mul_div]
 
 /- ./././Mathport/Syntax/Translate/Basic.lean:641:2: warning: expanding binder collection (S «expr ⊆ » U) -/
 theorem four_one_part_eight {μ : ℝ} {m b : ℕ} {U X : Finset V} (hU : U.card = m) (hbm : b ≤ m)
@@ -724,21 +651,19 @@ theorem four_one_part_eight {μ : ℝ} {m b : ℕ} {U X : Finset V} (hU : U.card
       μ ^ b * X.card / 2 * m.choose b ≤
         ∑ S ∈ powersetCard b U, ((commonBlues χ S ∩ (X \ U)).card : ℝ)) :
     ∃ (S : _) (_ : S ⊆ U), S.card = b ∧ μ ^ b * X.card / 2 ≤ (commonBlues χ S ∩ (X \ U)).card := by
-  have : (powerset_len b U).Nonempty :=
-    by
-    apply powerset_len_nonempty
-    rwa [hU]
+  have : (Finset.powersetCard b U).Nonempty :=
+    Finset.powersetCard_nonempty.2 (by rwa [hU])
   have h' :
-    ∑ i ∈ powerset_len b U, μ ^ b * X.card / 2 ≤ μ ^ b * X.card / 2 * m.choose b := by
-    rw [sum_const, card_powerset_len, hU, nsmul_eq_mul, mul_comm]
+    ∑ i ∈ Finset.powersetCard b U, μ ^ b * X.card / 2 ≤ μ ^ b * X.card / 2 * m.choose b := by
+    rw [sum_const, Finset.card_powersetCard, hU, nsmul_eq_mul, mul_comm]
   obtain ⟨S, hS, hS'⟩ := exists_le_of_sum_le this (h.trans' h')
-  rw [mem_powerset_len] at hS
+  rw [Finset.mem_powersetCard] at hS
   exact ⟨S, hS.1, hS.2, hS'⟩
 
 theorem four_one_part_nine_aux :
     Tendsto (fun l : ℝ => l ^ (-(2 / 3 - 1 / 4 * 2 : ℝ)) + l ^ (-(1 - 1 / 4 : ℝ))) atTop
       (nhds (0 + 0)) := by
-  refine' tendsto.add _ _
+  refine' Filter.Tendsto.add _ _
   · refine' tendsto_rpow_neg_atTop _
     norm_num
   · refine' tendsto_rpow_neg_atTop _
@@ -758,14 +683,13 @@ theorem four_one_part_nine (hμ₀ : 0 < μ₀) :
                   b = ⌈(l : ℝ) ^ (1 / 4 : ℝ)⌉₊ →
                     m = ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊ →
                       (1 / 2 : ℝ) ≤ 3 / 4 * exp (-4 * b / (μ * k) - b ^ 2 / (σ * m)) := by
-  have t : Filter.Tendsto (coe : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
-  have ineq : 0 + 0 < log (3 / 2) * μ₀ / (4 * 2) :=
-    by
+  have t : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
+  have ineq : 0 + 0 < log (3 / 2) * μ₀ / (4 * 2) := by
     rw [add_zero]
     refine' div_pos (mul_pos _ hμ₀) (by norm_num1)
     refine' log_pos _
     norm_num
-  have := eventually_le_of_tendsto_lt ineq four_one_part_nine_aux
+  have := four_one_part_nine_aux.eventually_le_const ineq
   have h4 : (0 : ℝ) < 1 / 4 := by norm_num1
   filter_upwards [((tendsto_rpow_atTop h4).comp t).eventually_ge_atTop (1 / 2),
     mu_div_two_le_sigma hμ₀, t.eventually_gt_atTop 0, Filter.eventually_gt_atTop 0,
@@ -781,8 +705,7 @@ theorem four_one_part_nine (hμ₀ : 0 < μ₀) :
     positivity
   rw [neg_mul, neg_div, neg_sub_left, le_neg, ← log_inv, inv_div]
   have hμ' : 0 < μ := hμ₀.trans_le hμ
-  have hfirst : (b : ℝ) ^ 2 / (σ * m) ≤ b ^ 2 / m * (2 / μ) :=
-    by
+  have hfirst : (b : ℝ) ^ 2 / (σ * m) ≤ b ^ 2 / m * (2 / μ) := by
     rw [mul_comm, ← div_div, div_eq_mul_inv _ σ]
     refine' mul_le_mul_of_nonneg_left _ (by positivity)
     have hσpos : 0 < σ := (div_pos hμ' (by norm_num : (0 : ℝ) < 2)).trans_le hσbound
@@ -792,8 +715,7 @@ theorem four_one_part_nine (hμ₀ : 0 < μ₀) :
   refine' (add_le_add_left hfirst _).trans _
   have h' := ceil_le_two_hMul hl
   dsimp at h'
-  have : (b ^ 2 : ℝ) / m ≤ 4 * l ^ (-(2 / 3 - (1 / 4 : ℝ) * 2)) :=
-    by
+  have : (b ^ 2 : ℝ) / m ≤ 4 * l ^ (-(2 / 3 - (1 / 4 : ℝ) * 2)) := by
     rw [neg_sub, rpow_sub hl'', rpow_mul (Nat.cast_nonneg _), rpow_two, mul_div_assoc']
     gcongr
     · rw [hb]
@@ -804,16 +726,14 @@ theorem four_one_part_nine (hμ₀ : 0 < μ₀) :
     rw [hm]
     exact Nat.le_ceil _
   refine' (add_le_add_left (mul_le_mul_of_nonneg_right this (by positivity)) _).trans _
-  have : (4 : ℝ) * b / (μ * k) ≤ l ^ (-(1 - (1 / 4 : ℝ))) * (4 * 2 / μ) :=
-    by
+  have : (4 : ℝ) * b / (μ * k) ≤ l ^ (-(1 - (1 / 4 : ℝ))) * (4 * 2 / μ) := by
     rw [neg_sub, rpow_sub hl'', rpow_one, div_mul_div_comm, mul_comm _ (_ * _ : ℝ), mul_assoc,
       mul_comm μ, hb]
     gcongr
-    rwa [Nat.cast_le]
   refine' (add_le_add_right this _).trans _
   rw [mul_comm (4 : ℝ), mul_assoc, mul_div_assoc', ← add_mul]
   have hfactor : 4 * 2 / μ ≤ 4 * 2 / μ₀ :=
-    div_le_div_of_le_left (by norm_num : (0 : ℝ) ≤ 4 * 2) hμ₀ hμ
+    div_le_div_of_nonneg_left (by norm_num : (0 : ℝ) ≤ 4 * 2) hμ₀ hμ
   have hlog_nonneg : 0 ≤ log (3 / 2) := (log_pos (by norm_num)).le
   calc
     (↑l ^ (-(2 / 3 - 1 / 4 * 2)) + ↑l ^ (-(1 - 1 / 4))) * (4 * 2 / μ)
@@ -845,7 +765,7 @@ theorem four_one (hμ₀ : 0 < μ₀) :
                                   χ.MonochromaticBetween s t 1 ∧
                                     (l : ℝ) ^ (1 / 4 : ℝ) ≤ s.card ∧
                                       μ ^ s.card * C.X.card / 2 ≤ t.card := by
-  have t : Filter.Tendsto (coe : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
+  have t : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have h23 : (0 : ℝ) < 2 / 3 := by norm_num
   filter_upwards [Filter.eventually_ge_atTop 6, four_one_part_four hμ₀, four_one_part_nine hμ₀,
     mu_div_two_le_sigma hμ₀, t.eventually_ge_atTop (4 / μ₀),
@@ -857,7 +777,7 @@ theorem four_one (hμ₀ : 0 < μ₀) :
   have hm : 3 ≤ m := by
     rw [Nat.add_one_le_ceil_iff, Nat.cast_two]
     exact hl₆
-  have hC' : ramseyNumber ![k, m] ≤ C.X.card := hC.trans (card_le_of_subset (filter_subset _ _))
+  have hC' : ramseyNumber ![k, m] ≤ C.X.card := hC.trans (Finset.card_le_card (filter_subset _ _))
   let σ := (blue_density χ) U (C.X \ U)
   have hμ' : 0 < μ := hμ₀.trans_le hμ
   have h11 : μ - 2 / k ≤ σ :=
@@ -873,9 +793,8 @@ theorem four_one (hμ₀ : 0 < μ₀) :
     linarith only [hl]
   specialize hl₃ k hlk μ σ b m hμ h11 hl' rfl rfl
   have : μ / 2 ≤ σ := hl₄ k hlk μ hμ σ h11
-  have hk : 4 / μ ≤ k :=
-    by
-    refine' ((div_le_div_of_le_left (by norm_num1) hμ₀ hμ).trans hl₅).trans _
+  have hk : 4 / μ ≤ k := by
+    refine' ((div_le_div_of_nonneg_left (by norm_num1) hμ₀ hμ).trans hl₅).trans _
     rwa [Nat.cast_le]
   have hσ₀ : 0 < σ := this.trans_lt' (by positivity)
   have hσ₁ : σ ≤ 1 := by
@@ -883,8 +802,7 @@ theorem four_one (hμ₀ : 0 < μ₀) :
     exact colDensity_le_one
   have h₁ :
     μ ^ b * C.X.card / 2 * m.choose b ≤
-      ∑ S ∈ powerset_len b U, ((commonBlues χ S ∩ (C.X \ U)).card : ℝ) :=
-    by
+      ∑ S ∈ Finset.powersetCard b U, ((commonBlues χ S ∩ (C.X \ U)).card : ℝ) := by
     rw [four_one_part_five χ]
     refine' (four_one_part_six χ σ Usize hb rfl).trans' _
     refine' (four_one_part_seven hl' hσ₀ hσ₁ hμ' h11 (hl.trans hlk) hm hk UX Usize hC').trans' _
@@ -972,7 +890,7 @@ theorem four_three_aux' (hμ₀ : 0 < μ₀) :
   · rw [Finset.inter_insert_of_notMem hstep]
     refine' ih.trans _
     rw [Nat.cast_le]
-    exact card_le_of_subset (b_subset hi)
+    exact Finset.card_le_card (b_subset hi)
   rw [Finset.inter_insert_of_mem hstep, card_insert_of_notMem]
   swap
   · simp
@@ -1001,8 +919,7 @@ theorem four_three (hμ₀ : 0 < μ₀) :
     exists_or, not_or] at hχ
   obtain ⟨hχr, hχb⟩ := hχ
   specialize hl k hlk μ hμ n χ hχr init (finalStep μ k l init) le_rfl
-  have : bigBlueSteps μ k l init ∩ range (finalStep μ k l init) = bigBlueSteps μ k l init :=
-    by
+  have : bigBlueSteps μ k l init ∩ range (finalStep μ k l init) = bigBlueSteps μ k l init := by
     rw [Finset.inter_eq_left, bigBlueSteps]
     exact filter_subset _ _
   rw [this] at hl
@@ -1027,7 +944,7 @@ theorem four_four_red_aux {μ : ℝ} {k l : ℕ} (ini : BookConfig χ) (i : ℕ)
   swap
   · rw [Finset.inter_insert_of_notMem hstep]
     refine' ih.trans _
-    exact card_le_of_subset (a_subset hi)
+    exact Finset.card_le_card (a_subset hi)
   rw [Finset.inter_insert_of_mem hstep, card_insert_of_notMem]
   swap
   · simp
@@ -1048,7 +965,7 @@ theorem four_four_blue_density_aux {μ : ℝ} {k l : ℕ} (hk : k ≠ 0) (hl : l
   by_cases hstep : i ∈ bigBlueSteps μ k l ini ∪ densitySteps μ k l ini
   swap
   · rw [Finset.inter_insert_of_notMem hstep]
-    exact ih.trans (card_le_of_subset (b_subset hi))
+    exact ih.trans (Finset.card_le_card (b_subset hi))
   rw [Finset.inter_insert_of_mem hstep, card_insert_of_notMem]
   swap
   · simp
@@ -1069,11 +986,9 @@ theorem four_four_blue_density_aux {μ : ℝ} {k l : ℕ} (hk : k ≠ 0) (hl : l
     exact BookConfig.getCentralVertex_mem_x _ _ _
 
 theorem t_le_a_card (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) :
-    (redSteps μ k l ini).card ≤ (endState μ k l ini).A.card :=
-  by
+    (redSteps μ k l ini).card ≤ (endState μ k l ini).A.card := by
   have hl := four_four_red_aux ini (finalStep μ k l ini) le_rfl
-  have : redSteps μ k l ini ∩ range (finalStep μ k l ini) = redSteps μ k l ini :=
-    by
+  have : redSteps μ k l ini ∩ range (finalStep μ k l ini) = redSteps μ k l ini := by
     rw [Finset.inter_eq_left]
     exact redSteps_subset_redOrDensitySteps.trans (filter_subset _ _)
   rwa [this] at hl
@@ -1094,8 +1009,7 @@ theorem four_four_blue_density (μ : ℝ) {k l : ℕ} (hk : k ≠ 0) (hl : l ≠
   have hl := four_four_blue_density_aux hk hl ini (finalStep μ k l ini) le_rfl
   have :
     (bigBlueSteps μ k l ini ∪ densitySteps μ k l ini) ∩ range (finalStep μ k l ini) =
-      bigBlueSteps μ k l ini ∪ densitySteps μ k l ini :=
-    by
+      bigBlueSteps μ k l ini ∪ densitySteps μ k l ini := by
     rw [Finset.inter_eq_left, union_subset_iff]
     exact ⟨filter_subset _ _, densitySteps_subset_redOrDensitySteps.trans (filter_subset _ _)⟩
   rw [← card_union_of_disjoint, ← this]
