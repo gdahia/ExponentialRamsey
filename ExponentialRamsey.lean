@@ -25,7 +25,7 @@ import ExponentialRamsey.Prereq.Mathlib.NumberTheory.LegendreSymbol.QuadraticCha
 import ExponentialRamsey.Prereq.Ramsey
 import ExponentialRamsey.Prereq.RamseyPrereq
 import ExponentialRamsey.Prereq.RamseySmall
--- import ExponentialRamsey.Section4
+import ExponentialRamsey.Section4
 -- import ExponentialRamsey.Section5
 -- import ExponentialRamsey.Section6
 -- import ExponentialRamsey.Section7
