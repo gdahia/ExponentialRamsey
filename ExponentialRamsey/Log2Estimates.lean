@@ -69,3 +69,18 @@ theorem log_base2_end {x₁ x₂ a₁ a₂ : ℝ} (hx₁ : 1 < x₁) (hx₂ : x�
   refine' ⟨ha₁.trans_lt (div_pos (log_pos hx₁) (log_pos one_lt_two)), lt_of_lt_of_le _ ha₂⟩
   rw [logb, div_lt_one (log_pos one_lt_two)]
   exact log_lt_log ((zero_le_one.trans_lt hx₁).trans_le h) hx₂
+
+-- TODO: either temporarily restore `weaken` macro, or create a log library under b-mehta somewhere
+-- namespace Tactic
+--
+-- namespace Interactive
+--
+-- /- ./././Mathport/Syntax/Translate/Tactic/Mathlib/Core.lean:38:34: unsupported: setup_tactic_parser -/
+-- /- ./././Mathport/Syntax/Translate/Expr.lean:337:4: warning: unsupported (TODO): `[tacs] -/
+-- /-- a quick macro to simplify log2 estimate proofs -/
+-- unsafe def weaken (t u : parse parser.pexpr) : tactic Unit :=
+--   sorry
+--
+-- end Interactive
+--
+-- end Tactic
