@@ -3,12 +3,11 @@ Copyright (c) 2023 Bhavik Mehta. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bhavik Mehta
 -/
-import Section7
+import ExponentialRamsey.Section7
 
 /-!
 # Section 8
 -/
-
 
 namespace SimpleGraph
 
@@ -60,11 +59,11 @@ theorem p'_le {μ : ℝ} {i h : ℕ} : p' μ k l ini i h ≤ qFunction k ini.p h
 
 theorem le_p' {μ : ℝ} {i h : ℕ} (hh : 1 < h) : qFunction k ini.p (h - 1) ≤ p' μ k l ini i h :=
   by
-  rw [p', if_neg hh.ne']
-  exact le_clamp
+  rwa [p', if_neg hh.ne']
 
 theorem min_add_clamp_self {a b x y : ℝ} (h : a ≤ b) :
-    min a x - min a y + (clamp a b x - clamp a b y) = min b x - min b y := by rw [yael h, yael h];
+    min a x - min a y + (clamp a b x - clamp a b y) = min b x - min b y := by
+  rw [yael h, yael h]
   ring
 
 /-- Δ' in section 8 -/
@@ -150,13 +149,25 @@ noncomputable def maxHeight (k : ℕ) : ℕ :=
 
 open Filter
 
+def tendsto {α β : Type*} (f : α → β) (l₁ : Filter α) (l₂ : Filter β) : Prop :=
+  Filter.Tendsto f l₁ l₂
+
+abbrev at_top {α : Type*} [Preorder α] : Filter α :=
+  Filter.atTop
+
+theorem tendsto_nat_cast_atTop_atTop : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop :=
+  tendsto_natCast_atTop_atTop
+
+theorem eventually_gt_at_top {α : Type*} [Preorder α] [NoTopOrder α] (a : α) :
+    ∀ᶠ x in Filter.atTop, a < x :=
+  Filter.eventually_gt_atTop a
+
 theorem maxHeight_large : ∀ᶠ l : ℕ in atTop, ∀ k, l ≤ k → 1 < maxHeight k :=
   by
   filter_upwards [top_adjuster height_upper_bound] with l hl k hlk
   rw [max_height, lt_add_iff_pos_left, Nat.floor_pos]
   refine' (hl k hlk 0 le_rfl 1 le_rfl).trans' _
-  rw [Nat.one_le_cast]
-  exact one_le_height
+  rwa [Nat.one_le_cast]
 
 theorem p_le_q' {k h : ℕ} {p₀ p : ℝ} (hk : k ≠ 0) :
     height k p₀ p < h → p ≤ qFunction k p₀ (h - 1) :=
@@ -175,17 +186,17 @@ theorem p_le_q :
                 ∀ (ini : BookConfig χ) (h : ℕ) (i : ℕ),
                   maxHeight k ≤ h → (algorithm μ k l ini i).p ≤ qFunction k ini.p (h - 1) :=
   by
-  filter_upwards [top_adjuster height_upper_bound, top_adjuster (eventually_gt_at_top 0)] with l hl'
+  filter_upwards [top_adjuster height_upper_bound, top_adjuster (Filter.eventually_gt_atTop 0)] with l hl'
     hk k hlk μ n χ ini i h hh
   refine' p_le_q' (hk k hlk).ne' (hh.trans_lt' _)
   rw [← @Nat.cast_lt ℝ, max_height, Nat.cast_add_one]
-  exact (hl' _ hlk _ col_density_nonneg _ col_density_le_one).trans_lt (Nat.lt_floor_add_one _)
+  exact (hl' _ hlk _ colDensity_nonneg _ colDensity_le_one).trans_lt (Nat.lt_floor_add_one _)
 
 -- filter_upwards [top_adjuster (one_lt_q_function), max_height_large,
---   top_adjuster (eventually_gt_at_top 0)] with l hl hl' hk
+--   top_adjuster (Filter.eventually_gt_atTop 0)] with l hl hl' hk
 --   k hlk n χ ini h hh i,
--- refine col_density_le_one.trans _,
--- refine (hl k hlk ini.p col_density_nonneg).trans (q_increasing _),
+-- refine colDensity_le_one.trans _,
+-- refine (hl k hlk ini.p colDensity_nonneg).trans (q_increasing _),
 -- rwa le_tsub_iff_right,
 -- exact hh.trans' (hl' k hlk).le
 theorem p'_eq_of_ge' {μ : ℝ} {k h : ℕ} (hk : k ≠ 0) :
@@ -319,7 +330,7 @@ theorem prop_34 :
                       ∑ i in range (finalStep μ k l ini), Δ' μ k l ini i h / αFunction k h ≤
                     2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k :=
   by
-  filter_upwards [Δ'_eq_of_ge, top_adjuster (eventually_ge_at_top 1)] with l hl hk k hlk μ n χ ini
+  filter_upwards [Δ'_eq_of_ge, top_adjuster (Filter.eventually_ge_atTop 1)] with l hl hk k hlk μ n χ ini
   refine' (sum_le_card_nsmul _ _ 1 _).trans _
   · intro h hh
     rw [← sum_div, div_le_one (α_pos _ _ (hk _ hlk))]
@@ -361,17 +372,17 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
                         ∑ h in Ico 1 (maxHeight k),
                           ∑ i in densitySteps μ k l ini, Δ' μ k l ini i h / αFunction k h :=
   by
-  have tt : tendsto (coe : ℕ → ℝ) at_top at_top := tendsto_nat_cast_atTop_atTop
+  have tt : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
   have hh₁ : (0 : ℝ) < 1 / 8 := by norm_num
   have hh₂ : (0 : ℝ) < 2 / 3 := by norm_num
   have hh₃ : (0 : ℝ) < 1 / 16 := by norm_num
   have hh₄ : (0 : ℝ) < 3 / 4 := by norm_num
-  have := ((tendsto_rpow_neg_atTop hh₁).comp tt).Eventually (eventually_le_nhds hh₂)
-  have h' := ((tendsto_rpow_neg_atTop hh₃).comp tt).Eventually (eventually_le_nhds hh₄)
+  have := ((tendsto_rpow_neg_atTop hh₁).comp tt).eventually (eventually_le_nhds hh₂)
+  have h' := ((tendsto_rpow_neg_atTop hh₃).comp tt).eventually (eventually_le_nhds hh₄)
   -- have := ((tendsto_rpow_at_top hh₁).comp tt).eventually
   --   (eventually_le_floor (2 / 3) (by norm_num1)),
   filter_upwards [five_three_left μ₁ p₀ hμ₁ hp₀, five_two μ₁ p₀ hμ₁ hp₀,
-    top_adjuster (eventually_gt_at_top 0), prop_33, top_adjuster this, top_adjuster h'] with l h₅₃
+    top_adjuster (Filter.eventually_gt_atTop 0), prop_33, top_adjuster this, top_adjuster h'] with l h₅₃
     hl₅₂ hk h33 h₁₈ h₃₄ k hlk μ hμu n χ ini hini
   specialize h₅₃ k hlk μ hμu n χ ini hini
   suffices
@@ -490,7 +501,7 @@ theorem eight_three :
                     ∑ h in Ico 1 (maxHeight k), ∑ i in ℛ, Δ' μ k l ini i h / αFunction k h :=
   by
   filter_upwards [forall_nonneg_iff_nonneg, forall_nonpos_iff_nonpos, six_five_red,
-    top_adjuster (eventually_gt_at_top 0), prop_33] with l hl₁ hl₂ hl₃ hk h₃₃ k hlk μ n χ ini
+    top_adjuster (Filter.eventually_gt_atTop 0), prop_33] with l hl₁ hl₂ hl₃ hk h₃₃ k hlk μ n χ ini
   specialize hl₁ k hlk μ n χ ini
   specialize hl₂ k hlk μ n χ ini
   specialize hl₃ k hlk μ n χ ini
@@ -555,14 +566,14 @@ theorem eight_four_first_step (μ : ℝ) :
   by
   refine' sum_le_sum _
   intro h hh
-  rw [sum_union (degree_steps_disjoint_big_blue_steps_union_red_or_density_steps.mono_right _)]
+  rw [sum_union (degree_steps_disjoint_bigBlueSteps_union_red_or_densitySteps.mono_right _)]
   swap
   · exact subset_union_left _ _
   simp only [add_div, sum_add_distrib, add_le_add_iff_right]
-  have : big_blue_steps μ k l ini ⊆ (degree_steps μ k l ini).map ⟨_, add_left_injective 1⟩ :=
+  have : bigBlueSteps μ k l ini ⊆ (degree_steps μ k l ini).map ⟨_, add_left_injective 1⟩ :=
     by
     intro i hi
-    have := big_blue_steps_sub_one_mem_degree hi
+    have := bigBlueSteps_sub_one_mem_degree hi
     rw [Finset.mem_map, Function.Embedding.coeFn_mk]
     exact ⟨i - 1, this.2, Nat.sub_add_cancel this.1⟩
   refine' (sum_le_sum_of_subset_of_nonneg this _).trans _
@@ -580,15 +591,16 @@ theorem eq_39_end :
   by
   have h₈ : (0 : ℝ) < 1 / 8 := by norm_num1
   have h₂ : 0 < log 2 / 2 := div_pos (log_pos (by norm_num1)) (by norm_num1)
-  have := (tendsto_rpow_neg_atTop h₈).Eventually (eventually_le_nhds h₂)
-  have := tendsto_coe_nat_at_top_at_top.eventually this
+  have := (tendsto_rpow_neg_atTop h₈).eventually (eventually_le_nhds h₂)
+  have := tendsto_nat_cast_atTop_atTop.eventually this
   filter_upwards [this] with k hk
   rw [add_comm]
-  refine' (rpow_le_rpow _ (add_one_le_exp _) (by positivity)).trans _
+    refine' (rpow_le_rpow _ (add_one_le_exp _) (by positivity)).trans _
   · positivity
   rw [← exp_one_rpow, ← rpow_mul (exp_pos _).le, exp_one_rpow, ← le_log_iff_exp_le two_pos,
     mul_left_comm, ← rpow_add' (Nat.cast_nonneg _), ← le_div_iff' (zero_lt_two' ℝ)]
-  swap; · norm_num1
+  swap
+  · norm_num1
   norm_num1
   exact hk
 
@@ -610,9 +622,9 @@ theorem eq_39 (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
                               ∑ h in Ico 1 (maxHeight k),
                                 (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) / αFunction k h :=
   by
-  filter_upwards [six_five_blue μ₀ hμ₀, top_adjuster (eventually_gt_at_top 0), prop_33,
+  filter_upwards [six_five_blue μ₀ hμ₀, top_adjuster (Filter.eventually_gt_atTop 0), prop_33,
     top_adjuster eq_39_end] with l h₆₅ hk h₃₃ hl k hlk μ hμl n χ hχ ini i hi hh' hh
-  obtain ⟨hi₁, hi₂⟩ := big_blue_steps_sub_one_mem_degree hi
+  obtain ⟨hi₁, hi₂⟩ := bigBlueSteps_sub_one_mem_degree hi
   specialize h₆₅ k hlk μ hμl n χ ini i hi
   specialize h₃₃ k hlk μ n χ ini
   have :
@@ -693,13 +705,13 @@ theorem eight_four (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
                           ∑ i in degreeSteps μ k l ini ∪ bigBlueSteps μ k l ini,
                             Δ' μ k l ini i h / αFunction k h :=
   by
-  filter_upwards [four_three hμ₀, top_adjuster (eventually_gt_at_top 0), eq_39 μ₀ hμ₀] with l h₄₃
+  filter_upwards [four_three hμ₀, top_adjuster (Filter.eventually_gt_atTop 0), eq_39 μ₀ hμ₀] with l h₄₃
     hk₀ hl k hlk μ hμl n χ hχ ini
   specialize h₄₃ k hlk μ hμl n χ hχ ini
   specialize hl k hlk μ hμl n χ hχ ini
   refine' (eight_four_first_step _).trans' _
   rw [sum_comm]
-  have : -(2 : ℝ) * k ^ (7 / 8 : ℝ) ≤ (big_blue_steps μ k l ini).card • (-2 * k ^ (1 / 8 : ℝ)) :=
+  have : -(2 : ℝ) * k ^ (7 / 8 : ℝ) ≤ (bigBlueSteps μ k l ini).card • (-2 * k ^ (1 / 8 : ℝ)) :=
     by
     rw [neg_mul, neg_mul, smul_neg, neg_le_neg_iff, nsmul_eq_mul]
     have := h₄₃.trans (rpow_le_rpow (Nat.cast_nonneg _) (Nat.cast_le.2 hlk) (by norm_num1))
@@ -710,7 +722,7 @@ theorem eight_four (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
     exact hk₀ k hlk
   refine' this.trans (card_nsmul_le_sum _ _ _ _)
   intro i hi
-  have := big_blue_steps_sub_one_mem_degree hi
+  have := bigBlueSteps_sub_one_mem_degree hi
   cases' le_or_lt 0 (Δ μ k l ini (i - 1) + Δ μ k l ini i) with hΔ hΔ
   · have : ∀ h, 0 ≤ (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) / α_function k h :=
       by
@@ -763,17 +775,17 @@ theorem eq_41 (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1)
   rw [← sum_add_distrib, ← sum_add_distrib]
   refine' sum_le_sum _
   intro h hh
-  rw [← sum_union red_steps_disjoint_density_steps.symm, union_comm, red_steps_union_density_steps,
+  rw [← sum_union redSteps_disjoint_densitySteps.symm, union_comm, redSteps_union_densitySteps,
     union_comm, ← union_partial_steps, union_assoc, ← sum_union]
   rw [disjoint_union_right]
-  refine' ⟨big_blue_steps_disjoint_red_or_density_steps.symm, _⟩
-  refine' degree_steps_disjoint_big_blue_steps_union_red_or_density_steps.symm.mono_left _
+  refine' ⟨bigBlueSteps_disjoint_red_or_densitySteps.symm, _⟩
+  refine' degree_steps_disjoint_bigBlueSteps_union_red_or_densitySteps.symm.mono_left _
   exact subset_union_right _ _
 
 -- k ≥ 1.6
 theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2 * k ^ 5 ≤ 2 * k ^ 7 :=
   by
-  filter_upwards [eventually_ge_at_top (1.6 : ℝ)] with k hk
+  filter_upwards [Filter.eventually_ge_atTop (1.6 : ℝ)] with k hk
   have h₄ : 2 * k ^ 4 ≤ 2 * (5 / 8) ^ 3 * k ^ 7 :=
     by
     rw [mul_assoc]
@@ -815,7 +827,7 @@ theorem polynomial_ineq :
   have h : (0 : ℝ) < 1 / 16 := by norm_num
   have := (tendsto_rpow_atTop h).comp tendsto_nat_cast_atTop_atTop
   have := this.eventually polynomial_ineq_aux
-  filter_upwards [this, eventually_gt_at_top 0] with k hk₂ hk₀ hk
+  filter_upwards [this, Filter.eventually_gt_atTop 0] with k hk₂ hk₀ hk
   have hk' : (0 : ℝ) < k := by rwa [Nat.cast_pos]
   rw [div_le_iff hk]
   rw [add_sq, mul_one_sub, one_add_mul, one_pow, ← add_sub, add_assoc, add_le_add_iff_left, mul_one,
@@ -837,9 +849,9 @@ theorem log_ineq :
   by
   have h₁ : (0 : ℝ) < 1 / 25 := by norm_num
   have h₂ := (isLittleO_log_rpow_atTop (by norm_num : (0 : ℝ) < 11 / 16)).bound h₁
-  have tt : tendsto (coe : ℕ → ℝ) at_top at_top := tendsto_nat_cast_atTop_atTop
-  filter_upwards [eventually_gt_at_top 1, tt.eventually h₂,
-    tt.eventually_ge_at_top ((5 / 3) ^ 16)] with k hk₁ hk₂ hk₅ hk
+  have tt : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
+  filter_upwards [Filter.eventually_gt_atTop 1, tt.eventually h₂,
+    tt.eventually_ge_atTop ((5 / 3) ^ 16)] with k hk₁ hk₂ hk₅ hk
   have hk' : (0 : ℝ) < k := by
     rw [Nat.cast_pos]
     exact hk₁.trans_le' zero_le_one
@@ -899,8 +911,8 @@ theorem eq_42 (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1)
                               (1 - blueXRatio μ k l ini i) / blueXRatio μ k l ini i ≤
                             (redSteps μ k l ini).card + 4 * k ^ (15 / 16 : ℝ) :=
   by
-  filter_upwards [eq_41 μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀, top_adjuster (eventually_gt_at_top 1),
-    top_adjuster (eventually_gt_at_top 0), top_adjuster polynomial_ineq, top_adjuster log_ineq] with
+  filter_upwards [eq_41 μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀, top_adjuster (Filter.eventually_gt_atTop 1),
+    top_adjuster (Filter.eventually_gt_atTop 0), top_adjuster polynomial_ineq, top_adjuster log_ineq] with
     l hl hk hk₀ hk₁ hk₂ k hlk μ hμl hμu n χ hχ ini hini
   specialize hl k hlk μ hμl hμu n χ hχ ini hini
   have : (0 : ℝ) < 1 - k ^ (-1 / 8 : ℝ) := by
@@ -933,8 +945,8 @@ theorem one_div_sq_le_beta (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁
                   ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
                     ∀ ini : BookConfig χ, p₀ ≤ ini.p → (1 : ℝ) / k ^ 2 ≤ beta μ k l ini :=
   by
-  filter_upwards [five_three_right μ₁ p₀ hμ₁ hp₀, top_adjuster (eventually_gt_at_top 0),
-    eventually_ge_at_top ⌈sqrt (1 / μ₀)⌉₊, blue_X_ratio_pos μ₁ p₀ hμ₁ hp₀] with l hβ hl hlμ hβ₀ k
+  filter_upwards [five_three_right μ₁ p₀ hμ₁ hp₀, top_adjuster (Filter.eventually_gt_atTop 0),
+    Filter.eventually_ge_atTop ⌈sqrt (1 / μ₀)⌉₊, blue_X_ratio_pos μ₁ p₀ hμ₁ hp₀] with l hβ hl hlμ hβ₀ k
     hlk μ hμl hμu n χ ini hini
   specialize hβ k hlk μ hμu n χ ini hini
   specialize hβ₀ k hlk μ hμu n χ ini hini
@@ -975,7 +987,7 @@ theorem beta_pos (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ <
                     ∀ ini : BookConfig χ, p₀ ≤ ini.p → 0 < beta μ k l ini :=
   by
   filter_upwards [one_div_sq_le_beta μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀,
-    top_adjuster (eventually_gt_at_top 0)] with l hβ hl k hlk μ hμl hμu n χ ini hini
+    top_adjuster (Filter.eventually_gt_atTop 0)] with l hβ hl k hlk μ hμl hμu n χ ini hini
   specialize hβ k hlk μ hμl hμu n χ ini hini
   refine' hβ.trans_lt' _
   specialize hl k hlk
@@ -1016,7 +1028,7 @@ theorem eight_five (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
     refine' sum_congr rfl fun i hi => _
     rw [div_self (hβ i (filter_subset _ _ hi)).ne']
   rw [this] at h₄₂
-  have : moderate_steps μ k l ini ⊆ density_steps μ k l ini := filter_subset _ _
+  have : moderate_steps μ k l ini ⊆ densitySteps μ k l ini := filter_subset _ _
   replace h₄₂ := h₄₂.trans' (sub_le_sub_left (Nat.cast_le.2 (card_le_of_subset this)) _)
   have hμ' : μ < 1 := hμu.trans_lt hμ₁
   cases' (moderate_steps μ k l ini).eq_empty_or_nonempty with hS hS
@@ -1080,7 +1092,7 @@ theorem eight_six (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
     simp
   intro μ₀ p₀ hμ₀ hp₀
   filter_upwards [eight_five μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀, beta_pos μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀,
-    beta_le_μ μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀, top_adjuster (eventually_gt_at_top 0)] with l hl hβ hβμ hk₀ k
+    beta_le_μ μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀, top_adjuster (Filter.eventually_gt_atTop 0)] with l hl hβ hβμ hk₀ k
     hlk μ hμl hμu n χ hχ ini hini hs
   specialize hl k hlk μ hμl hμu n χ hχ ini hini
   specialize hβ k hlk μ hμl hμu n χ ini hini
@@ -1092,8 +1104,8 @@ theorem eight_six (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
   · rw [sub_pos]
     exact hβμ.trans_lt (hμu.trans_lt hμ₁)
   have h₁ :
-    (1 + -7 / (1 - μ₁) * k ^ (-(1 / 32) : ℝ)) * (density_steps μ k l ini).card ≤
-      ((density_steps μ k l ini).card : ℝ) - 7 / (1 - μ₁) * k ^ (15 / 16 : ℝ) :=
+    (1 + -7 / (1 - μ₁) * k ^ (-(1 / 32) : ℝ)) * (densitySteps μ k l ini).card ≤
+      ((densitySteps μ k l ini).card : ℝ) - 7 / (1 - μ₁) * k ^ (15 / 16 : ℝ) :=
     by
     rw [neg_div, neg_mul, ← sub_eq_add_neg, one_sub_mul, sub_le_sub_iff_left]
     refine' (mul_le_mul_of_nonneg_left hs _).trans' _
@@ -1102,8 +1114,8 @@ theorem eight_six (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
     rw [mul_assoc, ← rpow_add hk₀']
     norm_num
   have h₂ :
-    ((density_steps μ k l ini).card - 7 / (1 - μ₁) * k ^ (15 / 16 : ℝ) : ℝ) * beta μ k l ini ≤
-      (density_steps μ k l ini).card * beta μ k l ini :=
+    ((densitySteps μ k l ini).card - 7 / (1 - μ₁) * k ^ (15 / 16 : ℝ) : ℝ) * beta μ k l ini ≤
+      (densitySteps μ k l ini).card * beta μ k l ini :=
     by
     refine' mul_le_mul_of_nonneg_right _ (beta_nonneg (hμ₀.trans_le hμl))
     rw [sub_le_self_iff]
@@ -1115,4 +1127,3 @@ theorem eight_six (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
   exact div_le_of_nonneg_of_le_mul (by positivity) (beta_nonneg (hμ₀.trans_le hμl)) hl
 
 end SimpleGraph
-
