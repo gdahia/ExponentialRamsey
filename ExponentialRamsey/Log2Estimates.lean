@@ -14,6 +14,9 @@ noncomputable section
 
 open Real
 
+theorem logb_zpow {b x : ℝ} (m : ℤ) : logb b (x ^ m) = m * logb b x := by
+  rw [logb, log_zpow, mul_div_assoc, logb]
+
 theorem logb_le_logb_of_le {b x y : ℝ} (hb : 1 ≤ b) (hx : 0 < x) (hy : x ≤ y) :
     logb b x ≤ logb b y :=
   div_le_div_of_nonneg_right (Real.log_le_log hx hy) (log_nonneg hb)
