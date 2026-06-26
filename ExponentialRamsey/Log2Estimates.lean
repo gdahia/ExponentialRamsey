@@ -58,8 +58,7 @@ theorem log_base2_half {x₁ x₂ a₁ a₂ : ℝ} (h : LogBase2Goal (x₁ / 2) 
     h (half_pos hx₁) (div_le_div_of_nonneg_right hx₂ zero_le_two)
 
 theorem log_base2_scale {x₁ x₂ a₁ a₂ : ℝ} (m : ℤ)
-    (h : LogBase2Goal (x₁ * 2 ^ m) (x₂ * 2 ^ m) (a₁ + m) (a₂ + m)) : LogBase2Goal x₁ x₂ a₁ a₂ :=
-  by
+    (h : LogBase2Goal (x₁ * 2 ^ m) (x₂ * 2 ^ m) (a₁ + m) (a₂ + m)) : LogBase2Goal x₁ x₂ a₁ a₂ := by
   intro hx₁ hx₂
   have i : 0 < (2 : ℝ) ^ m := zpow_pos zero_lt_two _
   have := h (mul_pos hx₁ i) (mul_le_mul_of_nonneg_right hx₂ i.le)
@@ -71,8 +70,7 @@ theorem log_base2_start {x₁ x₂ a₁ a₂ : ℝ} (hx₁ : 0 < x₁) (hx₂ : 
   h hx₁ hx₂
 
 theorem log_base2_end {x₁ x₂ a₁ a₂ : ℝ} (hx₁ : 1 < x₁) (hx₂ : x₂ < 2) (ha₁ : a₁ ≤ 0)
-    (ha₂ : 1 ≤ a₂) : LogBase2Goal x₁ x₂ a₁ a₂ :=
-  by
+    (ha₂ : 1 ≤ a₂) : LogBase2Goal x₁ x₂ a₁ a₂ := by
   rintro - h
   refine' ⟨ha₁.trans_lt (div_pos (log_pos hx₁) (log_pos one_lt_two)), lt_of_lt_of_le _ ha₂⟩
   rw [logb, div_lt_one (log_pos one_lt_two)]
