@@ -504,7 +504,7 @@ theorem exists_blue_book_one_le_S [Fintype V] (μ : ℝ) (X : Finset V)
     eq_self_iff_true, IsEmpty.exists_iff, forall_exists_index, imp_true_iff]
   constructor
   · intro y hy h
-    sorry
+    exact (mem_colNeighbors.mp (mem_inter.mp hy).1).choose_spec
   · exact hx'.trans' (half_le_self (mul_nonneg h (Nat.cast_nonneg _)))
 
 theorem exists_maximal_blue_book_aux (χ : TopEdgeLabelling V (Fin 2)) (μ : ℝ) (X : Finset V) :
@@ -705,7 +705,69 @@ theorem algorithmOption_is_some_of {i : ℕ} (hi : ∃ C, algorithmOption μ k l
 
 theorem algorithmOption_x_weak_bound {i : ℕ} (C : BookConfig χ) (hk : k ≠ 0) (hl : l ≠ 0)
     (hC : algorithmOption μ k l ini i = some C) : C.X.card + i / 2 ≤ ini.X.card := by
-  sorry
+  induction i generalizing C with
+  | zero =>
+      simp [algorithmOption] at hC
+      subst C
+      simp
+  | succ i ih =>
+      obtain ⟨C', hC'⟩ := algorithmOption_is_some_of ⟨C, hC⟩
+      have ih' := ih C' hC'
+      unfold algorithmOption at hC
+      rw [hC'] at hC
+      simp only at hC
+      split_ifs at hC with hstop heven hbig hred
+      · injection hC with hC
+        subst C
+        have hcard : (C'.degreeRegularisationStep k ini.p).X.card ≤ C'.X.card :=
+          card_le_card BookConfig.degreeRegularisationStep_x_subset
+        have hdiv : (i + 1) / 2 = i / 2 := by
+          obtain ⟨r, rfl⟩ := heven
+          omega
+        omega
+      · injection hC with hC
+        subst C
+        have hcard : (C'.bigBlueStep μ).X.card + 1 ≤ C'.X.card := by
+          rw [BookConfig.bigBlueStep_x]
+          exact BookConfig.getBook_snd_card_le_X (BookConfig.get_book_condition hk hl hbig)
+        have hdiv : (i + 1) / 2 = i / 2 + 1 := by
+          obtain ⟨r, rfl⟩ := Nat.not_even_iff_odd.mp heven
+          omega
+        omega
+      · injection hC with hC
+        subst C
+        let x := C'.getCentralVertex μ (C'.getCentralVertex_condition hstop hbig)
+        have hx : x ∈ C'.X := BookConfig.getCentralVertex_mem_x _ _ _
+        have hlt : ((red_neighbors χ) x ∩ C'.X).card < C'.X.card := by
+          refine card_lt_card ?_
+          exact (ssubset_iff_of_subset inter_subset_right).2
+            ⟨x, hx, by simp [not_mem_colNeighbors]⟩
+        have hcard : (C'.redStepBasic x hx).X.card + 1 ≤ C'.X.card := by
+          rw [BookConfig.redStepBasic_x]
+          omega
+        have hdiv : (i + 1) / 2 = i / 2 + 1 := by
+          obtain ⟨r, rfl⟩ := Nat.not_even_iff_odd.mp heven
+          omega
+        rw [BookConfig.redStepBasic_x]
+        dsimp only [x] at hlt hcard
+        omega
+      · injection hC with hC
+        subst C
+        let x := C'.getCentralVertex μ (C'.getCentralVertex_condition hstop hbig)
+        have hx : x ∈ C'.X := BookConfig.getCentralVertex_mem_x _ _ _
+        have hlt : ((blue_neighbors χ) x ∩ C'.X).card < C'.X.card := by
+          refine card_lt_card ?_
+          exact (ssubset_iff_of_subset inter_subset_right).2
+            ⟨x, hx, by simp [not_mem_colNeighbors]⟩
+        have hcard : (C'.densityBoostStepBasic x hx).X.card + 1 ≤ C'.X.card := by
+          rw [BookConfig.densityBoostStepBasic_x]
+          omega
+        have hdiv : (i + 1) / 2 = i / 2 + 1 := by
+          obtain ⟨r, rfl⟩ := Nat.not_even_iff_odd.mp heven
+          omega
+        rw [BookConfig.densityBoostStepBasic_x]
+        dsimp only [x] at hlt hcard
+        omega
 
 theorem algorithmOption_terminates (μ : ℝ) (ini : BookConfig χ) (hk : k ≠ 0) (hl : l ≠ 0) :
     ∃ i, algorithmOption μ k l ini (i + 1) = none := by
@@ -764,12 +826,33 @@ theorem some_algorithm_of_finalStep_le (hi : i ≤ finalStep μ k l ini) :
 theorem condition_fails_at_end (hk : k ≠ 0) (hl : l ≠ 0) :
     (endState μ k l ini).X.card ≤ ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] ∨
       (endState μ k l ini).p ≤ 1 / k := by
-  sorry
+  have hnone := finalStep_is_none (μ := μ) (k := k) (l := l) (ini := ini) hk hl
+  have hsome :
+      algorithmOption μ k l ini (finalStep μ k l ini) = some (endState μ k l ini) := by
+    rw [← some_algorithm_of_finalStep_le (μ := μ) (k := k) (l := l) (ini := ini) le_rfl]
+    rfl
+  by_cases h :
+      (endState μ k l ini).X.card ≤ ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] ∨
+        (endState μ k l ini).p ≤ 1 / k
+  · exact h
+  · exfalso
+    unfold algorithmOption at hnone
+    rw [hsome] at hnone
+    simp only at hnone
+    rw [dif_neg h] at hnone
+    simp at hnone
 
 theorem succeed_of_finalStep_le' (hi : i < finalStep μ k l ini) :
     ¬((algorithm μ k l ini i).X.card ≤ ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] ∨
         (algorithm μ k l ini i).p ≤ 1 / k) := by
-  sorry
+  intro h
+  have hnone : algorithmOption μ k l ini (i + 1) = none := by
+    unfold algorithmOption
+    rw [← some_algorithm_of_finalStep_le (μ := μ) (k := k) (l := l) (ini := ini) hi.le]
+    simp only
+    rw [dif_pos h]
+  have hle : finalStep μ k l ini ≤ i := Nat.sInf_le hnone
+  omega
 
 theorem ramseyNumber_lt_of_lt_finalStep (hi : i < finalStep μ k l ini) :
     ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] < (algorithm μ k l ini i).X.card :=
@@ -799,7 +882,13 @@ theorem algorithm_succ (hi : i < finalStep μ k l ini) :
                 (red_density χ) ((red_neighbors χ) x ∩ C.X) ((red_neighbors χ) x ∩ C.y) then
             C.redStepBasic x (C.getCentralVertex_mem_x _ _)
           else C.densityBoostStepBasic x (C.getCentralVertex_mem_x _ _) := by
-  sorry
+  apply Option.some.inj
+  rw [some_algorithm_of_finalStep_le (μ := μ) (k := k) (l := l) (ini := ini)
+    (Nat.succ_le_of_lt hi)]
+  unfold algorithmOption
+  rw [← some_algorithm_of_finalStep_le (μ := μ) (k := k) (l := l) (ini := ini) hi.le]
+  simp only
+  rw [dif_neg (succeed_of_finalStep_le' hi)]
 
 /-- The set of degree regularisation steps. Note this is indexed differently than the paper. -/
 noncomputable def degreeSteps (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) : Finset ℕ :=
