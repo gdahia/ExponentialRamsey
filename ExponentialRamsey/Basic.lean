@@ -36,8 +36,7 @@ theorem colDensity_nonneg [DecidableEq V] [DecidableEq K] {χ : TopEdgeLabelling
   Rat.cast_nonneg.2 (edgeDensity_nonneg _ _ _)
 
 theorem colDensity_le_one [DecidableEq V] [DecidableEq K] {χ : TopEdgeLabelling V K} {k : K}
-    {X Y : Finset V} : colDensity χ k X Y ≤ 1 :=
-  by
+    {X Y : Finset V} : colDensity χ k X Y ≤ 1 := by
   rw [← Rat.cast_one]
   exact Rat.cast_le.2 (edgeDensity_le_one _ _ _)
 
@@ -89,10 +88,8 @@ end
 
 theorem interedges_card_eq_sum {V : Type*} [DecidableEq V] [Fintype V] {G : SimpleGraph V}
     [DecidableRel G.Adj] {A B : Finset V} :
-    (G.interedges A B).card = ∑ x ∈ A, (G.neighborFinset x ∩ B).card :=
-  by
-  have : ∀ e ∈ G.interedges A B, Prod.fst e ∈ A :=
-    by
+    (G.interedges A B).card = ∑ x ∈ A, (G.neighborFinset x ∩ B).card := by
+  have : ∀ e ∈ G.interedges A B, Prod.fst e ∈ A := by
     rintro ⟨e₁, e₂⟩ h
     rw [interedges, Rel.mk_mem_interedges_iff] at h
     exact h.1
@@ -110,8 +107,7 @@ theorem interedges_card_eq_sum {V : Type*} [DecidableEq V] [Fintype V] {G : Simp
 
 theorem colDensity_eq_sum {K : Type*} [Fintype V] [DecidableEq K] {χ : TopEdgeLabelling V K}
     {k : K} {A B : Finset V} :
-    colDensity χ k A B = (∑ x ∈ A, (colNeighbors χ k x ∩ B).card) / (A.card * B.card) :=
-  by
+    colDensity χ k A B = (∑ x ∈ A, (colNeighbors χ k x ∩ B).card) / (A.card * B.card) := by
   rw [colDensity, edgeDensity_def, interedges_card_eq_sum]
   simp only [Nat.cast_sum, Rat.cast_div, Rat.cast_sum, Rat.cast_natCast, Rat.cast_mul]
   rfl
@@ -158,8 +154,7 @@ theorem q_increasing {k h₁ h₂ : ℕ} {p₀ : ℝ} (h : h₁ ≤ h₂) :
       (pow_le_pow_right₀ (le_add_of_nonneg_right (Real.rpow_nonneg (Nat.cast_nonneg _) _)) h) 1
 
 theorem qFunction_weak_lower {k : ℕ} {p₀ : ℝ} {h : ℕ} :
-    p₀ + h * k ^ (-1 / 4 : ℝ) / k ≤ qFunction k p₀ h :=
-  by
+    p₀ + h * k ^ (-1 / 4 : ℝ) / k ≤ qFunction k p₀ h := by
   rw [qFunction, add_le_add_iff_left]
   refine' div_le_div_of_nonneg_right _ (Nat.cast_nonneg _)
   refine' (sub_le_sub_right (one_add_mul_le_pow _ h) _).trans_eq' _
@@ -168,8 +163,7 @@ theorem qFunction_weak_lower {k : ℕ} {p₀ : ℝ} {h : ℕ} :
 
 -- The bound on h here is about k / ε, which is not good enough in general so I'm not gonna bother
 -- exposing it, later I show h ≤ 2 log k / ε works for suff large k, which is what's actually needed
-theorem qFunction_above (p₀ c : ℝ) {k : ℕ} (hk : k ≠ 0) : ∃ h, 1 ≤ h ∧ c ≤ qFunction k p₀ h :=
-  by
+theorem qFunction_above (p₀ c : ℝ) {k : ℕ} (hk : k ≠ 0) : ∃ h, 1 ≤ h ∧ c ≤ qFunction k p₀ h := by
   refine' ⟨max 1 ⌈(c - p₀) * k / k ^ (-1 / 4 : ℝ)⌉₊, le_max_left _ _, _⟩
   refine' (q_increasing (le_max_right _ _)).trans' _
   refine' qFunction_weak_lower.trans' _
@@ -181,8 +175,7 @@ theorem qFunction_above (p₀ c : ℝ) {k : ℕ} (hk : k ≠ 0) : ∃ h, 1 ≤ h
 noncomputable def height (k : ℕ) (p₀ p : ℝ) : ℕ :=
   if h : k ≠ 0 then Nat.find (qFunction_above p₀ p h) else 1
 
-theorem one_le_height {k : ℕ} {p₀ p : ℝ} : 1 ≤ height k p₀ p :=
-  by
+theorem one_le_height {k : ℕ} {p₀ p : ℝ} : 1 ≤ height k p₀ p := by
   rw [height]
   split_ifs with h
   · exact (Nat.find_spec (qFunction_above p₀ p h)).1
@@ -230,8 +223,7 @@ section
 variable [Fintype V]
 
 /-- Given a vertex set `X`, construct the initial configuration where `X` is as given. -/
-def start (X : Finset V) : BookConfig χ :=
-  by
+def start (X : Finset V) : BookConfig χ := by
   refine' ⟨X, Xᶜ, ∅, ∅, disjoint_compl_right, _, _, _, _, _, _, _, _, _⟩
   all_goals simp
 
@@ -350,8 +342,7 @@ def densityBoostStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookCon
     rw [insert_eq, coe_union, EdgeLabelling.monochromaticOf_union, coe_singleton]
     exact
       ⟨EdgeLabelling.monochromaticOf_singleton, C.blue_b, C.blue_XB.subset_left (by simpa using hx)⟩
-  blue_XB :=
-    by
+  blue_XB := by
     rw [insert_eq, Finset.coe_union, Finset.coe_singleton,
       EdgeLabelling.monochromaticBetween_union_right,
       EdgeLabelling.monochromaticBetween_singleton_right]
@@ -467,8 +458,7 @@ theorem mem_usefulBlueBooks' {μ : ℝ} {X S T : Finset V} :
               χ.MonochromaticBetween S T 1 ∧ μ ^ S.card * X.card / 2 ≤ T.card :=
   mem_usefulBlueBooks
 
-theorem exists_useful_blue_book (μ : ℝ) (X : Finset V) : (usefulBlueBooks χ μ X).Nonempty :=
-  by
+theorem exists_useful_blue_book (μ : ℝ) (X : Finset V) : (usefulBlueBooks χ μ X).Nonempty := by
   use(∅, X)
   rw [mem_usefulBlueBooks']
   simp only [empty_subset, Subset.rfl, disjoint_empty_left, coe_empty,
@@ -478,8 +468,7 @@ theorem exists_useful_blue_book (μ : ℝ) (X : Finset V) : (usefulBlueBooks χ 
 
 theorem exists_blue_book_one_le_S [Fintype V] (μ : ℝ) (X : Finset V)
     (hX : ∃ x ∈ X, μ * X.card ≤ ((blue_neighbors χ) x ∩ X).card) :
-    ∃ ST : Finset V × Finset V, ST ∈ usefulBlueBooks χ μ X ∧ 1 ≤ ST.1.card :=
-  by
+    ∃ ST : Finset V × Finset V, ST ∈ usefulBlueBooks χ μ X ∧ 1 ≤ ST.1.card := by
   obtain ⟨x, hx, hx'⟩ := hX
   rcases lt_or_ge μ 0 with h | h
   · refine' ⟨⟨{x}, ∅⟩, _, by simp⟩
@@ -546,15 +535,13 @@ section
 variable [Fintype V]
 
 theorem one_le_card_getBook_fst {μ : ℝ} {X : Finset V}
-    (hX : ∃ x ∈ X, μ * X.card ≤ ((blue_neighbors χ) x ∩ X).card) : 1 ≤ (getBook χ μ X).1.card :=
-  by
+    (hX : ∃ x ∈ X, μ * X.card ≤ ((blue_neighbors χ) x ∩ X).card) : 1 ≤ (getBook χ μ X).1.card := by
   obtain ⟨⟨S, T⟩, hST, hS⟩ := exists_blue_book_one_le_S _ _ hX
   exact hS.trans (getBook_max _ _ hST)
 
 theorem getBook_snd_card_le_X {μ : ℝ} {X : Finset V}
     (hX : ∃ x ∈ X, μ * X.card ≤ ((blue_neighbors χ) x ∩ X).card) :
-    (getBook χ μ X).2.card + 1 ≤ X.card :=
-  by
+    (getBook χ μ X).2.card + 1 ≤ X.card := by
   refine' (add_le_add_right (one_le_card_getBook_fst hX) _).trans _
   rw [add_comm, ← card_union_of_disjoint getBook_disjoints]
   exact card_le_card (union_subset getBook_fst_subset getBook_snd_subset)
@@ -565,8 +552,7 @@ noncomputable def numBigBlues (μ : ℝ) (C : BookConfig χ) : ℕ :=
 
 theorem get_book_condition {μ : ℝ} {k l : ℕ} {C : BookConfig χ} (hk : k ≠ 0) (hl : l ≠ 0)
     (hX : ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ numBigBlues μ C) :
-    ∃ x ∈ C.X, μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card :=
-  by
+    ∃ x ∈ C.X, μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card := by
   rw [← filter_nonempty_iff, ← card_pos]
   refine' hX.trans_lt' _
   rw [ramseyNumber_pos, Fin.forall_fin_two]
@@ -768,8 +754,7 @@ variable {i : ℕ}
 
 theorem finalStep_is_none (hk : k ≠ 0) (hl : l ≠ 0) :
     algorithmOption μ k l ini (finalStep μ k l ini + 1) = none :=
-  haveI : {i | algorithmOption μ k l ini (i + 1) = none}.Nonempty :=
-    by
+  haveI : {i | algorithmOption μ k l ini (i + 1) = none}.Nonempty := by
     obtain ⟨i, hi⟩ := algorithmOption_terminates μ ini hk hl
     exact ⟨i, hi⟩
   csInf_mem this
@@ -823,15 +808,13 @@ theorem succeed_of_finalStep_le' (hi : i < finalStep μ k l ini) :
   omega
 
 theorem ramseyNumber_lt_of_lt_finalStep (hi : i < finalStep μ k l ini) :
-    ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] < (algorithm μ k l ini i).X.card :=
-  by
+    ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] < (algorithm μ k l ini i).X.card := by
   have := succeed_of_finalStep_le' hi
   rw [not_or, not_le] at this
   exact this.1
 
 theorem one_div_k_lt_p_of_lt_finalStep (hi : i < finalStep μ k l ini) :
-    1 / (k : ℝ) < (algorithm μ k l ini i).p :=
-  by
+    1 / (k : ℝ) < (algorithm μ k l ini i).p := by
   have := succeed_of_finalStep_le' hi
   rw [not_or, not_le, not_le] at this
   exact this.2
@@ -873,16 +856,14 @@ noncomputable def redOrDensitySteps (μ : ℝ) (k l : ℕ) (ini : BookConfig χ)
     ¬Even i ∧ (algorithm μ k l ini i).numBigBlues μ < ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊]
 
 theorem degreeSteps_disjoint_bigBlueSteps_union_redOrDensitySteps :
-    Disjoint (degreeSteps μ k l ini) (bigBlueSteps μ k l ini ∪ redOrDensitySteps μ k l ini) :=
-  by
+    Disjoint (degreeSteps μ k l ini) (bigBlueSteps μ k l ini ∪ redOrDensitySteps μ k l ini) := by
   rw [bigBlueSteps, redOrDensitySteps, ← filter_or, degreeSteps, disjoint_filter]
   intro i hi
   rw [← and_or_left, not_and', Classical.not_not]
   exact Function.const _
 
 theorem bigBlueSteps_disjoint_redOrDensitySteps :
-    Disjoint (bigBlueSteps μ k l ini) (redOrDensitySteps μ k l ini) :=
-  by
+    Disjoint (bigBlueSteps μ k l ini) (redOrDensitySteps μ k l ini) := by
   rw [bigBlueSteps, redOrDensitySteps, disjoint_filter]
   rintro x hx ⟨hx₁, hx₂⟩
   rw [not_and, not_lt]
@@ -891,14 +872,12 @@ theorem bigBlueSteps_disjoint_redOrDensitySteps :
 
 theorem of_mem_redOrDensitySteps₁ {i : ℕ} (hi : i ∈ redOrDensitySteps μ k l ini) :
     ¬((algorithm μ k l ini i).X.card ≤ ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] ∨
-        (algorithm μ k l ini i).p ≤ 1 / k) :=
-  by
+        (algorithm μ k l ini i).p ≤ 1 / k) := by
   rw [redOrDensitySteps, mem_filter, mem_range] at hi
   exact succeed_of_finalStep_le' hi.1
 
 theorem of_mem_redOrDensitySteps₂ {i : ℕ} (hi : i ∈ redOrDensitySteps μ k l ini) :
-    ¬ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ (algorithm μ k l ini i).numBigBlues μ :=
-  by
+    ¬ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ (algorithm μ k l ini i).numBigBlues μ := by
   rw [redOrDensitySteps, mem_filter, ← not_le] at hi
   exact hi.2.2
 
@@ -930,8 +909,7 @@ noncomputable def densitySteps (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) : Fi
       (red_density χ) ((red_neighbors χ) x ∩ C.X) ((red_neighbors χ) x ∩ C.Y) <
         C.p - αFunction k (height k ini.p C.p)
 
-theorem redSteps_subset_redOrDensitySteps : redSteps μ k l ini ⊆ redOrDensitySteps μ k l ini :=
-  by
+theorem redSteps_subset_redOrDensitySteps : redSteps μ k l ini ⊆ redOrDensitySteps μ k l ini := by
   intro i hi
   rw [redSteps] at hi
   simp only [mem_image, mem_filter, mem_attach, Subtype.exists, exists_eq_right, true_and,
@@ -939,8 +917,7 @@ theorem redSteps_subset_redOrDensitySteps : redSteps μ k l ini ⊆ redOrDensity
   exact hi.1
 
 theorem densitySteps_subset_redOrDensitySteps :
-    densitySteps μ k l ini ⊆ redOrDensitySteps μ k l ini :=
-  by
+    densitySteps μ k l ini ⊆ redOrDensitySteps μ k l ini := by
   intro i hi
   rw [densitySteps] at hi
   simp only [mem_image, mem_filter, mem_attach, Subtype.exists, exists_eq_right, true_and,
@@ -948,8 +925,7 @@ theorem densitySteps_subset_redOrDensitySteps :
   exact hi.1
 
 theorem redSteps_union_densitySteps :
-    redSteps μ k l ini ∪ densitySteps μ k l ini = redOrDensitySteps μ k l ini :=
-  by
+    redSteps μ k l ini ∪ densitySteps μ k l ini = redOrDensitySteps μ k l ini := by
   refine'
     Subset.antisymm
       (union_subset redSteps_subset_redOrDensitySteps densitySteps_subset_redOrDensitySteps)
@@ -961,22 +937,19 @@ theorem redSteps_union_densitySteps :
   refine' ⟨hi, _⟩
   exact (Classical.em _).imp_right not_le.mp
 
-theorem redSteps_disjoint_densitySteps : Disjoint (redSteps μ k l ini) (densitySteps μ k l ini) :=
-  by
+theorem redSteps_disjoint_densitySteps : Disjoint (redSteps μ k l ini) (densitySteps μ k l ini) := by
   rw [redSteps, densitySteps, disjoint_image Subtype.coe_injective, disjoint_filter]
   intro x hx
   simp
 
 theorem degree_regularisation_applied {i : ℕ} (hi : i ∈ degreeSteps μ k l ini) :
-    algorithm μ k l ini (i + 1) = (algorithm μ k l ini i).degreeRegularisationStep k ini.p :=
-  by
+    algorithm μ k l ini (i + 1) = (algorithm μ k l ini i).degreeRegularisationStep k ini.p := by
   rw [degreeSteps, mem_filter, mem_range] at hi
   rw [algorithm_succ hi.1]
   exact if_pos hi.2
 
 theorem big_blue_applied {i : ℕ} (hi : i ∈ bigBlueSteps μ k l ini) :
-    algorithm μ k l ini (i + 1) = (algorithm μ k l ini i).bigBlueStep μ :=
-  by
+    algorithm μ k l ini (i + 1) = (algorithm μ k l ini i).bigBlueStep μ := by
   rw [bigBlueSteps, mem_filter, mem_range] at hi
   rw [algorithm_succ hi.1]
   dsimp
@@ -985,8 +958,7 @@ theorem big_blue_applied {i : ℕ} (hi : i ∈ bigBlueSteps μ k l ini) :
 theorem red_applied {i : ℕ} (hi : i ∈ redSteps μ k l ini) :
     algorithm μ k l ini (i + 1) =
       (algorithm μ k l ini i).redStepBasic (getX (redSteps_subset_redOrDensitySteps hi))
-        (BookConfig.getCentralVertex_mem_x _ _ _) :=
-  by
+        (BookConfig.getCentralVertex_mem_x _ _ _) := by
   rw [redSteps, mem_image] at hi
   simp only [mem_filter, mem_attach, true_and, Subtype.exists, exists_and_right,
     exists_eq_right] at hi
@@ -1002,8 +974,7 @@ theorem density_applied {i : ℕ} (hi : i ∈ densitySteps μ k l ini) :
     algorithm μ k l ini (i + 1) =
       (algorithm μ k l ini i).densityBoostStepBasic
         (getX (densitySteps_subset_redOrDensitySteps hi))
-        (BookConfig.getCentralVertex_mem_x _ _ _) :=
-  by
+        (BookConfig.getCentralVertex_mem_x _ _ _) := by
   rw [densitySteps, mem_image] at hi
   simp only [mem_filter, mem_attach, true_and, Subtype.exists, exists_and_right,
     exists_eq_right] at hi
@@ -1017,8 +988,7 @@ theorem density_applied {i : ℕ} (hi : i ∈ densitySteps μ k l ini) :
 
 theorem union_partial_steps :
     redOrDensitySteps μ k l ini ∪ bigBlueSteps μ k l ini ∪ degreeSteps μ k l ini =
-      range (finalStep μ k l ini) :=
-  by
+      range (finalStep μ k l ini) := by
   rw [redOrDensitySteps, bigBlueSteps, ← filter_or, degreeSteps, ← filter_or]
   refine' filter_true_of_mem _
   intro i hi
@@ -1032,10 +1002,8 @@ theorem union_steps :
   by rw [union_right_comm (redSteps _ _ _ _), redSteps_union_densitySteps, union_partial_steps]
 
 theorem filter_even_thing {n : ℕ} :
-    ((range n).filter Even).card ≤ ((range n).filter fun i => ¬Even i).card + 1 :=
-  by
-  have : ((range n).filter Even).image Nat.succ ⊆ (range (n + 1)).filter fun i => ¬Even i :=
-    by
+    ((range n).filter Even).card ≤ ((range n).filter fun i => ¬Even i).card + 1 := by
+  have : ((range n).filter Even).image Nat.succ ⊆ (range (n + 1)).filter fun i => ¬Even i := by
     simp only [Finset.subset_iff, mem_filter, mem_image, and_imp, and_assoc, mem_range,
       forall_exists_index, Nat.succ_eq_add_one]
     rintro _ y hy hy' rfl
@@ -1050,12 +1018,10 @@ theorem filter_even_thing {n : ℕ} :
 theorem num_degreeSteps_le_add :
     (degreeSteps μ k l ini).card ≤
       (redSteps μ k l ini).card + (bigBlueSteps μ k l ini).card + (densitySteps μ k l ini).card +
-        1 :=
-  by
+        1 := by
   have :
     bigBlueSteps μ k l ini ∪ redOrDensitySteps μ k l ini =
-      (range (finalStep μ k l ini)).filter fun i => ¬Even i :=
-    by
+      (range (finalStep μ k l ini)).filter fun i => ¬Even i := by
     rw [bigBlueSteps, redOrDensitySteps, ← filter_or]
     refine' filter_congr _
     intro i hi
@@ -1073,8 +1039,7 @@ theorem cases_of_lt_finalStep {i : ℕ} (hi : i < finalStep μ k l ini) :
 
 -- (7)
 theorem x_subset {i : ℕ} (hi : i < finalStep μ k l ini) :
-    (algorithm μ k l ini (i + 1)).X ⊆ (algorithm μ k l ini i).X :=
-  by
+    (algorithm μ k l ini (i + 1)).X ⊆ (algorithm μ k l ini i).X := by
   rcases cases_of_lt_finalStep hi with (hi' | hi' | hi' | hi')
   · rw [red_applied hi', BookConfig.redStepBasic_x]
     exact inter_subset_right
@@ -1087,8 +1052,7 @@ theorem x_subset {i : ℕ} (hi : i < finalStep μ k l ini) :
 
 -- (7)
 theorem y_subset {i : ℕ} (hi : i < finalStep μ k l ini) :
-    (algorithm μ k l ini (i + 1)).Y ⊆ (algorithm μ k l ini i).Y :=
-  by
+    (algorithm μ k l ini (i + 1)).Y ⊆ (algorithm μ k l ini i).Y := by
   rcases cases_of_lt_finalStep hi with (hi' | hi' | hi' | hi')
   · rw [red_applied hi', BookConfig.redStepBasic_Y]
     exact inter_subset_right
@@ -1098,8 +1062,7 @@ theorem y_subset {i : ℕ} (hi : i < finalStep μ k l ini) :
   · rw [degree_regularisation_applied hi', BookConfig.degreeRegularisationStep_Y]
 
 theorem a_subset {i : ℕ} (hi : i < finalStep μ k l ini) :
-    (algorithm μ k l ini i).A ⊆ (algorithm μ k l ini (i + 1)).A :=
-  by
+    (algorithm μ k l ini i).A ⊆ (algorithm μ k l ini (i + 1)).A := by
   rcases cases_of_lt_finalStep hi with (hi' | hi' | hi' | hi')
   · rw [red_applied hi', BookConfig.redStepBasic_a]
     exact subset_insert _ _
@@ -1108,8 +1071,7 @@ theorem a_subset {i : ℕ} (hi : i < finalStep μ k l ini) :
   · rw [degree_regularisation_applied hi', BookConfig.degreeRegularisationStep_a]
 
 theorem b_subset {i : ℕ} (hi : i < finalStep μ k l ini) :
-    (algorithm μ k l ini i).B ⊆ (algorithm μ k l ini (i + 1)).B :=
-  by
+    (algorithm μ k l ini i).B ⊆ (algorithm μ k l ini (i + 1)).B := by
   rcases cases_of_lt_finalStep hi with (hi' | hi' | hi' | hi')
   · rw [red_applied hi', BookConfig.redStepBasic_b]
   · rw [big_blue_applied hi', BookConfig.bigBlueStep_b]
@@ -1133,8 +1095,7 @@ theorem blueXRatio_eq (hi : i ∈ redOrDensitySteps μ k l ini) :
 -- (8)
 theorem blueXRatio_prop (hi : i ∈ redOrDensitySteps μ k l ini) :
     blueXRatio μ k l ini i * (algorithm μ k l ini i).X.card =
-      ((blue_neighbors χ) (getX hi) ∩ (algorithm μ k l ini i).X).card :=
-  by
+      ((blue_neighbors χ) (getX hi) ∩ (algorithm μ k l ini i).X).card := by
   cases' Finset.eq_empty_or_nonempty (algorithm μ k l ini i).X with hX hX
   · rw [hX, inter_empty, card_empty, Nat.cast_zero, MulZeroClass.mul_zero]
   rw [blueXRatio, dif_pos hi, div_mul_cancel₀]
@@ -1146,8 +1107,7 @@ theorem blueXRatio_nonneg : 0 ≤ blueXRatio μ k l ini i := by
   · positivity
   · exact le_refl 0
 
-theorem blueXRatio_le_mu (hi : i ∈ redOrDensitySteps μ k l ini) : blueXRatio μ k l ini i ≤ μ :=
-  by
+theorem blueXRatio_le_mu (hi : i ∈ redOrDensitySteps μ k l ini) : blueXRatio μ k l ini i ≤ μ := by
   rw [blueXRatio_eq hi]
   have := getX_mem_centralVertices i hi
   rw [BookConfig.centralVertices, mem_filter] at this
