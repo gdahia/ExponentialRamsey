@@ -96,12 +96,12 @@ theorem descFactorial_monotoneOn :
     · intro x hx y hy hxy
       simpa using hxy
     · rw [Set.Ici_subset_Ici]
-      simp
+      simp only [tsub_le_iff_right, le_add_iff_nonneg_right, zero_le_one]
     · intro x hx
       exact sub_nonneg_of_le hx
     intro x hx
     refine' descFactorial_nonneg (hx.trans' _)
-    simp
+    simp only [tsub_le_iff_right, le_add_iff_nonneg_right, zero_le_one]
 
 theorem descFactorial_convex :
     ∀ k : ℕ, ConvexOn ℝ (Set.Ici ((k : ℝ) - 1)) fun x => descFactorial x k
@@ -113,17 +113,17 @@ theorem descFactorial_convex :
     · exact convexOn_sub_const (convex_Ici _)
     · refine' (descFactorial_convex k).subset _ (convex_Ici _)
       rw [Set.Ici_subset_Ici]
-      simp
+      simp only [tsub_le_iff_right, le_add_iff_nonneg_right, zero_le_one]
     · intro x hx y hy hxy
       simpa using hxy
     · refine' (descFactorial_monotoneOn _).mono _
       rw [Set.Ici_subset_Ici]
-      simp
+      simp only [tsub_le_iff_right, le_add_iff_nonneg_right, zero_le_one]
     · intro x hx
       exact sub_nonneg_of_le hx
     intro x hx
     refine' descFactorial_nonneg (hx.trans' _)
-    simp
+    simp only [tsub_le_iff_right, le_add_iff_nonneg_right, zero_le_one]
 
 theorem my_convex {k : ℝ} {f : ℝ → ℝ} (hf : ConvexOn ℝ (Set.Ici k) f)
     (hf' : MonotoneOn f (Set.Ici k)) (hk : ∀ x < k, f x = f k) : ConvexOn ℝ Set.univ f := by
@@ -202,7 +202,7 @@ theorem my_thing {α : Type*} {s : Finset α} (f : α → ℕ) (b : ℕ) (hb : b
   have h₁ : ∑ i ∈ s, (s.card : ℝ)⁻¹ = 1 := by
     rw [Finset.sum_const, nsmul_eq_mul, mul_inv_cancel₀]
     exact_mod_cast hs
-  have h₂ : ∀ i ∈ s, (f i : ℝ) ∈ (Set.univ : Set ℝ) := by intro i hi; simp
+  have h₂ : ∀ i ∈ s, (f i : ℝ) ∈ (Set.univ : Set ℝ) := by intro i hi; simp only [Set.mem_univ]
   have h₃ : ∀ i ∈ s, (0 : ℝ) ≤ (s.card : ℝ)⁻¹ := by
     intro i hi
     positivity
@@ -353,10 +353,10 @@ theorem four_one_part_one [Fintype V] (μ : ℝ) (l k : ℕ) (C : BookConfig χ)
     apply hR
     refine ⟨U.map (Function.Embedding.subtype _), hU'.map, ?_⟩
     rw [card_map, ← hU'']
-    simp
+    simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.isValue, Matrix.cons_val_zero, Std.le_refl]
   refine' ⟨U.map (Function.Embedding.subtype _), hU.1.map, _, _⟩
   · rw [card_map, ← hU.2]
-    simp
+    simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.isValue, Matrix.cons_val_one, Matrix.cons_val_fin_one]
   constructor
   · intro x hx
     rw [Finset.mem_map] at hx
@@ -855,7 +855,7 @@ theorem four_three_aux' (hμ₀ : 0 < μ₀) :
     exact Finset.card_le_card (b_subset hi)
   rw [Finset.inter_insert_of_mem hstep, card_insert_of_notMem]
   swap
-  · simp
+  · simp only [mem_inter, mem_range, lt_self_iff_false, and_false, not_false_eq_true]
   rw [big_blue_applied hstep, BookConfig.bigBlueStep_b, Nat.cast_add_one, mul_add_one,
     card_union_of_disjoint, Nat.cast_add]
   · refine' add_le_add ih _
@@ -898,7 +898,7 @@ theorem four_four_red_aux {μ : ℝ} {k l : ℕ} (ini : BookConfig χ) (i : ℕ)
     (redSteps μ k l ini ∩ range i).card ≤ (algorithm μ k l ini i).A.card := by
   induction' i with i ih
   · rw [range_zero, inter_empty, card_empty]
-    simp
+    simp only [zero_le]
   rw [range_add_one]
   rw [Nat.succ_le_iff] at hi
   specialize ih hi.le
@@ -909,7 +909,7 @@ theorem four_four_red_aux {μ : ℝ} {k l : ℕ} (ini : BookConfig χ) (i : ℕ)
     exact Finset.card_le_card (a_subset hi)
   rw [Finset.inter_insert_of_mem hstep, card_insert_of_notMem]
   swap
-  · simp
+  · simp only [mem_inter, mem_range, lt_self_iff_false, and_false, not_false_eq_true]
   rwa [red_applied hstep, BookConfig.redStepBasic_a, card_insert_of_notMem, add_le_add_iff_right]
   refine' Finset.disjoint_left.1 (algorithm μ k l ini i).hXA _
   exact BookConfig.getCentralVertex_mem_x _ _ _
@@ -920,7 +920,7 @@ theorem four_four_blue_density_aux {μ : ℝ} {k l : ℕ} (hk : k ≠ 0) (hl : l
       (algorithm μ k l ini i).B.card := by
   induction' i with i ih
   · rw [range_zero, inter_empty, card_empty]
-    simp
+    simp only [zero_le]
   rw [range_add_one]
   rw [Nat.succ_le_iff] at hi
   specialize ih hi.le
@@ -930,7 +930,7 @@ theorem four_four_blue_density_aux {μ : ℝ} {k l : ℕ} (hk : k ≠ 0) (hl : l
     exact ih.trans (Finset.card_le_card (b_subset hi))
   rw [Finset.inter_insert_of_mem hstep, card_insert_of_notMem]
   swap
-  · simp
+  · simp only [mem_inter, mem_union, mem_range, lt_self_iff_false, and_false, not_false_eq_true]
   refine' (show #((bigBlueSteps μ k l ini ∪ densitySteps μ k l ini) ∩ range i) + 1 ≤
       #(algorithm μ k l ini i).B + 1 by simpa [add_comm] using add_le_add_right ih 1).trans _
   rw [mem_union] at hstep
