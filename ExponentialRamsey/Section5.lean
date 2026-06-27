@@ -221,9 +221,6 @@ theorem tendsto_nat_ceil_atTop {α : Type*} [Semiring α] [LinearOrder α] [IsSt
     Tendsto (fun x : α => ⌈x⌉₊) atTop atTop :=
   Nat.ceil_mono.tendsto_atTop_atTop fun n => ⟨n, (Nat.ceil_natCast _).ge⟩
 
-theorem log_le_log_of_le {x y : ℝ} (hx : 0 < x) (hxy : x ≤ y) : log x ≤ log y :=
-  log_le_log hx hxy
-
 theorem log_n_large (c : ℝ) :
     ∀ᶠ l : ℕ in atTop, ∀ k : ℕ, l ≤ k → c ≤ 1 / 128 * (l : ℝ) ^ (3 / 4 : ℝ) * Real.log k := by
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
@@ -236,7 +233,7 @@ theorem log_n_large (c : ℝ) :
   refine' hl.trans _
   dsimp
   rw [← mul_assoc]
-  exact mul_le_mul_of_nonneg_left (log_le_log_of_le hl' (Nat.cast_le.2 hlk)) (by positivity)
+  exact mul_le_mul_of_nonneg_left (log_le_log hl' (Nat.cast_le.2 hlk)) (by positivity)
 
 theorem five_six_aux_left_term :
     ∀ᶠ l : ℕ in atTop,
@@ -271,7 +268,7 @@ theorem five_six_aux_left_term :
   · exact (rpow_pos_of_pos h₃'1 _).ne'
   refine'
     (add_le_add_left
-          (mul_le_mul (log_le_log_of_le h'₁ (Nat.floor_le (exp_pos _).le)) h₁ (Nat.cast_nonneg _) _)
+          (mul_le_mul (log_le_log h'₁ (Nat.floor_le (exp_pos _).le)) h₁ (Nat.cast_nonneg _) _)
           _).trans_lt
       _
   · rw [log_exp]
@@ -299,7 +296,7 @@ theorem five_six_aux_left_term :
   swap
   · norm_num
   exact
-    (mul_le_mul_of_nonneg_left (log_le_log_of_le (zero_lt_one.trans h₃) (Nat.cast_le.2 hlk))
+    (mul_le_mul_of_nonneg_left (log_le_log (zero_lt_one.trans h₃) (Nat.cast_le.2 hlk))
           (by positivity)).trans_lt'
       h₄
 
@@ -334,7 +331,7 @@ theorem five_six_aux_right_term :
   · exact Nat.cast_pos.mpr (zero_lt_one.trans (h₁.trans_le hlk))
   refine'
     (add_le_add_left
-          (mul_le_mul_of_nonneg_left (log_le_log_of_le h'₁ (Nat.floor_le (exp_pos _).le))
+          (mul_le_mul_of_nonneg_left (log_le_log h'₁ (Nat.floor_le (exp_pos _).le))
             (Nat.cast_nonneg _))
           _).trans_lt
       _
