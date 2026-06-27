@@ -227,19 +227,15 @@ theorem b_le_m {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ₀ : 
 theorem four_two_aux_aux {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ : 0 < σ) :
     myGeneralizedBinomial (σ * m) b * (m.choose b : ℝ)⁻¹ =
       descFactorial (σ * m) b / descFactorial (m : ℝ) b := by
-  have hdesc : myDescFactorial (σ * m) b = descFactorial (σ * m) b := by
+  rw [myGeneralizedBinomial, smul_eq_mul, Nat.choose_eq_descFactorial_div_factorial, Nat.cast_div,
+    inv_div, ← div_eq_inv_mul, div_mul_div_cancel₀ (by positivity), ← descFactorial_cast_nat]
+  · congr 1
     refine' myDescFactorial_eqOn _
     rw [Set.mem_Ici]
     have : (b : ℝ) - 1 ≤ b := by linarith
     exact this.trans (hb.trans (half_le_self (by positivity)))
-  rw [myGeneralizedBinomial, smul_eq_mul, Nat.choose_eq_descFactorial_div_factorial, hdesc]
-  by_cases hbm : b ≤ m
-  · rw [Nat.cast_div (Nat.factorial_dvd_descFactorial _ _) (by positivity), inv_div,
-      ← descFactorial_cast_nat]
-    field_simp
-  · have hlt := Nat.lt_of_not_ge hbm
-    have hd0 : m.descFactorial b = 0 := Nat.descFactorial_eq_zero_iff_lt.2 hlt
-    simp [hd0, descFactorial_cast_nat]
+  · exact Nat.factorial_dvd_descFactorial _ _
+  · positivity
 
 theorem four_two_aux {m b : ℕ} {σ : ℝ} :
     descFactorial (σ * m) b / descFactorial (m : ℝ) b =
