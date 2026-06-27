@@ -277,24 +277,33 @@ theorem four_two_aux'' {m b i : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) 
   rw [div_le_iff₀ hden, one_div, inv_mul_eq_div, le_div_iff₀ hmpos]
   linarith
 
+theorem general_convex_thing {a x : ℝ} (hx : 0 ≤ x) (hxa : x ≤ a) (ha : a ≠ 0) :
+    exp x ≤ 1 + (exp a - 1) * x / a := by
+  have ha₀ : 0 < a := (hx.trans hxa).lt_of_ne ha.symm
+  have h₁ : 0 ≤ x / a := div_nonneg hx ha₀.le
+  have h₂ : 0 ≤ 1 - x / a := by rw [sub_nonneg, div_le_one₀ ha₀]; exact hxa
+  have := convexOn_exp.2 (Set.mem_univ 0) (Set.mem_univ a) h₂ h₁ (by simp)
+  simp only [smul_eq_mul, MulZeroClass.mul_zero, div_mul_cancel₀ _ ha, zero_add,
+    Real.exp_zero, mul_one] at this
+  refine' this.trans_eq _
+  ring_nf
+
+theorem general_convex_thing' {a x : ℝ} (hx : x ≤ 0) (hxa : a ≤ x) (ha : a ≠ 0) :
+    exp x ≤ 1 + (exp a - 1) * x / a := by
+  have ha₀ : a < 0 := (hxa.trans hx).lt_of_ne ha
+  have h₁ : 0 ≤ x / a := div_nonneg_of_nonpos hx ha₀.le
+  have h₂ : 0 ≤ 1 - x / a := by rw [sub_nonneg]; exact div_le_one_of_neg ha₀ |>.mpr hxa
+  have := convexOn_exp.2 (Set.mem_univ 0) (Set.mem_univ a) h₂ h₁ (by simp)
+  simp only [smul_eq_mul, MulZeroClass.mul_zero, div_mul_cancel₀ _ ha, zero_add,
+    Real.exp_zero, mul_one] at this
+  refine' this.trans_eq _
+  ring_nf
+
 theorem exp_thing {x : ℝ} (hx₀ : 0 ≤ x) (hx₁ : x ≤ 1 / 2) : Real.exp (-2 * x) ≤ 1 - x := by
-  let a := 2 * x
-  have ha : 0 ≤ a := mul_nonneg (by norm_num1) hx₀
-  have ha' : 0 ≤ 1 - a := by
-    simp only [a]
-    linarith only [hx₁]
-  have := convexOn_exp.2 (Set.mem_univ (-1)) (Set.mem_univ 0) ha ha' (by simp)
-  simp only [smul_eq_mul, mul_neg, ← neg_mul, mul_one, MulZeroClass.mul_zero, add_zero,
-    Real.exp_zero, a] at this
-  refine' this.trans _
-  rw [add_comm, sub_add, sub_le_sub_iff_left, ← mul_one_sub, mul_right_comm]
-  refine' le_mul_of_one_le_left hx₀ _
-  have hexp : Real.exp (-1) ≤ 1 / 2 := by
-    rw [Real.exp_neg]
-    simpa [one_div] using
-      one_div_le_one_div_of_le (by norm_num : (0 : ℝ) < 2)
-        (exp_one_gt_d9.le.trans' (by norm_num))
-  linarith
+  have h := general_convex_thing' (a := -1) (by linarith : -2 * x ≤ 0) (by linarith : -1 ≤ -2 * x)
+    (by norm_num : (-1 : ℝ) ≠ 0)
+  simp only [div_neg] at h
+  linarith [mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 2) hx₀) (sub_nonneg_of_le exp_neg_one_lt_half.le)]
 
 theorem four_two_aux''' {m b i : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ₀ : 0 ≤ σ)
     (hi : i ∈ Finset.range b) : Real.exp (-2 / (σ * m) * i) ≤ (1 : ℝ) - i / (σ * m) := by
