@@ -131,12 +131,7 @@ theorem descFactorial_convex :
 
 theorem my_convex {k : ℝ} {f : ℝ → ℝ} (hf : ConvexOn ℝ (Set.Ici k) f)
     (hf' : MonotoneOn f (Set.Ici k)) (hk : ∀ x < k, f x = f k) : ConvexOn ℝ Set.univ f := by
-  have : f = f ∘ max k := by
-    ext x
-    rw [Function.comp_apply]
-    by_cases h : x < k
-    · rw [max_eq_left h.le, hk _ h]
-    · rw [max_eq_right (by linarith)]
+  have : f = f ∘ max k := by grind
   rw [this]
   have : Set.range (max k) = Set.Ici k := by
     ext x
@@ -433,7 +428,8 @@ theorem four_one_part_two [Fintype V] (μ : ℝ) {l : ℕ} {C : BookConfig χ} {
   positivity
 
 -- (10)
-omit [DecidableEq V] in theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : BookConfig χ} {U : Finset V} (hμ : 0 ≤ μ)
+omit [DecidableEq V] in
+theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : BookConfig χ} {U : Finset V} (hμ : 0 ≤ μ)
     (hk₆ : 6 ≤ k) (hl : 3 ≤ l) (hU : U.card = ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊)
     (hX : ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ C.X.card) :
     μ - 2 / k ≤ (μ * C.X.card - U.card) / (C.X.card - U.card) := by
