@@ -25,8 +25,7 @@ theorem hMul_log_two_le_log_one_add {ε : ℝ} (hε : 0 ≤ ε) (hε' : ε ≤ 1
   · linarith
   have : 0 ≤ 1 - ε := by rwa [sub_nonneg]
   have := convexOn_exp.2 (Set.mem_univ 0) (Set.mem_univ (log 2)) this hε (by simp)
-  simp only [smul_eq_mul, MulZeroClass.mul_zero, zero_add, Real.exp_zero, mul_one,
-    exp_log two_pos] at this
+  simp only [smul_eq_mul, mul_zero, zero_add, Real.exp_zero, mul_one, exp_log two_pos] at this
   refine' this.trans_eq _
   ring_nf
 namespace SimpleGraph
@@ -431,7 +430,7 @@ theorem five_six :
 theorem abs_pairWeight_le_one {X Y : Finset V} {x y : V} : |pairWeight χ X Y x y| ≤ 1 := by
   rw [pairWeight, abs_mul, abs_inv]
   obtain h | h := Nat.eq_zero_or_pos Y.card
-  · rw [h, Nat.cast_zero, abs_zero, inv_zero, MulZeroClass.zero_mul]
+  · rw [h, Nat.cast_zero, abs_zero, inv_zero, zero_mul]
     exact zero_le_one
   rw [Nat.abs_cast, inv_mul_le_iff₀, mul_one]
   swap
@@ -1183,8 +1182,7 @@ theorem five_one_case_b_condition (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp�
   intro hXB
   have hβ : blueXRatio μ k l ini i = 0 := by
     rw [blueXRatio_eq hi, hXB, Finset.card_empty, Nat.cast_zero, zero_div]
-  rw [hXB, hβ, Finset.sum_empty, MulZeroClass.mul_zero, MulZeroClass.zero_mul, zero_add, sub_zero,
-    mul_one] at hl
+  rw [hXB, hβ, Finset.sum_empty, mul_zero, zero_mul, zero_add, sub_zero, mul_one] at hl
   have hp₀ : (1 : ℝ) / k ≤ ini.p := by
     refine' hini.trans' _
     rw [one_div]
