@@ -8,6 +8,7 @@ import ExponentialRamsey.Prereq.GraphProbability
 import Mathlib.Algebra.Order.Chebyshev
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Finset.Card
+import Mathlib.Data.Finset.CastCard
 import Mathlib.Data.Finset.Prod
 import Mathlib.Data.Finset.Attach
 
@@ -19,11 +20,6 @@ import Mathlib.Data.Finset.Attach
 open Real
 
 open Real Filter in
--- Porting note: this was available in Lean 3 but not in Lean 4
-theorem eventually_le_of_tendsto_lt' {α : Type*} {f : α → ℝ} {l : Filter α} {c : ℝ}
-    (hc : 0 < c) (hf : Tendsto f l (nhds 0)) : ∀ᶠ x in l, f x ≤ c :=
-  hf.eventually (eventually_le_nhds hc)
-
 theorem hMul_log_two_le_log_one_add {ε : ℝ} (hε : 0 ≤ ε) (hε' : ε ≤ 1) : ε * log 2 ≤ log (1 + ε) := by
   rw [le_log_iff_exp_le]
   swap
@@ -40,11 +36,6 @@ namespace SimpleGraph
 open scoped ExponentialRamsey
 
 open Filter Finset
-
--- Porting note: not in Lean 4 Mathlib
-theorem cast_card_sdiff {α : Type*} {s t : Finset α} [DecidableEq α] (h : s ⊆ t) :
-    ((t \ s).card : ℝ) = (t.card : ℝ) - (s.card : ℝ) := by
-  rw [Finset.card_sdiff_of_subset h, Nat.cast_sub (Finset.card_le_card h)]
 
 theorem top_adjuster {α : Type*} [SemilatticeSup α] [Nonempty α] {p : α → Prop}
     (h : ∀ᶠ k : α in atTop, p k) : ∀ᶠ l : α in atTop, ∀ k : α, l ≤ k → p k := by
@@ -743,7 +734,7 @@ theorem five_eight_weaker (p₀l : ℝ) (hp₀l : 0 < p₀l) :
                               ((red_neighbors χ) x ∩ (algorithm μ k l ini (i + 1)).Y).card := by
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have := tendsto_rpow_neg_atTop (show (0 : ℝ) < 1 / 8 by norm_num)
-  have := eventually_le_of_tendsto_lt' (show (0 : ℝ) < 1 - 2⁻¹ by norm_num) this
+  have := this.eventually_le_const (show (0 : ℝ) < 1 - 2⁻¹ by norm_num)
   filter_upwards [top_adjuster (t.eventually_ge_atTop p₀l⁻¹),
     top_adjuster (t.eventually this)] with l hl hl₂ k hlk μ n χ ini hini i x hi hx
   specialize hl k hlk
@@ -869,7 +860,7 @@ theorem red_neighbors_inter_eq {x : V} {X : Finset V} (hx : x ∈ X) :
 theorem card_red_neighbors_inter {μ : ℝ} (hi : i ∈ redOrDensitySteps μ k l ini) :
     (((red_neighbors χ) (getX hi) ∩ (algorithm μ k l ini i).X).card : ℝ) =
       (1 - blueXRatio μ k l ini i) * (algorithm μ k l ini i).X.card - 1 := by
-  rw [red_neighbors_inter_eq, cast_card_sdiff, Finset.card_insert_of_notMem, one_sub_mul,
+  rw [red_neighbors_inter_eq, Finset.cast_card_sdiff, Finset.card_insert_of_notMem, one_sub_mul,
     Nat.cast_add_one, ← sub_sub, blueXRatio_prop]
   · simp [not_mem_colNeighbors]
   · exact Finset.insert_subset (BookConfig.getCentralVertex_mem_x _ _ _) Finset.inter_subset_right
@@ -1393,7 +1384,7 @@ theorem five_three_right (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp₀l : 0 < 
   have h34 := tendsto_rpow_atTop (show (0 : ℝ) < 3 / 4 by norm_num)
   have h := (tendsto_atTop_add_const_right _ (-2) h34).atTop_mul_atTop₀ h54
   have := tendsto_rpow_neg_atTop (show (0 : ℝ) < 1 / 4 by norm_num)
-  have := eventually_le_of_tendsto_lt' (show (0 : ℝ) < 1 - 2⁻¹ by norm_num) this
+  have := this.eventually_le_const (show (0 : ℝ) < 1 - 2⁻¹ by norm_num)
   filter_upwards [five_two μ₁ p₀l hμ₁ hp₀l, top_adjuster (t.eventually this),
     top_adjuster (t.eventually_gt_atTop 0), top_adjuster ((h.comp t).eventually_ge_atTop 1)] with l
     hl hl' hk₀ hk' k hlk μ hμu n χ ini hini i hi
