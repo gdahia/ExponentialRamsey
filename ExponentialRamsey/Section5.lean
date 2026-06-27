@@ -373,7 +373,7 @@ theorem five_six_aux_part_one :
           ∀ k : ℕ,
             l ≤ k →
               exp (c * l ^ (3 / 4 : ℝ) * log k) ≤ ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] := by
-  refine' ⟨1 / 128, by norm_num, _⟩
+  refine' ⟨1 / 128, by norm_num1, _⟩
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have h34 : (0 : ℝ) < 3 / 4 := by norm_num
   have := (tendsto_nat_ceil_atTop.comp (tendsto_rpow_atTop h34)).comp t
@@ -408,7 +408,7 @@ theorem five_six :
   have := ((isLittleO_one_rpow h34).add (isLittleO_rpow_rpow h2334)).def hc6
   filter_upwards [hf, top_adjuster (t.eventually_gt_atTop 0),
     top_adjuster ((tendsto_log_atTop.comp t).eventually_ge_atTop 0),
-    ((tendsto_rpow_atTop h23).comp t).eventually (ceil_eventually_le 6 (by norm_num)),
+    ((tendsto_rpow_atTop h23).comp t).eventually (ceil_eventually_le 6 (by norm_num1)),
     t.eventually (((isLittleO_one_rpow h34).add (isLittleO_rpow_rpow h2334)).def hc6)] with l hl hl₀ hll₀ hl'
     hl₁ k hlk
   specialize hl k hlk
@@ -708,7 +708,7 @@ theorem five_eight_weak {μ : ℝ} {k l : ℕ} {ini : BookConfig χ} (h : 1 / (k
   · rw [degreeSteps, Finset.mem_filter, Finset.mem_range] at hi
     exact (one_div_k_lt_p_of_lt_finalStep hi.1).le
   rw [sub_nonneg]
-  refine' rpow_le_one_of_one_le_of_nonpos _ (by norm_num)
+  refine' rpow_le_one_of_one_le_of_nonpos _ (by norm_num1)
   rwa [Nat.one_le_cast, Nat.succ_le_iff, pos_iff_ne_zero]
 
 theorem five_eight_weaker (p₀l : ℝ) (hp₀l : 0 < p₀l) :
@@ -783,7 +783,7 @@ theorem α_le_one {k : ℕ} {p₀ p : ℝ} (hp₀₁ : p₀ ≤ 1) (h : 1 / (k :
   rw [sub_add]
   refine' (sub_le_sub_right (q_height_le_two hp₀₁ hp) _).trans _
   refine' (sub_le_self _ (sub_nonneg_of_le h)).trans _
-  refine' (rpow_le_rpow (by norm_num1) (Nat.cast_le.2 hk) (by norm_num)).trans' _
+  refine' (rpow_le_rpow (by norm_num1) (Nat.cast_le.2 hk) (by norm_num1)).trans' _
   rw [Nat.cast_pow, ← rpow_natCast, ← rpow_mul] <;> norm_num
 
 variable {k l : ℕ} {ini : BookConfig χ} {i : ℕ}
@@ -1125,9 +1125,10 @@ theorem five_one_case_b_later (μ₁ : ℝ) (p₀l : ℝ) (hμ₁ : μ₁ < 1) (
       mul_nonneg (sub_nonneg_of_le blueXRatio_le_one)
         (rpow_nonneg (Nat.cast_nonneg _) _)
   rw [← rpow_sub_one hk₀.ne', mul_comm, mul_assoc, ← rpow_add hk₀, ← rpow_natCast]
-  norm_num
+  norm_num1
+  simp only [rpow_ofNat]
   rw [div_le_iff₀ (by positivity), mul_assoc, ← rpow_natCast, ← rpow_add hk₀]
-  norm_num
+  norm_num1
   have : 1 - μ ≤ 1 - blueXRatio μ k l ini i := sub_le_sub_left (blueXRatio_le_mu hi) _
   refine' (mul_le_mul_of_nonneg_right this (rpow_nonneg (Nat.cast_nonneg _) _)).trans' _
   rw [← div_le_iff₀' (sub_pos_of_lt (hμ₁.trans_le' hμu))]
