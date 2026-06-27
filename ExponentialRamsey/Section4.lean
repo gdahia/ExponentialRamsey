@@ -71,9 +71,7 @@ def descFactorial {α : Type*} [One α] [Mul α] [Sub α] [NatCast α] (x : α) 
 
 theorem descFactorial_nonneg {x : ℝ} : ∀ {k : ℕ}, (k : ℝ) - 1 ≤ x → 0 ≤ descFactorial x k
   | 0, h => zero_le_one
-  | k + 1, h =>
-    mul_nonneg (by rwa [Nat.cast_add_one, add_sub_cancel_right, ← sub_nonneg] at h)
-      (descFactorial_nonneg (h.trans' (by simp)))
+  | k + 1, h => mul_nonneg (by grind) (descFactorial_nonneg (h.trans' (by simp)))
 
 theorem descFactorial_nat (n : ℕ) : ∀ k : ℕ, descFactorial n k = n.descFactorial k
   | 0 => rfl
