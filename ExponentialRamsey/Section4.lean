@@ -373,12 +373,12 @@ theorem four_one_part_one [Fintype V] (μ : ℝ) (l k : ℕ) (C : BookConfig χ)
   rw [← Fintype.card_coe W, ramseyNumber_le_iff, isRamseyValid_iff_eq] at this
   obtain ⟨U, hU⟩ := this (χ.pullback (Function.Embedding.subtype _))
   rw [Fin.exists_fin_two] at hU
-  -- TODO: clean up this nested `by`
-  replace hU := hU.resolve_left (by
-    rintro ⟨hU', hU''⟩
-    refine' hR ⟨U.map (Function.Embedding.subtype _), hU'.map, _⟩
+  rcases hU with (⟨hU', hU''⟩ | hU)
+  · exfalso
+    apply hR
+    refine ⟨U.map (Function.Embedding.subtype _), hU'.map, ?_⟩
     rw [card_map, ← hU'']
-    simp)
+    simp
   refine' ⟨U.map (Function.Embedding.subtype _), hU.1.map, _, _⟩
   · rw [card_map, ← hU.2]
     simp
