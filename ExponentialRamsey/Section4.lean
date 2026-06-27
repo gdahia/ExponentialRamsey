@@ -13,21 +13,8 @@ import Mathlib.Algebra.Order.Floor.Semifield
 
 theorem ConvexOn.hMul {f g : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) (hg : ConvexOn ℝ s g)
     (hf' : MonotoneOn f s) (hg' : MonotoneOn g s) (hf'' : ∀ x ∈ s, 0 ≤ f x)
-    (hg'' : ∀ x ∈ s, 0 ≤ g x) : ConvexOn ℝ s fun x => f x * g x := by
-  refine' LinearOrder.convexOn_of_lt hf.1 _
-  intro x hx y hy hxy a b ha hb hab
-  replace hg := hg.2 hx hy ha.le hb.le hab
-  refine'
-    (mul_le_mul (hf.2 hx hy ha.le hb.le hab) hg (hg'' _ (hf.1 hx hy ha.le hb.le hab))
-          (add_nonneg (smul_nonneg ha.le (hf'' _ hx)) (smul_nonneg hb.le (hf'' _ hy)))).trans
-      _
-  have : b = 1 - a := by rwa [eq_sub_iff_add_eq']
-  subst this
-  simp only [smul_eq_mul]
-  suffices 0 ≤ a * (1 - a) * (g y - g x) * (f y - f x) by nlinarith only [this]
-  exact
-    mul_nonneg (mul_nonneg (by positivity) (sub_nonneg_of_le (hg' hx hy hxy.le)))
-      (sub_nonneg_of_le (hf' hx hy hxy.le))
+    (hg'' : ∀ x ∈ s, 0 ≤ g x) : ConvexOn ℝ s fun x => f x * g x :=
+  hf.mul hg hf'' hg'' (hf'.monovaryOn hg')
 
 theorem MonotoneOn.hMul {s : Set ℝ} {f g : ℝ → ℝ} (hf : MonotoneOn f s) (hg : MonotoneOn g s)
     (hf' : ∀ x ∈ s, 0 ≤ f x) (hg' : ∀ x ∈ s, 0 ≤ g x) : MonotoneOn (fun x => f x * g x) s :=
@@ -42,18 +29,18 @@ theorem Convex.union {s t : Set ℝ} (hs : Convex ℝ s) (ht : Convex ℝ t) (hs
   obtain ⟨a, has, hat⟩ := hst
   rw [convex_iff_ordConnected, Set.ordConnected_iff_uIcc_subset]
   rintro x (hx | hx) y (hy | hy)
-  · exact ((Convex.ordConnected hs).uIcc_subset hx hy).trans Set.subset_union_left
+  · exact (hs.ordConnected.uIcc_subset hx hy).trans Set.subset_union_left
   ·
     exact
       Set.uIcc_subset_uIcc_union_uIcc.trans
-        (Set.union_subset_union ((Convex.ordConnected hs).uIcc_subset hx has)
-          ((Convex.ordConnected ht).uIcc_subset hat hy))
+        (Set.union_subset_union (hs.ordConnected.uIcc_subset hx has)
+          (ht.ordConnected.uIcc_subset hat hy))
   · rw [Set.union_comm]
     exact
       Set.uIcc_subset_uIcc_union_uIcc.trans
-        (Set.union_subset_union ((Convex.ordConnected ht).uIcc_subset hx hat)
-          ((Convex.ordConnected hs).uIcc_subset has hy))
-  · exact ((Convex.ordConnected ht).uIcc_subset hx hy).trans Set.subset_union_right
+        (Set.union_subset_union (ht.ordConnected.uIcc_subset hx hat)
+          (hs.ordConnected.uIcc_subset has hy))
+  · exact (ht.ordConnected.uIcc_subset hx hy).trans Set.subset_union_right
 
 theorem convexOn_univ_max {k : ℝ} : ConvexOn ℝ Set.univ (max k) := by
   refine' LinearOrder.convexOn_of_lt convex_univ _
@@ -108,7 +95,7 @@ theorem descFactorial_monotoneOn :
     simp only [descFactorial]
     exact monotoneOn_const
   | k + 1 => by
-    rw [show ((k + 1 : ℕ) : ℝ) - 1 = k by norm_num]
+    rw [Nat.cast_add_one, add_sub_cancel_right]
     refine' MonotoneOn.hMul _ ((descFactorial_monotoneOn k).mono _) _ _
     · intro x hx y hy hxy
       simpa using hxy
@@ -124,7 +111,7 @@ theorem descFactorial_convex :
     ∀ k : ℕ, ConvexOn ℝ (Set.Ici ((k : ℝ) - 1)) fun x => descFactorial x k
   | 0 => convexOn_const 1 (convex_Ici _)
   | k + 1 => by
-    rw [show ((k + 1 : ℕ) : ℝ) - 1 = k by norm_num]
+    rw [Nat.cast_add_one, add_sub_cancel_right]
     change ConvexOn _ _ fun x : ℝ => (x - k) * descFactorial x k
     refine' ConvexOn.hMul _ _ _ _ _ _
     · exact convexOn_sub_const (convex_Ici _)
@@ -144,12 +131,7 @@ theorem descFactorial_convex :
 
 theorem my_convex {k : ℝ} {f : ℝ → ℝ} (hf : ConvexOn ℝ (Set.Ici k) f)
     (hf' : MonotoneOn f (Set.Ici k)) (hk : ∀ x < k, f x = f k) : ConvexOn ℝ Set.univ f := by
-  have : f = f ∘ max k := by
-    ext x
-    rw [Function.comp_apply]
-    cases lt_or_ge x k with
-    | inl h => rw [max_eq_left h.le, hk _ h]
-    | inr h => rw [max_eq_right h]
+  have : f = f ∘ max k := by grind
   rw [this]
   have : Set.range (max k) = Set.Ici k := by
     ext x
@@ -386,11 +368,12 @@ theorem four_one_part_one [Fintype V] (μ : ℝ) (l k : ℕ) (C : BookConfig χ)
   rw [← Fintype.card_coe W, ramseyNumber_le_iff, isRamseyValid_iff_eq] at this
   obtain ⟨U, hU⟩ := this (χ.pullback (Function.Embedding.subtype _))
   rw [Fin.exists_fin_two] at hU
-  replace hU := hU.resolve_left (by
-    rintro ⟨hU', hU''⟩
-    refine' hR ⟨U.map (Function.Embedding.subtype _), hU'.map, _⟩
+  rcases hU with (⟨hU', hU''⟩ | hU)
+  · exfalso
+    apply hR
+    refine ⟨U.map (Function.Embedding.subtype _), hU'.map, ?_⟩
     rw [card_map, ← hU'']
-    simp)
+    simp
   refine' ⟨U.map (Function.Embedding.subtype _), hU.1.map, _, _⟩
   · rw [card_map, ← hU.2]
     simp
@@ -445,7 +428,8 @@ theorem four_one_part_two [Fintype V] (μ : ℝ) {l : ℕ} {C : BookConfig χ} {
   positivity
 
 -- (10)
-omit [DecidableEq V] in theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : BookConfig χ} {U : Finset V} (hμ : 0 ≤ μ)
+omit [DecidableEq V] in
+theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : BookConfig χ} {U : Finset V} (hμ : 0 ≤ μ)
     (hk₆ : 6 ≤ k) (hl : 3 ≤ l) (hU : U.card = ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊)
     (hX : ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ C.X.card) :
     μ - 2 / k ≤ (μ * C.X.card - U.card) / (C.X.card - U.card) := by
@@ -478,7 +462,7 @@ omit [DecidableEq V] in theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : 
     simpa [add_comm] using add_le_add_right hmul 1
   refine' this.trans _
   rw [ramseyNumber_pair_swap] at hX
-  replace hX := (hMul_sub_two_le_ramseyNumber hm₃).trans hX
+  replace hX := (mul_sub_two_le_ramseyNumber hm₃).trans hX
   rw [← @Nat.cast_le ℝ] at hX
   refine' hX.trans' _
   rw [Nat.cast_mul, Nat.cast_sub, Nat.cast_two]
@@ -618,7 +602,7 @@ theorem four_one_part_seven {V : Type*} [DecidableEq V] {m b : ℕ} {X U : Finse
     refine' hX.trans' _
     refine' (ramseyNumber.mono_two hk le_rfl).trans' _
     rw [ramseyNumber_pair_swap]
-    refine' (hMul_sub_two_le_ramseyNumber hm).trans_eq' _
+    refine' (mul_sub_two_le_ramseyNumber hm).trans_eq' _
     rw [mul_comm]
   have h₁ : 3 / 4 * (X.card : ℝ) ≤ (X \ U).card := by
     have this' : (4 : ℝ) * m ≤ X.card := by exact_mod_cast this
@@ -645,12 +629,11 @@ theorem four_one_part_seven {V : Type*} [DecidableEq V] {m b : ℕ} {X U : Finse
   refine' (pow_le_pow_left₀ (by positivity) h₂ _).trans' _
   rw [mul_pow, ← Real.rpow_natCast (exp _), ← exp_mul, div_mul_eq_mul_div]
 
-/- ./././Mathport/Syntax/Translate/Basic.lean:641:2: warning: expanding binder collection (S «expr ⊆ » U) -/
 theorem four_one_part_eight {μ : ℝ} {m b : ℕ} {U X : Finset V} (hU : U.card = m) (hbm : b ≤ m)
     (h :
       μ ^ b * X.card / 2 * m.choose b ≤
         ∑ S ∈ powersetCard b U, ((commonBlues χ S ∩ (X \ U)).card : ℝ)) :
-    ∃ (S : _) (_ : S ⊆ U), S.card = b ∧ μ ^ b * X.card / 2 ≤ (commonBlues χ S ∩ (X \ U)).card := by
+    ∃ S, S ⊆ U ∧ S.card = b ∧ μ ^ b * X.card / 2 ≤ (commonBlues χ S ∩ (X \ U)).card := by
   have : (Finset.powersetCard b U).Nonempty :=
     Finset.powersetCard_nonempty.2 (by rwa [hU])
   have h' :
