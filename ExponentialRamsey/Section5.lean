@@ -1045,8 +1045,7 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
   have :
     -((2 : ℝ) / k ^ 4) * (C.X.card * ((red_neighbors χ) x ∩ C.Y).card) ≤
       weight χ C.X C.Y x * C.Y.card := by
-    have h₅₄' := h₅₄ k hlk μ n χ ini i hi
-    change -(C.X.card : ℝ) / (k : ℝ) ^ 5 ≤ weight χ C.X C.Y x at h₅₄'
+    have h₅₄' : -(C.X.card : ℝ) / (k : ℝ) ^ 5 ≤ weight χ C.X C.Y x := h₅₄ k hlk μ n χ ini i hi
     refine' (mul_le_mul_of_nonneg_right h₅₄' (Nat.cast_nonneg _)).trans' _
     rw [neg_mul, neg_div, neg_mul, neg_le_neg_iff]
     refine'
