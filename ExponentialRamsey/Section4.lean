@@ -30,8 +30,7 @@ theorem Convex.union {s t : Set ℝ} (hs : Convex ℝ s) (ht : Convex ℝ t) (hs
   rw [convex_iff_ordConnected, Set.ordConnected_iff_uIcc_subset]
   rintro x (hx | hx) y (hy | hy)
   · exact (hs.ordConnected.uIcc_subset hx hy).trans Set.subset_union_left
-  ·
-    exact
+  · exact
       Set.uIcc_subset_uIcc_union_uIcc.trans
         (Set.union_subset_union (hs.ordConnected.uIcc_subset hx has)
           (ht.ordConnected.uIcc_subset hat hy))
@@ -52,8 +51,7 @@ theorem convexOn_univ_max {k : ℝ} : ConvexOn ℝ Set.univ (max k) := by
             (mul_le_mul_of_nonneg_left (le_max_left _ _) hb.le)).trans_eq'
         _
     rw [← add_mul, hab, one_mul]
-  ·
-    exact
+  · exact
       add_le_add (mul_le_mul_of_nonneg_left (le_max_right _ _) ha.le)
         (mul_le_mul_of_nonneg_left (le_max_right _ _) hb.le)
 
@@ -82,7 +80,8 @@ theorem descFactorial_cast_nat (n : ℕ) : ∀ k : ℕ, descFactorial (n : ℝ) 
   | k + 1 => by
     rw [descFactorial, Nat.descFactorial_succ, descFactorial_cast_nat, Nat.cast_mul]
     cases lt_or_ge n k with
-    | inl h => rw [Nat.descFactorial_of_lt h, Nat.cast_zero, MulZeroClass.mul_zero, MulZeroClass.mul_zero]
+    | inl h =>
+      rw [Nat.descFactorial_of_lt h, Nat.cast_zero, mul_zero, mul_zero]
     | inr h => rw [Nat.cast_sub h]
 
 theorem descFactorial_monotoneOn :
@@ -155,7 +154,8 @@ theorem myDescFactorial_eqOn {k : ℕ} :
   rw [myDescFactorial, if_neg]
   rwa [not_lt]
 
-theorem myDescFactorial_eq_nat_descFactorial {n k : ℕ} : myDescFactorial n k = n.descFactorial k := by
+theorem myDescFactorial_eq_nat_descFactorial {n k : ℕ} :
+    myDescFactorial n k = n.descFactorial k := by
   rw [myDescFactorial, descFactorial_cast_nat, ite_eq_right_iff, eq_comm, Nat.cast_eq_zero,
     Nat.descFactorial_eq_zero_iff_lt]
   intro h
@@ -207,8 +207,8 @@ theorem my_thing {α : Type*} {s : Finset α} (f : α → ℕ) (b : ℕ) (hb : b
     intro i hi
     positivity
   rw [← le_div_iff₀ (by positivity : (0 : ℝ) < s.card)]
-  simpa [div_eq_mul_inv, smul_eq_mul, Finset.sum_mul, Finset.mul_sum, Nat.cast_sum, myGeneralizedBinomial_nat,
-    mul_comm, mul_left_comm, mul_assoc] using
+  simpa [div_eq_mul_inv, smul_eq_mul, Finset.sum_mul, Finset.mul_sum, Nat.cast_sum,
+    myGeneralizedBinomial_nat, mul_comm, mul_left_comm, mul_assoc] using
     (myGeneralizedBinomial_convex hb).map_sum_le h₃ h₁ h₂
 
 open Real
@@ -326,9 +326,10 @@ theorem four_two_left {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (h�
   rw [mul_right_comm, ← le_div_iff₀ this, div_eq_mul_inv (myGeneralizedBinomial _ _),
     four_two_aux_aux hb hσ₀, four_two_aux, four_two_aux' hb hσ₀ hσ₁]
   refine' mul_le_mul_of_nonneg_left ((four_two_aux'''' hb hσ₀.le hσ₁).trans' _) (by positivity)
-  rw [exp_le_exp, Finset.sum_range_id, ← Nat.choose_two_right, Nat.cast_choose_two, div_mul_eq_mul_div]
+  rw [exp_le_exp, Finset.sum_range_id, ← Nat.choose_two_right, Nat.cast_choose_two,
+    div_mul_eq_mul_div]
   refine' div_le_div_of_nonneg_right _ (by positivity)
-  nlinarith [show (0 : ℝ) ≤ b by exact Nat.cast_nonneg b]
+  nlinarith [(0 : ℝ) ≤ b]
 
 open Filter Finset Real
 
@@ -388,7 +389,8 @@ theorem four_one_part_two [Fintype V] (μ : ℝ) {l : ℕ} {C : BookConfig χ} {
     (hU : U.card = ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊) (hU' : U ⊆ C.X)
     (hU'' : ∀ x ∈ U, μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card) :
     (μ * C.X.card - U.card) / (C.X.card - U.card) ≤ (blue_density χ) U (C.X \ U) := by
-  rw [colDensity_eq_sum, Finset.card_sdiff_of_subset hU', ← Nat.cast_sub (Finset.card_le_card hU'), ← div_div]
+  rw [colDensity_eq_sum, Finset.card_sdiff_of_subset hU',
+    ← Nat.cast_sub (Finset.card_le_card hU'), ← div_div]
   refine' div_le_div_of_nonneg_right _ (Nat.cast_nonneg _)
   rw [le_div_iff₀]
   have :
@@ -497,7 +499,8 @@ theorem four_one_part_four (hμ₀ : 0 < μ₀) :
           ∀ μ : ℝ,
             μ₀ ≤ μ →
               ∀ σ : ℝ,
-                μ - 2 / k ≤ σ → (⌈(l : ℝ) ^ (1 / 4 : ℝ)⌉₊ : ℝ) ≤ σ * ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊ / 2 := by
+                μ - 2 / k ≤ σ →
+                  (⌈(l : ℝ) ^ (1 / 4 : ℝ)⌉₊ : ℝ) ≤ σ * ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊ / 2 := by
   have t : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have h3 : (0 : ℝ) < 2 / 3 - 1 / 4 := by norm_num1
   have h4 : (0 : ℝ) < 1 / 4 := by norm_num1
@@ -515,8 +518,7 @@ theorem four_one_part_four (hμ₀ : 0 < μ₀) :
   refine' (Nat.le_ceil _).trans' _
   have hmul :
       2 * (l : ℝ) ^ (1 / 4 : ℝ) * (2 + 2) / μ =
-        (4 * 2 / μ) * (l : ℝ) ^ (1 / 4 : ℝ) := by
-    ring
+        (4 * 2 / μ) * (l : ℝ) ^ (1 / 4 : ℝ) := by ring
   rw [hmul, ← le_div_iff₀ (Real.rpow_pos_of_pos (by exact_mod_cast hl₀) _), ← rpow_sub]
   · exact hl''.trans' (div_le_div_of_nonneg_left (by norm_num1) hμ₀ hμ)
   · rwa [Nat.cast_pos]
@@ -546,8 +548,8 @@ theorem four_one_part_five (χ : TopEdgeLabelling V (Fin 2)) {b : ℕ} {X U : Fi
       filter_mem_eq_inter, inter_comm]
   simp_rw [this]
   rw [Finset.sum_comm (s := powersetCard b U) (t := X \ U)
-    (f := fun S v => if v ∈ commonBlues χ S then (1 : ℝ) else 0)]
-  rw [Nat.cast_sum]
+      (f := fun S v => if v ∈ commonBlues χ S then (1 : ℝ) else 0),
+    Nat.cast_sum]
   change (∑ v ∈ X \ U, (∑ S ∈ powersetCard b U,
       (if v ∈ commonBlues χ S then (1 : ℝ) else 0))) =
     ∑ v ∈ X \ U, (((blue_neighbors χ) v ∩ U).card.choose b : ℝ)
@@ -704,8 +706,7 @@ theorem four_one_part_nine (hμ₀ : 0 < μ₀) :
       mul_le_mul_of_nonneg_right hl'''' (by positivity)
     _ ≤ (log (3 / 2) * μ₀ / (4 * 2)) * (4 * 2 / μ₀) :=
       mul_le_mul_of_nonneg_left hfactor (by positivity)
-    _ = log (3 / 2) := by
-      field_simp [hμ₀.ne']
+    _ = log (3 / 2) := by field_simp [hμ₀.ne']
 
 -- lemma 4.1
 -- (9)
@@ -737,8 +738,7 @@ theorem four_one (hμ₀ : 0 < μ₀) :
   --
   obtain ⟨U, Ublue, Usize, UX, Uneigh⟩ := four_one_part_one μ l k C hC hR
   set m := ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊
-  have hm : 3 ≤ m := by
-    rwa [Nat.add_one_le_ceil_iff, Nat.cast_two]
+  have hm : 3 ≤ m := by rwa [Nat.add_one_le_ceil_iff, Nat.cast_two]
   have hC' : ramseyNumber ![k, m] ≤ C.X.card := hC.trans (Finset.card_le_card (filter_subset _ _))
   let σ := (blue_density χ) U (C.X \ U)
   have hμ' : 0 < μ := hμ₀.trans_le hμ
@@ -839,8 +839,8 @@ theorem four_three_aux' (hμ₀ : 0 < μ₀) :
                         i ≤ finalStep μ k l init →
                           (l : ℝ) ^ (1 / 4 : ℝ) * (bigBlueSteps μ k l init ∩ range i).card ≤
                              (algorithm μ k l init i).B.card := by
-  filter_upwards [Filter.eventually_gt_atTop 0, four_three_aux hμ₀] with l hl₀ hl k hlk μ hμ n χ hχ init i
-    hi
+  filter_upwards [Filter.eventually_gt_atTop 0, four_three_aux hμ₀] with l hl₀ hl k hlk μ hμ
+    n χ hχ init i hi
   induction' i with i ih
   · rw [range_zero, inter_empty, card_empty, Nat.cast_zero, MulZeroClass.mul_zero]
     exact Nat.cast_nonneg _
@@ -876,7 +876,8 @@ theorem four_three (hμ₀ : 0 < μ₀) :
                         χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card) →
                     ∀ init : BookConfig χ,
                            ((bigBlueSteps μ k l init).card : ℝ) ≤ (l : ℝ) ^ (3 / 4 : ℝ) := by
-  filter_upwards [four_three_aux' hμ₀, Filter.eventually_gt_atTop 0] with l hl hl₀ k hlk μ hμ n χ hχ init
+  filter_upwards [four_three_aux' hμ₀, Filter.eventually_gt_atTop 0] with l hl hl₀ k hlk μ hμ
+    n χ hχ init
   simp only [Fin.exists_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one,
     exists_or, not_or] at hχ
   obtain ⟨hχr, hχb⟩ := hχ
@@ -936,7 +937,8 @@ theorem four_four_blue_density_aux {μ : ℝ} {k l : ℕ} (hk : k ≠ 0) (hl : l
   rw [mem_union] at hstep
   cases hstep with
   | inl hbig =>
-    rw [big_blue_applied hbig, BookConfig.bigBlueStep_b, card_union_of_disjoint, add_le_add_iff_left]
+    rw [big_blue_applied hbig, BookConfig.bigBlueStep_b, card_union_of_disjoint,
+      add_le_add_iff_left]
     swap
     · refine' Disjoint.mono_right BookConfig.getBook_fst_subset _
       exact (algorithm μ k l ini i).hXB.symm
