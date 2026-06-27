@@ -72,9 +72,7 @@ def descFactorial {α : Type*} [One α] [Mul α] [Sub α] [NatCast α] (x : α) 
 theorem descFactorial_nonneg {x : ℝ} : ∀ {k : ℕ}, (k : ℝ) - 1 ≤ x → 0 ≤ descFactorial x k
   | 0, h => zero_le_one
   | k + 1, h =>
-    mul_nonneg (by
-      have hk : ((k + 1 : ℕ) : ℝ) - 1 = k := by norm_num
-      linarith)
+    mul_nonneg (by rwa [Nat.cast_add_one, add_sub_cancel_right, ← sub_nonneg] at h)
       (descFactorial_nonneg (h.trans' (by simp)))
 
 theorem descFactorial_nat (n : ℕ) : ∀ k : ℕ, descFactorial n k = n.descFactorial k
@@ -235,23 +233,15 @@ theorem four_two_aux_aux {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) 
     refine' myDescFactorial_eqOn _
     rw [Set.mem_Ici]
     have : (b : ℝ) - 1 ≤ b := by linarith
-    refine' this.trans (hb.trans _)
-    exact half_le_self (by positivity)
-  have hfac : (b.factorial : ℝ) ≠ 0 := by positivity
+    exact this.trans (hb.trans (half_le_self (by positivity)))
+  rw [myGeneralizedBinomial, smul_eq_mul, Nat.choose_eq_descFactorial_div_factorial, hdesc]
   by_cases hbm : b ≤ m
-  · have hmdesc : (m.descFactorial b : ℝ) ≠ 0 := by
-      have hpos : 0 < m.descFactorial b := Nat.descFactorial_pos.2 hbm
-      exact_mod_cast hpos.ne'
-    rw [myGeneralizedBinomial, smul_eq_mul, Nat.choose_eq_descFactorial_div_factorial, Nat.cast_div,
-      inv_div, hdesc, ← descFactorial_cast_nat]
-    · field_simp [hfac, hmdesc]
-    · exact Nat.factorial_dvd_descFactorial _ _
-    · exact hfac
-  · have hlt : m < b := Nat.lt_of_not_ge hbm
-    have hchoose : m.choose b = 0 := Nat.choose_eq_zero_of_lt hlt
-    have hdescm : descFactorial (m : ℝ) b = 0 := by
-      rwa [descFactorial_cast_nat, Nat.cast_eq_zero, Nat.descFactorial_eq_zero_iff_lt]
-    simp [myGeneralizedBinomial, smul_eq_mul, hchoose, hdescm]
+  · rw [Nat.cast_div (Nat.factorial_dvd_descFactorial _ _) (by positivity), inv_div,
+      ← descFactorial_cast_nat]
+    field_simp
+  · have hlt := Nat.lt_of_not_ge hbm
+    have hd0 : m.descFactorial b = 0 := Nat.descFactorial_eq_zero_iff_lt.2 hlt
+    simp [hd0, descFactorial_cast_nat]
 
 theorem four_two_aux {m b : ℕ} {σ : ℝ} :
     descFactorial (σ * m) b / descFactorial (m : ℝ) b =
