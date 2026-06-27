@@ -18,7 +18,7 @@ theorem ConvexOn.hMul {f g : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) 
 
 theorem MonotoneOn.hMul {s : Set ℝ} {f g : ℝ → ℝ} (hf : MonotoneOn f s) (hg : MonotoneOn g s)
     (hf' : ∀ x ∈ s, 0 ≤ f x) (hg' : ∀ x ∈ s, 0 ≤ g x) : MonotoneOn (fun x => f x * g x) s :=
-  fun _ hx _ hy hxy => mul_le_mul (hf hx hy hxy) (hg hx hy hxy) (hg' _ hx) (hf' _ hy)
+hf.mul hg hf' hg'
 
 theorem convexOn_sub_const {s : Set ℝ} {c : ℝ} (hs : Convex ℝ s) : ConvexOn ℝ s fun x => x - c :=
   (convexOn_id hs).sub (concaveOn_const _ hs)
@@ -250,8 +250,7 @@ theorem four_two_aux_aux {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) 
   · have hlt : m < b := Nat.lt_of_not_ge hbm
     have hchoose : m.choose b = 0 := Nat.choose_eq_zero_of_lt hlt
     have hdescm : descFactorial (m : ℝ) b = 0 := by
-      rw [descFactorial_cast_nat, Nat.cast_eq_zero, Nat.descFactorial_eq_zero_iff_lt]
-      exact hlt
+      rwa [descFactorial_cast_nat, Nat.cast_eq_zero, Nat.descFactorial_eq_zero_iff_lt]
     simp [myGeneralizedBinomial, smul_eq_mul, hchoose, hdescm]
 
 theorem four_two_aux {m b : ℕ} {σ : ℝ} :
@@ -327,9 +326,7 @@ theorem four_two_aux''' {m b i : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2)
 theorem four_two_aux'''' {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ₀ : 0 ≤ σ) (hσ₁ : σ ≤ 1) :
     Real.exp (-2 / (σ * m) * ∑ i ∈ Finset.range b, i) ≤
       ∏ i ∈ Finset.range b, (1 - (1 - σ) * i / (σ * (m - i))) := by
-  rw [show ((∑ i ∈ Finset.range b, i : ℕ) : ℝ) = ∑ i ∈ Finset.range b, (i : ℝ) by
-    exact Nat.cast_sum _ _]
-  rw [Finset.mul_sum, Real.exp_sum]
+  rw [Nat.cast_sum, Finset.mul_sum, Real.exp_sum]
   refine' Finset.prod_le_prod _ _
   · intro i hi
     positivity
@@ -345,8 +342,7 @@ theorem four_two_left {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (h�
   rw [mul_right_comm, ← le_div_iff₀ this, div_eq_mul_inv (myGeneralizedBinomial _ _),
     four_two_aux_aux hb hσ₀, four_two_aux, four_two_aux' hb hσ₀ hσ₁]
   refine' mul_le_mul_of_nonneg_left ((four_two_aux'''' hb hσ₀.le hσ₁).trans' _) (by positivity)
-  rw [exp_le_exp]
-  rw [Finset.sum_range_id, ← Nat.choose_two_right, Nat.cast_choose_two, div_mul_eq_mul_div]
+  rw [exp_le_exp, Finset.sum_range_id, ← Nat.choose_two_right, Nat.cast_choose_two, div_mul_eq_mul_div]
   refine' div_le_div_of_nonneg_right _ (by positivity)
   nlinarith [show (0 : ℝ) ≤ b by exact Nat.cast_nonneg b]
 
@@ -758,8 +754,7 @@ theorem four_one (hμ₀ : 0 < μ₀) :
   obtain ⟨U, Ublue, Usize, UX, Uneigh⟩ := four_one_part_one μ l k C hC hR
   set m := ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊
   have hm : 3 ≤ m := by
-    rw [Nat.add_one_le_ceil_iff, Nat.cast_two]
-    exact hl₆
+    rwa [Nat.add_one_le_ceil_iff, Nat.cast_two]
   have hC' : ramseyNumber ![k, m] ≤ C.X.card := hC.trans (Finset.card_le_card (filter_subset _ _))
   let σ := (blue_density χ) U (C.X \ U)
   have hμ' : 0 < μ := hμ₀.trans_le hμ
