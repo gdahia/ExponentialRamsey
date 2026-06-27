@@ -74,7 +74,7 @@ theorem isLittleO_id_rpow {s : ℝ} (hrs : 1 < s) : (fun x : ℝ => x) =o[atTop]
   simpa only [rpow_one] using isLittleO_rpow_rpow hrs
 
 theorem isLittleO_one_rpow {s : ℝ} (hrs : 0 < s) :
-    (fun x : ℝ => (1 : ℝ)) =o[atTop] fun x => x ^ s := by
+    (fun _ : ℝ => (1 : ℝ)) =o[atTop] fun x => x ^ s := by
   simpa only [rpow_zero] using isLittleO_rpow_rpow hrs
 
 theorem one_lt_q_function_aux :
@@ -165,7 +165,7 @@ variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 theorem five_five_aux_part_one {X Y : Finset V} :
-    ∑ x ∈ X, ∑ y ∈ X, (red_density χ) X Y * ((red_neighbors χ) x ∩ Y).card =
+    ∑ x ∈ X, ∑ _y ∈ X, (red_density χ) X Y * ((red_neighbors χ) x ∩ Y).card =
       (red_density χ) X Y ^ 2 * X.card ^ 2 * Y.card := by
   simp_rw [Finset.sum_const, nsmul_eq_mul, ← Finset.mul_sum]
   suffices h : (red_density χ) X Y * X.card * Y.card = ∑ x ∈ X, ((red_neighbors χ) x ∩ Y).card by
@@ -190,7 +190,7 @@ theorem five_five_aux_part_two {X Y : Finset V} :
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 -- this proof might be possible without the empty casing from the col_density_sum variants
 theorem five_five_aux {X Y : Finset V} :
-    ∑ x ∈ X, ∑ y ∈ X, (red_density χ) X Y * ((red_neighbors χ) x ∩ Y).card ≤
+    ∑ x ∈ X, ∑ _y ∈ X, (red_density χ) X Y * ((red_neighbors χ) x ∩ Y).card ≤
       ∑ x ∈ X, ∑ y ∈ X, ((red_neighbors χ) x ∩ (red_neighbors χ) y ∩ Y).card := by
   rw [five_five_aux_part_one, five_five_aux_part_two]
   push_cast
@@ -570,7 +570,7 @@ theorem five_four :
     five_four_aux μ k l ini i hi
   have hm : 1 ≤ m := by
     refine' ramseyNumber_ge_min _ _
-    simp only [Fin.forall_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+    simp only [Fin.forall_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one,
       hl₂.le, true_and]
     exact hl'
   have hX : k ^ 6 * m ≤ C.X.card := (hl k hlk).trans (ramseyNumber_lt_of_lt_finalStep hi'.1).le
@@ -591,7 +591,7 @@ theorem five_four :
     simp only [sub_le_self_iff, Nat.cast_nonneg]
   rw [neg_div, div_eq_mul_one_div, ← mul_neg, ← le_div_iff₀' this]
   have : -(m / (C.X.card - m) + 1 / C.X.card : ℝ) ≤ weight χ C.X C.Y (getX hi) / C.X.card := by
-    rw [neg_le_iff_add_nonneg', add_assoc, div_add_div_same, add_comm (1 : ℝ),
+    rw [neg_le_iff_add_nonneg', add_assoc, ← add_div, add_comm (1 : ℝ),
       div_add_div _ _ b.ne' this.ne']
     exact div_nonneg h₅₄ (mul_nonneg b.le (Nat.cast_nonneg _))
   refine' this.trans' _
@@ -850,11 +850,11 @@ theorem red_neighbors_eq_blue_compl {x : V} :
   rintro ⟨p, q⟩
   exact ⟨Ne.symm p, q _⟩
 
-theorem red_neighbors_inter_eq {x : V} {X : Finset V} (hx : x ∈ X) :
+theorem red_neighbors_inter_eq {x : V} {X : Finset V} (_hx : x ∈ X) :
     (red_neighbors χ) x ∩ X = X \ insert x ((blue_neighbors χ) x ∩ X) := by
   ext y
   by_cases hyX : y ∈ X
-  · simp [red_neighbors_eq_blue_compl, Finset.mem_sdiff, Finset.mem_inter, hyX, and_assoc]
+  · simp [red_neighbors_eq_blue_compl, Finset.mem_sdiff, Finset.mem_inter, hyX]
   · simp [red_neighbors_eq_blue_compl, Finset.mem_sdiff, Finset.mem_inter, hyX]
 
 theorem card_red_neighbors_inter {μ : ℝ} (hi : i ∈ redOrDensitySteps μ k l ini) :
@@ -1319,8 +1319,8 @@ theorem five_two (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp₀l : 0 < p₀l) :
                               (algorithm μ k l ini (i + 1)).p - (algorithm μ k l ini i).p := by
   filter_upwards [five_one μ₁ p₀l hμ₁ hp₀l] with l hl k hlk μ hμu n χ ini hini i hi
   have hi' := hi
-  simp only [densitySteps, Finset.mem_image, Subtype.coe_mk, Finset.mem_filter, Finset.mem_attach, true_and,
-    exists_prop, Subtype.exists, exists_and_right, exists_eq_right] at hi'
+  simp only [densitySteps, Finset.mem_image, Finset.mem_filter, Finset.mem_attach, true_and,
+    Subtype.exists, exists_and_right, exists_eq_right] at hi'
   obtain ⟨hi'', hhi''⟩ := hi'
   obtain ⟨hβ', h⟩ := (hl k hlk μ hμu n χ ini hini i hi'').resolve_left (not_le.mpr hhi'')
   refine' ⟨hβ', _⟩
