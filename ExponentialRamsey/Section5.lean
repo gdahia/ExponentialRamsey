@@ -16,7 +16,6 @@ import Mathlib.Data.Finset.Attach
 # Section 5
 -/
 
-
 open Real
 
 open Real Filter in
@@ -30,7 +29,6 @@ theorem hMul_log_two_le_log_one_add {ε : ℝ} (hε : 0 ≤ ε) (hε' : ε ≤ 1
     exp_log two_pos] at this
   refine' this.trans_eq _
   ring_nf
-
 namespace SimpleGraph
 
 open scoped ExponentialRamsey
@@ -86,16 +84,18 @@ theorem one_lt_q_function_aux :
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have := (this.comp t).eventually (eventually_le_floor 0.8 (by norm_num))
   filter_upwards [this] with k hk
-  rw [neg_div, rpow_neg (Nat.cast_nonneg _), div_inv_eq_mul]
-  exact hk
+  rwa [neg_div, rpow_neg (Nat.cast_nonneg _), div_inv_eq_mul]
 
-theorem ε_lt_one : ∀ᶠ k : ℕ in atTop, (k : ℝ) ^ (-1 / 4 : ℝ) < 1 := by
+theorem rpow_neg_lt_one (r : ℝ) (hr : r < 0) :
+    ∀ᶠ k : ℕ in atTop, (k : ℝ) ^ r < 1 := by
   filter_upwards [eventually_gt_atTop 1] with k hk
-  refine' rpow_lt_one_of_one_lt_of_neg (Nat.one_lt_cast.2 hk) (by norm_num)
+  exact rpow_lt_one_of_one_lt_of_neg (Nat.one_lt_cast.2 hk) hr
 
-theorem root_ε_lt_one : ∀ᶠ k : ℕ in atTop, (k : ℝ) ^ (-1 / 8 : ℝ) < 1 := by
-  filter_upwards [eventually_gt_atTop 1] with k hk
-  refine' rpow_lt_one_of_one_lt_of_neg (Nat.one_lt_cast.2 hk) (by norm_num)
+theorem ε_lt_one : ∀ᶠ k : ℕ in atTop, (k : ℝ) ^ (-1 / 4 : ℝ) < 1 :=
+  rpow_neg_lt_one _ (by norm_num)
+
+theorem root_ε_lt_one : ∀ᶠ k : ℕ in atTop, (k : ℝ) ^ (-1 / 8 : ℝ) < 1 :=
+  rpow_neg_lt_one _ (by norm_num)
 
 theorem one_lt_qFunction :
     ∀ᶠ k : ℕ in atTop,
@@ -183,8 +183,7 @@ theorem five_five_aux_part_two {X Y : Finset V} :
   refine' Finset.sum_congr rfl fun x' hx' => _
   refine' Finset.sum_congr rfl fun y hy => _
   refine' if_congr _ rfl rfl
-  rw [@mem_colNeighbors_comm _ _ _ _ _ _ y]
-  rw [@mem_colNeighbors_comm _ _ _ _ _ _ y]
+  rw [@mem_colNeighbors_comm _ _ _ _ _ _ y, @mem_colNeighbors_comm _ _ _ _ _ _ y]
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
@@ -205,8 +204,7 @@ theorem five_five_aux {X Y : Finset V} :
   have hY : 0 < (Y.card : ℝ) := by positivity
   rw [← div_le_iff₀' hY] at this
   refine' this.trans_eq' _
-  rw [colDensity_comm]
-  rw [colDensity_eq_sum, div_pow, div_mul_eq_mul_div, mul_pow, mul_div_mul_right,
+  rw [colDensity_comm, colDensity_eq_sum, div_pow, div_mul_eq_mul_div, mul_pow, mul_div_mul_right,
     div_mul_eq_mul_div, sq (Y.card : ℝ), mul_div_mul_right _ _ hY.ne']
   · simp
   · have hX0 : (X.card : ℝ) ≠ 0 := Nat.cast_ne_zero.2 (Finset.card_ne_zero.2 hX)
@@ -232,8 +230,8 @@ theorem log_n_large (c : ℝ) :
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have h34 : (0 : ℝ) < 3 / 4 := by norm_num
   have :=
-    ((tendsto_rpow_atTop h34).atTop_mul_atTop₀ tendsto_log_atTop).const_mul_atTop
-      (show (0 : ℝ) < 1 / 128 by norm_num)
+      ((tendsto_rpow_atTop h34).atTop_mul_atTop₀ tendsto_log_atTop).const_mul_atTop
+      (by norm_num : (0 : ℝ) < 1 / 128)
   filter_upwards [(this.comp t).eventually_ge_atTop c, t.eventually_gt_atTop (0 : ℝ)] with l hl hl'
     k hlk
   refine' hl.trans _
@@ -293,7 +291,7 @@ theorem five_six_aux_left_term :
     (mul_le_mul_of_nonneg_right
           (add_le_add_right
             (neg_le_neg
-              (mul_le_mul_of_nonneg_right this (show 0 ≤ (1 / (8 * 4) : ℝ) by norm_num))) _)
+              (mul_le_mul_of_nonneg_right this (by norm_num))) _)
           (log_nonneg h₃'.le)).trans_lt
     _
   rw [← two_mul, mul_comm (_ / _), ← sub_eq_add_neg, ← mul_sub, mul_right_comm]
@@ -535,8 +533,7 @@ theorem five_four_end : ∀ᶠ k : ℝ in atTop, 1 / (k ^ 6 - 1) + 1 / k ^ 6 ≤
   suffices h2 : k ^ 5 * 2 ≤ k ^ 6 - 1
   · refine' add_le_add (one_div_le_one_div_of_le h1 h2) (one_div_le_one_div_of_le h1 (h2.trans _))
     simp
-  rw [pow_succ' _ 5, le_sub_comm]
-  rw [mul_comm (k ^ 5) 2, ← sub_mul]
+  rw [pow_succ' _ 5, le_sub_comm, mul_comm (k ^ 5) 2, ← sub_mul]
   have hkge1 : (1 : ℝ) ≤ k := by linarith
   have hk5 : (1 : ℝ) ≤ k ^ 5 := one_le_pow₀ hkge1
   have hksub : (1 : ℝ) ≤ k - 2 := by linarith
@@ -601,8 +598,7 @@ theorem five_four :
   have hk6pos : 0 < (k : ℝ) ^ 6 := pow_pos hk₀ _
   have hk6subpos : 0 < (k : ℝ) ^ 6 - 1 := sub_pos.2 (one_lt_pow₀ hk₁ (by norm_num))
   have hfirst : (m : ℝ) / (C.X.card - m) ≤ 1 / ((k : ℝ) ^ 6 - 1) := by
-    rw [div_le_iff₀' b, ← div_eq_mul_one_div, le_div_iff₀' hk6subpos]
-    exact h
+    rwa [div_le_iff₀' b, ← div_eq_mul_one_div, le_div_iff₀' hk6subpos]
   have hsecond : (1 : ℝ) / C.X.card ≤ 1 / (k : ℝ) ^ 6 :=
     one_div_le_one_div_of_le hk6pos c
   exact (add_le_add hfirst hsecond).trans hl₃
@@ -640,8 +636,7 @@ theorem q_height_lt_p {k : ℕ} {p₀ p : ℝ} (h : 1 < height k p₀ p) :
     intro hk0
     rw [hk0, height] at h
     simp at h
-  by_contra z
-  push_neg at z
+  by_contra! z
   have hle := height_min this (Nat.sub_ne_zero_of_lt h) z
   exact (not_lt_of_ge hle) (Nat.sub_lt one_le_height zero_lt_one)
 
@@ -733,8 +728,8 @@ theorem five_eight_weaker (p₀l : ℝ) (hp₀l : 0 < p₀l) :
                             (1 : ℝ) / (2 * k) * (algorithm μ k l ini (i + 1)).Y.card ≤
                               ((red_neighbors χ) x ∩ (algorithm μ k l ini (i + 1)).Y).card := by
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
-  have := tendsto_rpow_neg_atTop (show (0 : ℝ) < 1 / 8 by norm_num)
-  have := this.eventually_le_const (show (0 : ℝ) < 1 - 2⁻¹ by norm_num)
+  have := tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 8)
+  have := this.eventually_le_const (by norm_num : (0 : ℝ) < 1 - 2⁻¹)
   filter_upwards [top_adjuster (t.eventually_ge_atTop p₀l⁻¹),
     top_adjuster (t.eventually this)] with l hl hl₂ k hlk μ n χ ini hini i x hi hx
   specialize hl k hlk
@@ -746,8 +741,7 @@ theorem five_eight_weaker (p₀l : ℝ) (hp₀l : 0 < p₀l) :
   refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)
   rw [one_div, mul_inv, one_div]
   refine' mul_le_mul_of_nonneg_right _ (by positivity)
-  rw [le_sub_comm, neg_div]
-  exact hl₂
+  rwa [le_sub_comm, neg_div]
 
 theorem five_eight_weaker' (p₀l : ℝ) (hp₀l : 0 < p₀l) :
     ∀ᶠ l : ℕ in atTop,
@@ -853,9 +847,7 @@ theorem red_neighbors_eq_blue_compl {x : V} :
 theorem red_neighbors_inter_eq {x : V} {X : Finset V} (_hx : x ∈ X) :
     (red_neighbors χ) x ∩ X = X \ insert x ((blue_neighbors χ) x ∩ X) := by
   ext y
-  by_cases hyX : y ∈ X
-  · simp [red_neighbors_eq_blue_compl, Finset.mem_sdiff, Finset.mem_inter, hyX]
-  · simp [red_neighbors_eq_blue_compl, Finset.mem_sdiff, Finset.mem_inter, hyX]
+  by_cases hyX : y ∈ X <;> simp [red_neighbors_eq_blue_compl, Finset.mem_sdiff, Finset.mem_inter, hyX]
 
 theorem card_red_neighbors_inter {μ : ℝ} (hi : i ∈ redOrDensitySteps μ k l ini) :
     (((red_neighbors χ) (getX hi) ∩ (algorithm μ k l ini i).X).card : ℝ) =
@@ -970,9 +962,8 @@ theorem five_one_case_b_aux {α : ℝ} (X Y : Finset V) {x : V} (hx : x ∈ X) (
             (↑Y.card * weight χ X Y x +
               α * (↑(NR x ∩ X).card * ↑(NR x ∩ Y).card)) := by ring
     _ ≤ ∑ y ∈ NB x ∩ X, ↑((NR x ∩ NR y ∩ Y).card) := hle
-    _ = ∑ y ∈ NB x ∩ X, ↑((NR y ∩ (NR x ∩ Y)).card) := by
-      refine' Finset.sum_congr rfl fun y hy => _
-      rw [Finset.inter_left_comm, Finset.inter_assoc]
+    _ = ∑ y ∈ NB x ∩ X, ↑((NR y ∩ (NR x ∩ Y)).card) :=
+      Finset.sum_congr rfl fun y hy => by rw [Finset.inter_left_comm, Finset.inter_assoc]
 
 theorem five_one_case_b_end (m : ℕ) :
     ∀ᶠ l : ℕ in atTop, ∀ k, l ≤ k → k ^ m ≤ ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] := by
@@ -1063,10 +1054,8 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
       (mul_le_mul_of_nonneg_left this
             (div_nonneg (Nat.cast_nonneg _) (pow_nonneg (Nat.cast_nonneg _) _))).trans_eq
         _
-    rw [div_mul_eq_mul_div, div_mul_eq_mul_div, mul_left_comm, pow_succ,
-      show (k : ℝ) ^ 4 * k = k * (k : ℝ) ^ 4 by ring,
-      mul_div_mul_left _ _ (hk₀ k hlk).ne']
-    ring
+    rw [div_mul_eq_mul_div, div_mul_eq_mul_div, mul_left_comm, pow_succ]
+    field_simp
   have hthis :
       -(α * (((red_neighbors χ) x ∩ C.Y).card : ℝ)) +
           (-((2 : ℝ) / k ^ 4) * (C.X.card * ((red_neighbors χ) x ∩ C.Y).card)) ≤
@@ -1380,11 +1369,11 @@ theorem five_three_right (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp₀l : 0 < 
                       ∀ i : ℕ,
                         i ∈ densitySteps μ k l ini → (1 : ℝ) / k ^ 2 ≤ blueXRatio μ k l ini i := by
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
-  have h54 := tendsto_rpow_atTop (show (0 : ℝ) < 5 / 4 by norm_num)
-  have h34 := tendsto_rpow_atTop (show (0 : ℝ) < 3 / 4 by norm_num)
+  have h54 := tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 5 / 4)
+  have h34 := tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 3 / 4)
   have h := (tendsto_atTop_add_const_right _ (-2) h34).atTop_mul_atTop₀ h54
-  have := tendsto_rpow_neg_atTop (show (0 : ℝ) < 1 / 4 by norm_num)
-  have := this.eventually_le_const (show (0 : ℝ) < 1 - 2⁻¹ by norm_num)
+  have := tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 4)
+  have := this.eventually_le_const (by norm_num : (0 : ℝ) < 1 - 2⁻¹)
   filter_upwards [five_two μ₁ p₀l hμ₁ hp₀l, top_adjuster (t.eventually this),
     top_adjuster (t.eventually_gt_atTop 0), top_adjuster ((h.comp t).eventually_ge_atTop 1)] with l
     hl hl' hk₀ hk' k hlk μ hμu n χ ini hini i hi
