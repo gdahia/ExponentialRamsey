@@ -19,15 +19,22 @@ import Mathlib.Data.Finset.Attach
 open Real
 
 open Real Filter in
-theorem hMul_log_two_le_log_one_add {ε : ℝ} (hε : 0 ≤ ε) (hε' : ε ≤ 1) : ε * log 2 ≤ log (1 + ε) := by
+theorem mul_log_two_le_log_one_add {ε : ℝ} (hε : 0 ≤ ε) (hε' : ε ≤ 1) :
+    ε * log 2 ≤ log (1 + ε) := by
   rw [le_log_iff_exp_le]
   swap
   · linarith
-  have : 0 ≤ 1 - ε := by rwa [sub_nonneg]
-  have := convexOn_exp.2 (Set.mem_univ 0) (Set.mem_univ (log 2)) this hε (by simp)
-  simp only [smul_eq_mul, mul_zero, zero_add, Real.exp_zero, mul_one, exp_log two_pos] at this
-  refine' this.trans_eq _
-  ring_nf
+  have hlog : 0 < log 2 := log_pos one_lt_two
+  have hεlog : 0 ≤ ε * log 2 := mul_nonneg hε hlog.le
+  have hεlog_le : ε * log 2 ≤ log 2 :=
+    calc
+      ε * log 2 ≤ 1 * log 2 := mul_le_mul_of_nonneg_right hε' hlog.le
+      _ = log 2 := one_mul _
+  have h := general_convex_thing (a := log 2) (x := ε * log 2) hεlog hεlog_le hlog.ne'
+  rw [exp_log two_pos] at h
+  refine' h.trans_eq _
+  field_simp [hlog.ne']
+  ring
 namespace SimpleGraph
 
 open scoped ExponentialRamsey
@@ -123,7 +130,7 @@ theorem one_lt_qFunction :
   · positivity
   have : log 2 * (4 / 5 * 2) ≤ log (1 + ε) * (4 / 5) * (2 / ε) := by
     rw [mul_div_assoc' _ _ ε, le_div_iff₀' hε, ← mul_assoc, mul_assoc (Real.log _)]
-    refine' mul_le_mul_of_nonneg_right (hMul_log_two_le_log_one_add hε.le hε₁) _
+    refine' mul_le_mul_of_nonneg_right (mul_log_two_le_log_one_add hε.le hε₁) _
     norm_num1
   have h45 : (4/5 : ℝ) = 0.8 := by norm_num
   rw [h45] at this
@@ -170,7 +177,7 @@ theorem five_five_aux_part_one {X Y : Finset V} :
   suffices h : (red_density χ) X Y * X.card * Y.card = ∑ x ∈ X, ((red_neighbors χ) x ∩ Y).card by
     rw [← Nat.cast_sum, ← h, sq, sq]
     linarith only
-  rw [mul_right_comm, mul_assoc, colDensity_comm, colDensity_hMul_hMul]
+  rw [mul_right_comm, mul_assoc, colDensity_comm, colDensity_mul_mul]
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 theorem five_five_aux_part_two {X Y : Finset V} :
@@ -1015,12 +1022,9 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
   rw [redOrDensitySteps, Finset.mem_filter, Finset.mem_range] at hi'
   have hβ := blueXRatio_prop hi
   have hβ' := card_red_neighbors_inter hi
-  change (1 : ℝ) / (2 * k) * C.Y.card ≤ (((red_neighbors χ) x ∩ C.Y).card : ℝ) at h₅₈
-  change blueXRatio μ k l ini i * (C.X.card : ℝ) =
-    (((blue_neighbors χ) x ∩ C.X).card : ℝ) at hβ
-  change ((((red_neighbors χ) x ∩ C.X).card : ℝ)) =
-    (1 - blueXRatio μ k l ini i) * C.X.card - 1 at hβ'
-  refine' (five_one_case_b_aux (χ := χ) (X := C.X) (Y := C.Y) (x := x) hx (y_nonempty hi'.1) hbad).trans' _
+  refine'
+    (five_one_case_b_aux (χ := χ) (X := C.X) (Y := C.Y) (x := x)
+      hx (y_nonempty hi'.1) hbad).trans' _
   change
     _ ≤
       C.p * (((blue_neighbors χ) x ∩ C.X).card * ((red_neighbors χ) x ∩ C.Y).card) +
@@ -1062,10 +1066,10 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
   rw [neg_mul, ← neg_add, neg_le_neg_iff, ← mul_assoc, ← add_mul]
   refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)
   rw [← le_sub_iff_add_le, ← sub_mul, div_sub_div_same]
-  norm_num
+  norm_num1
   refine'
     (α_le_one colDensity_le_one hp₀ (hl₄.trans hlk) (colDensity_le_one.trans one_le_two)).trans _
-  rw [mul_comm, ← div_eq_mul_inv, one_le_div]
+  rw [one_div, mul_comm, ← div_eq_mul_inv, one_le_div]
   swap
   · exact pow_pos (hk₀ k hlk) _
   rw [← Nat.cast_pow, Nat.cast_le]
@@ -1104,7 +1108,8 @@ theorem five_one_case_b_later (μ₁ : ℝ) (p₀l : ℝ) (hμ₁ : μ₁ < 1) (
                                     (1 - k ^ (-1 / 4 : ℝ)) *
                                   (C.X.card * ((red_neighbors χ) (getX hi) ∩ C.Y).card) ≤
                               ∑ y ∈ (blue_neighbors χ) (getX hi) ∩ C.X,
-                                ((red_neighbors χ) y ∩ ((red_neighbors χ) (getX hi) ∩ C.Y)).card := by
+                                ((red_neighbors χ) y ∩
+                                  ((red_neighbors χ) (getX hi) ∩ C.Y)).card := by
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have h4 : (0 : ℝ) < -1 / 4 + (-1 / 4 - 1) + 4 := by norm_num
   have := ((tendsto_rpow_atTop h4).comp t).eventually_ge_atTop (3 / (1 - μ₁))
