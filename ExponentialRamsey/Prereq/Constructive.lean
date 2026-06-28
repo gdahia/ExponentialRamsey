@@ -279,7 +279,7 @@ theorem mul_sub_two_lt_ramseyNumber {k l : ℕ} (hk : 3 ≤ k) (hl : l ≠ 0) :
   | 1 => rw [ramseyNumber_pair_swap, ramseyNumber_one_succ]; simp
   | l + 2 => exact Product.ramsey_product_bound' k _
 
-theorem hMul_sub_two_le_ramseyNumber {k l : ℕ} (hk : 3 ≤ k) : k * (l - 2) ≤ ramseyNumber ![k, l] :=
+theorem mul_sub_two_le_ramseyNumber {k l : ℕ} (hk : 3 ≤ k) : k * (l - 2) ≤ ramseyNumber ![k, l] :=
   by
   cases l
   · simp

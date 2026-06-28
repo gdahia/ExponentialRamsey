@@ -6,7 +6,6 @@ import ExponentialRamsey.Log2Estimates
 import ExponentialRamsey.Prereq.Constructive
 import ExponentialRamsey.Prereq.GraphProbability
 import ExponentialRamsey.Prereq.Mathlib.Algebra.BigOperators.Ring
-import ExponentialRamsey.Prereq.Mathlib.Algebra.Order.Monoid.Lemmas
 import ExponentialRamsey.Prereq.Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 import ExponentialRamsey.Prereq.Mathlib.Analysis.Calculus.Deriv.MeanValue
 import ExponentialRamsey.Prereq.Mathlib.Analysis.Calculus.Taylor
@@ -25,8 +24,8 @@ import ExponentialRamsey.Prereq.Mathlib.NumberTheory.LegendreSymbol.QuadraticCha
 import ExponentialRamsey.Prereq.Ramsey
 import ExponentialRamsey.Prereq.RamseyPrereq
 import ExponentialRamsey.Prereq.RamseySmall
--- import ExponentialRamsey.Section4
--- import ExponentialRamsey.Section5
+import ExponentialRamsey.Section4
+import ExponentialRamsey.Section5
 -- import ExponentialRamsey.Section6
 -- import ExponentialRamsey.Section7
 -- import ExponentialRamsey.Section8
