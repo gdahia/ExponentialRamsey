@@ -27,7 +27,7 @@ import ExponentialRamsey.Prereq.RamseySmall
 import ExponentialRamsey.Section4
 import ExponentialRamsey.Section5
 import ExponentialRamsey.Section6
--- import ExponentialRamsey.Section7
+import ExponentialRamsey.Section7
 -- import ExponentialRamsey.Section8
 -- import ExponentialRamsey.Section9
 -- import ExponentialRamsey.Section10
