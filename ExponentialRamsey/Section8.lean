@@ -974,7 +974,7 @@ theorem eight_five (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
   specialize hβ k hlk μ hμu n χ ini hini
   specialize hβ' k hlk μ hμl hμu n χ ini hini
   specialize hβ₀ k hlk μ hμl hμu n χ ini hini
-  have hsum :
+  have :
     ∑ i ∈ moderateSteps μ k l ini, (1 - blueXRatio μ k l ini i) / blueXRatio μ k l ini i =
       ∑ i ∈ moderateSteps μ k l ini, 1 / blueXRatio μ k l ini i -
         (moderateSteps μ k l ini).card := by
@@ -982,7 +982,7 @@ theorem eight_five (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
     rw [← nsmul_one, ← Finset.sum_const _]
     refine' Finset.sum_congr rfl fun i hi => _
     rw [div_self (hβ i (Finset.filter_subset _ _ hi)).ne']
-  rw [hsum] at h₄₂
+  rw [this] at h₄₂
   have : moderateSteps μ k l ini ⊆ densitySteps μ k l ini := Finset.filter_subset _ _
   replace h₄₂ := h₄₂.trans' (sub_le_sub_left (Nat.cast_le.2 (Finset.card_le_card this)) _)
   have hμ' : μ < 1 := hμu.trans_lt hμ₁
