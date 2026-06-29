@@ -739,48 +739,39 @@ theorem eq_41 (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1)
 -- k ≥ 1.6
 theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2 * k ^ 5 ≤ 2 * k ^ 7 := by
   filter_upwards [Filter.eventually_ge_atTop (1.6 : ℝ)] with k hk
-  have hk58 : (8 / 5 : ℝ) ≤ k := by
-    norm_num at hk ⊢
-    exact hk
   have h₄ : 2 * k ^ 4 ≤ 2 * (5 / 8) ^ 3 * k ^ 7 := by
-    have haux : 1 ≤ (5 / 8 : ℝ) ^ 3 * k ^ 3 := by
-      have hpow : (8 / 5 : ℝ) ^ 3 ≤ k ^ 3 :=
-        pow_le_pow_left₀ (by positivity) hk58 3
-      nlinarith
-    calc
-      2 * k ^ 4 = 2 * k ^ 4 * 1 := by ring
-      _ ≤ 2 * k ^ 4 * ((5 / 8 : ℝ) ^ 3 * k ^ 3) := by gcongr
-      _ = 2 * (5 / 8 : ℝ) ^ 3 * (k ^ 4 * k ^ 3) := by ring
-      _ = 2 * (5 / 8 : ℝ) ^ 3 * k ^ 7 := by rw [← pow_add]
+    rw [mul_assoc]
+    refine' mul_le_mul_of_nonneg_left _ (by norm_num1)
+    rw [← div_le_iff₀', div_pow, div_div_eq_mul_div, mul_div_assoc, ← div_pow]
+    change k ^ 4 * (8 / 5 : ℝ) ^ 3 ≤ k ^ (4 + 3)
+    rw [pow_add]
+    · refine' mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (by norm_num1) ?_ 3) _
+      · norm_num1 at hk ⊢
+        exact hk
+      exact pow_nonneg (by positivity) _
+    positivity
   have h₆ : k ^ 6 ≤ 5 / 8 * k ^ 7 := by
-    have haux : 1 ≤ (5 / 8 : ℝ) * k := by
-      nlinarith
-    calc
-      k ^ 6 = k ^ 6 * 1 := by ring
-      _ ≤ k ^ 6 * ((5 / 8 : ℝ) * k) := by gcongr
-      _ = (5 / 8 : ℝ) * (k ^ 6 * k) := by ring
-      _ = (5 / 8 : ℝ) * k ^ 7 := by
-        have hkpow : k ^ 6 * k = k ^ 7 := by
-          calc
-            k ^ 6 * k = k ^ 5 * (k * k) := by ring
-            _ = k ^ 5 * k ^ 2 := by rw [sq]
-            _ = k ^ 7 := by rw [← pow_add]
-        rw [hkpow]
+    rw [← div_le_iff₀', div_div_eq_mul_div, mul_div_assoc, pow_succ' _ 6, mul_comm k]
+    · refine' mul_le_mul_of_nonneg_left ?_ _
+      · norm_num1 at hk ⊢
+        exact hk
+      exact pow_nonneg (by positivity) _
+    positivity
   have h₅ : 2 * k ^ 5 ≤ 2 * (5 / 8) ^ 2 * k ^ 7 := by
-    have haux : 1 ≤ (5 / 8 : ℝ) ^ 2 * k ^ 2 := by
-      have hpow : (8 / 5 : ℝ) ^ 2 ≤ k ^ 2 :=
-        pow_le_pow_left₀ (by positivity) hk58 2
-      nlinarith
-    calc
-      2 * k ^ 5 = 2 * k ^ 5 * 1 := by ring
-      _ ≤ 2 * k ^ 5 * ((5 / 8 : ℝ) ^ 2 * k ^ 2) := by gcongr
-      _ = 2 * (5 / 8 : ℝ) ^ 2 * (k ^ 5 * k ^ 2) := by ring
-      _ = 2 * (5 / 8 : ℝ) ^ 2 * k ^ 7 := by rw [← pow_add]
+    rw [mul_assoc]
+    refine' mul_le_mul_of_nonneg_left _ (by norm_num1)
+    rw [← div_le_iff₀', div_pow, div_div_eq_mul_div, mul_div_assoc, ← div_pow]
+    change k ^ 5 * (8 / 5 : ℝ) ^ 2 ≤ k ^ (5 + 2)
+    rw [pow_add]
+    · refine' mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (by norm_num1) ?_ 2) _
+      · norm_num1 at hk ⊢
+        exact hk
+      exact pow_nonneg (by positivity) _
+    positivity
   have h₁ : 1 ≤ 27 / 256 * k ^ 7 := by
-    have hpow : (8 / 5 : ℝ) ^ 7 ≤ k ^ 7 := pow_le_pow_left₀ (by positivity) hk58 7
-    have hmul := mul_le_mul_of_nonneg_left hpow (show 0 ≤ (27 / 256 : ℝ) by norm_num)
-    have hone : (1 : ℝ) ≤ 27 / 256 * (8 / 5 : ℝ) ^ 7 := by norm_num
-    exact hone.trans hmul
+    rw [← div_le_iff₀', div_div_eq_mul_div, one_mul]
+    · exact (pow_le_pow_left₀ (by norm_num1) hk 7).trans' (by norm_num)
+    · norm_num1
   refine' (add_le_add (add_le_add (add_le_add h₄ h₁) h₆) h₅).trans_eq _
   ring_nf
 
