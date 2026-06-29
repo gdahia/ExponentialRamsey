@@ -2184,7 +2184,7 @@ theorem seven_one_calc {frk fbk fsk fdk μ β : ℝ} {s_ t_ : ℕ} :
       2 ^ fbk * (μ ^ l * (μ ^ s_)⁻¹) * (2 ^ frk * (1 - μ) ^ t_) * (2 ^ fsk * β ^ s_) * 2 ^ fdk :=
   by ring_nf
 
-set_option maxHeartbeats 800000 in
+set_option maxHeartbeats 400000 in
 theorem seven_one (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
     ∃ f : ℕ → ℝ,
       (f =o[atTop] fun i => (i : ℝ)) ∧
