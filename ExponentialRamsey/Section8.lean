@@ -19,37 +19,7 @@ variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2
 
 variable {k l : ℕ} {ini : BookConfig χ} {i : ℕ}
 
-private theorem le_div_iff {a b c : ℝ} (hc : 0 < c) : a ≤ b / c ↔ a * c ≤ b :=
-  le_div_iff₀ hc
 
-private theorem le_div_iff' {a b c : ℝ} (hc : 0 < c) : a ≤ b / c ↔ c * a ≤ b :=
-  le_div_iff₀' hc
-
-private theorem div_le_iff {a b c : ℝ} (hc : 0 < c) : b / c ≤ a ↔ b ≤ a * c :=
-  div_le_iff₀ hc
-
-private theorem div_le_iff' {a b c : ℝ} (hc : 0 < c) : b / c ≤ a ↔ b ≤ c * a :=
-  div_le_iff₀' hc
-
-private theorem div_le_of_nonneg_of_le_mul {a b c : ℝ} (hc : 0 ≤ c) (hb : 0 ≤ b)
-    (h : a ≤ b * c) : a / c ≤ b := by
-  rcases lt_or_eq_of_le hc with hc' | rfl
-  · rw [div_le_iff' hc']
-    simpa [mul_comm] using h
-  · simp [hb]
-
-private theorem rpow_nat_cast (x : ℝ) (n : ℕ) : x ^ (n : ℝ) = x ^ n :=
-  Real.rpow_natCast x n
-
-private theorem pow_le_pow_of_le_left {a b : ℝ} (ha : 0 ≤ a) (hab : a ≤ b) (n : ℕ) :
-    a ^ n ≤ b ^ n :=
-  pow_le_pow_left₀ ha hab n
-
-private theorem le_or_lt {α : Type*} [LinearOrder α] (a b : α) : a ≤ b ∨ b < a :=
-  le_or_gt a b
-
-private theorem lt_or_le {α : Type*} [LinearOrder α] (a b : α) : a < b ∨ b ≤ a :=
-  lt_or_ge a b
 
 /-- force x to live in [a,b], and assume a ≤ b -/
 noncomputable def clamp (a b x : ℝ) : ℝ :=
@@ -184,19 +154,6 @@ noncomputable def maxHeight (k : ℕ) : ℕ :=
   ⌊2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k⌋₊ + 1
 
 open Filter
-
-def tendsto {α β : Type*} (f : α → β) (l₁ : Filter α) (l₂ : Filter β) : Prop :=
-  Filter.Tendsto f l₁ l₂
-
-abbrev at_top {α : Type*} [Preorder α] : Filter α :=
-  Filter.atTop
-
-theorem tendsto_nat_cast_atTop_atTop : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop :=
-  tendsto_natCast_atTop_atTop
-
-theorem eventually_gt_at_top {α : Type*} [Preorder α] [NoTopOrder α] (a : α) :
-    ∀ᶠ x in Filter.atTop, a < x :=
-  Filter.eventually_gt_atTop a
 
 theorem maxHeight_large : ∀ᶠ l : ℕ in atTop, ∀ k, l ≤ k → 1 < maxHeight k := by
   filter_upwards [top_adjuster height_upper_bound] with l hl k hlk
@@ -401,7 +358,7 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
                             (1 - blueXRatio μ k l ini i) / blueXRatio μ k l ini i ≤
                         ∑ h ∈ Finset.Ico 1 (maxHeight k),
                           ∑ i ∈ densitySteps μ k l ini, Δ' μ k l ini i h / αFunction k h := by
-  have tt : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
+  have tt : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have hh₁ : (0 : ℝ) < 1 / 8 := by norm_num
   have hh₂ : (0 : ℝ) < 2 / 3 := by norm_num
   have hh₃ : (0 : ℝ) < 1 / 16 := by norm_num
@@ -432,7 +389,7 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
       Δ' μ k l ini i h / αFunction k (height k ini.p (algorithm μ k l ini (i + 1)).p) ≤
         Δ' μ k l ini i h / αFunction k h := by
     intro h hh
-    cases' le_or_lt h (height k ini.p (algorithm μ k l ini (i + 1)).p) with hp hp
+    cases' le_or_gt h (height k ini.p (algorithm μ k l ini (i + 1)).p) with hp hp
     · exact
         div_le_div_of_nonneg_left (Δ'_nonneg_of_p_le_p (h₅₃ _ hi.1)) (α_pos _ _ (hk k hlk))
           (α_increasing hp)
@@ -446,7 +403,7 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
   clear h33
   obtain ⟨hβ, hβ'⟩ := hl₅₂ k hlk μ hμu n χ ini hini i hi.1
   clear hl₅₂
-  rw [mul_div_assoc, le_div_iff (α_pos _ _ (hk k hlk))]
+  rw [mul_div_assoc, le_div_iff₀ (α_pos _ _ (hk k hlk))]
   refine' hβ'.trans' _
   rw [mul_right_comm, mul_right_comm _ (_ / _)]
   refine' mul_le_mul_of_nonneg_right _ _
@@ -465,7 +422,7 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
     exact one_le_height
   rw [this, ← mul_assoc]
   refine' mul_le_mul_of_nonneg_right _ (α_nonneg _ _)
-  rw [← rpow_nat_cast, Nat.cast_sub]
+  rw [← rpow_natCast, Nat.cast_sub]
   swap
   exact height_mono (hk k hlk).ne' (h₅₃ _ hi.1)
   have hk₈ : (0 : ℝ) ≤ 1 - k ^ (-1 / 8 : ℝ) := by
@@ -534,7 +491,7 @@ theorem eight_three :
   rw [mul_comm, ← nsmul_eq_mul, Finset.sum_comm]
   refine' Finset.card_nsmul_le_sum _ _ _ _
   intro i hi
-  cases' le_or_lt 0 (Δ μ k l ini i) with hΔ hΔ
+  cases' le_or_gt 0 (Δ μ k l ini i) with hΔ hΔ
   · refine' (Finset.sum_nonneg _).trans' (neg_nonpos_of_nonneg (by positivity))
     intro j hj
     rw [Finset.mem_Ico] at hj
@@ -563,7 +520,7 @@ theorem eight_three :
         Δ' μ k l ini i h / αFunction k h := by
     intro h hh
     rw [Finset.mem_Ico] at hh
-    cases' lt_or_le h (height k ini.p (algorithm μ k l ini i).p - 2) with hp hp
+    cases' lt_or_ge h (height k ini.p (algorithm μ k l ini i).p - 2) with hp hp
     · rw [this h hh.1 hp, MulZeroClass.mul_zero, zero_div, zero_div]
     rw [div_le_div_iff₀ (α_pos _ _ (hk k hlk)) (α_pos _ _ (hk k hlk)), mul_comm (_ ^ 2 : ℝ),
       mul_assoc]
@@ -573,8 +530,8 @@ theorem eight_three :
     rw [αFunction, αFunction, mul_div_assoc', mul_left_comm, ← pow_add]
     congr 3
     rw [add_comm 2, tsub_add_eq_add_tsub hh.1]
-  refine' (Finset.sum_le_sum this).trans' _
-  rw [← Finset.sum_div, ← Finset.mul_sum, h₃₃ k hlk, le_div_iff (α_pos _ _ (hk k hlk)), neg_mul, ← mul_neg]
+  refine' (Finset.sum_le_sum this).trans' ?_
+  rw [← Finset.sum_div, ← Finset.mul_sum, h₃₃ k hlk, le_div_iff₀ (α_pos _ _ (hk k hlk)), neg_mul, ← mul_neg]
   refine' mul_le_mul_of_nonneg_left _ (sq_nonneg _)
   rw [Δ, neg_le_sub_iff_le_add, ← sub_le_iff_le_add]
   exact six_four_red hi
@@ -613,13 +570,13 @@ theorem eq_39_end :
   have h₈ : (0 : ℝ) < 1 / 8 := by norm_num1
   have h₂ : 0 < log 2 / 2 := div_pos (log_pos (by norm_num1)) (by norm_num1)
   have := (tendsto_rpow_neg_atTop h₈).eventually (eventually_le_nhds h₂)
-  have := tendsto_nat_cast_atTop_atTop.eventually this
+  have := tendsto_natCast_atTop_atTop.eventually this
   filter_upwards [this] with k hk
   rw [add_comm]
   refine' (rpow_le_rpow _ (add_one_le_exp _) (by positivity)).trans _
   · positivity
   rw [← exp_one_rpow, ← rpow_mul (exp_pos _).le, exp_one_rpow, ← le_log_iff_exp_le two_pos,
-    mul_left_comm, ← rpow_add' (Nat.cast_nonneg _), ← le_div_iff' (zero_lt_two' ℝ)]
+    mul_left_comm, ← rpow_add' (Nat.cast_nonneg _), ← le_div_iff₀' (zero_lt_two' ℝ)]
   swap
   · norm_num1
   norm_num1
@@ -679,13 +636,13 @@ theorem eq_39 (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
     intro h hh'
     rw [Finset.mem_Ico] at hh'
     cases'
-      lt_or_le (h : ℝ) (height k ini.p (algorithm μ k l ini (i - 1)).p - 2 * k ^ (1 / 8 : ℝ)) with
+      lt_or_ge (h : ℝ) (height k ini.p (algorithm μ k l ini (i - 1)).p - 2 * k ^ (1 / 8 : ℝ)) with
       hp hp
     · rw [this h hh'.1 hp, MulZeroClass.mul_zero, zero_div, zero_div]
     rw [div_le_div_iff₀ (α_pos _ _ (hk k hlk)) (α_pos _ _ (hk k hlk)), mul_assoc, mul_left_comm]
     refine' mul_le_mul_of_nonpos_left _ (hh _)
     rw [αFunction, αFunction, mul_div_assoc', mul_left_comm,
-      ← Real.rpow_add_natCast (show (1 + ε : ℝ) ≠ 0 by positivity), ← rpow_nat_cast]
+      ← Real.rpow_add_natCast (show (1 + ε : ℝ) ≠ 0 by positivity), ← rpow_natCast]
     refine' div_le_div_of_nonneg_right _ (Nat.cast_nonneg k)
     refine' mul_le_mul_of_nonneg_left _ (by positivity)
     refine' rpow_le_rpow_of_exponent_le _ _
@@ -694,7 +651,7 @@ theorem eq_39 (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
     rwa [Nat.cast_sub hh'.1, Nat.cast_sub one_le_height, Nat.cast_one, add_sub_assoc',
       sub_le_sub_iff_right, ← sub_le_iff_le_add']
   refine' (Finset.sum_le_sum this).trans' _
-  rw [← Finset.sum_div, ← Finset.mul_sum, Finset.sum_add_distrib, h₃₃, h₃₃, le_div_iff (α_pos _ _ (hk k hlk)), mul_assoc,
+  rw [← Finset.sum_div, ← Finset.mul_sum, Finset.sum_add_distrib, h₃₃, h₃₃, le_div_iff₀ (α_pos _ _ (hk k hlk)), mul_assoc,
     neg_mul, ← mul_neg]
   refine' mul_le_mul_of_nonpos_of_nonneg' (hl k hlk) _ two_pos.le hh'.le
   rw [Δ, Δ, Nat.sub_add_cancel hi₁, sub_add_sub_cancel', le_sub_iff_add_le', ← sub_eq_add_neg]
@@ -732,7 +689,7 @@ theorem eight_four (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
   refine' this.trans (Finset.card_nsmul_le_sum _ _ _ _)
   intro i hi
   have := bigBlueSteps_sub_one_mem_degree hi
-  cases' le_or_lt 0 (Δ μ k l ini (i - 1) + Δ μ k l ini i) with hΔ hΔ
+  cases' le_or_gt 0 (Δ μ k l ini (i - 1) + Δ μ k l ini i) with hΔ hΔ
   · have : ∀ h, 0 ≤ (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) / αFunction k h := by
       intro h
       refine' div_nonneg _ (α_nonneg _ _)
@@ -801,7 +758,7 @@ theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2
   have h₄ : 2 * k ^ 4 ≤ 2 * (5 / 8) ^ 3 * k ^ 7 := by
     have haux : 1 ≤ (5 / 8 : ℝ) ^ 3 * k ^ 3 := by
       have hpow : (8 / 5 : ℝ) ^ 3 ≤ k ^ 3 :=
-        pow_le_pow_of_le_left (by positivity) hk58 3
+        pow_le_pow_left₀ (by positivity) hk58 3
       nlinarith
     calc
       2 * k ^ 4 = 2 * k ^ 4 * 1 := by ring
@@ -825,7 +782,7 @@ theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2
   have h₅ : 2 * k ^ 5 ≤ 2 * (5 / 8) ^ 2 * k ^ 7 := by
     have haux : 1 ≤ (5 / 8 : ℝ) ^ 2 * k ^ 2 := by
       have hpow : (8 / 5 : ℝ) ^ 2 ≤ k ^ 2 :=
-        pow_le_pow_of_le_left (by positivity) hk58 2
+        pow_le_pow_left₀ (by positivity) hk58 2
       nlinarith
     calc
       2 * k ^ 5 = 2 * k ^ 5 * 1 := by ring
@@ -833,7 +790,7 @@ theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2
       _ = 2 * (5 / 8 : ℝ) ^ 2 * (k ^ 5 * k ^ 2) := by ring
       _ = 2 * (5 / 8 : ℝ) ^ 2 * k ^ 7 := by rw [← pow_add]
   have h₁ : 1 ≤ 27 / 256 * k ^ 7 := by
-    have hpow : (8 / 5 : ℝ) ^ 7 ≤ k ^ 7 := pow_le_pow_of_le_left (by positivity) hk58 7
+    have hpow : (8 / 5 : ℝ) ^ 7 ≤ k ^ 7 := pow_le_pow_left₀ (by positivity) hk58 7
     have hmul := mul_le_mul_of_nonneg_left hpow (show 0 ≤ (27 / 256 : ℝ) by norm_num)
     have hone : (1 : ℝ) ≤ 27 / 256 * (8 / 5 : ℝ) ^ 7 := by norm_num
     exact hone.trans hmul
@@ -846,17 +803,17 @@ theorem polynomial_ineq :
       (0 : ℝ) < 1 - k ^ (-1 / 8 : ℝ) →
         (1 + k ^ (-1 / 4 : ℝ) : ℝ) ^ 2 / (1 - k ^ (-1 / 8 : ℝ)) ≤ 1 + 2 * k ^ (-1 / 16 : ℝ) := by
   have h : (0 : ℝ) < 1 / 16 := by norm_num
-  have := (tendsto_rpow_atTop h).comp tendsto_nat_cast_atTop_atTop
+  have := (tendsto_rpow_atTop h).comp tendsto_natCast_atTop_atTop
   have := this.eventually polynomial_ineq_aux
   filter_upwards [this, Filter.eventually_gt_atTop 0] with k hk₂ hk₀ hk
   have hk' : (0 : ℝ) < k := by rwa [Nat.cast_pos]
-  rw [div_le_iff hk]
+  rw [div_le_iff₀ hk]
   rw [add_sq, mul_one_sub, one_add_mul, one_pow, ← add_sub, add_assoc, add_le_add_iff_left, mul_one,
-    ← rpow_nat_cast, ← rpow_mul (Nat.cast_nonneg k), le_sub_iff_add_le, mul_assoc, ← add_assoc]
+    ← rpow_natCast, ← rpow_mul (Nat.cast_nonneg k), le_sub_iff_add_le, mul_assoc, ← add_assoc]
   refine' le_of_mul_le_mul_right _ (rpow_pos_of_pos hk' (1 / 2))
   simp only [add_mul, mul_assoc, ← rpow_add hk']
   dsimp at hk₂
-  simp only [← rpow_nat_cast, ← rpow_mul (Nat.cast_nonneg k)] at hk₂
+  simp only [← rpow_natCast, ← rpow_mul (Nat.cast_nonneg k)] at hk₂
   norm_num [rpow_zero]
   norm_num at hk₂
   exact hk₂
@@ -869,7 +826,7 @@ theorem log_ineq :
           2 * k ^ (15 / 16 : ℝ) := by
   have h₁ : (0 : ℝ) < 1 / 25 := by norm_num
   have h₂ := (isLittleO_log_rpow_atTop (by norm_num : (0 : ℝ) < 11 / 16)).bound h₁
-  have tt : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
+  have tt : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   filter_upwards [Filter.eventually_gt_atTop 1, tt.eventually h₂,
     tt.eventually_ge_atTop ((5 / 3) ^ 16)] with k hk₁ hk₂ hk₅ hk
   have hk' : (0 : ℝ) < k := by
@@ -883,7 +840,7 @@ theorem log_ineq :
     · norm_num1
     · norm_num1
     · norm_num1
-  rw [div_le_iff hk, neg_div, rpow_neg (Nat.cast_nonneg _), div_inv_eq_mul, mul_assoc, ← mul_add,
+  rw [div_le_iff₀ hk, neg_div, rpow_neg (Nat.cast_nonneg _), div_inv_eq_mul, mul_assoc, ← mul_add,
     mul_assoc, mul_one_sub]
   refine' mul_le_mul_of_nonneg_left _ two_pos.le
   rw [le_sub_iff_add_le]
@@ -902,8 +859,8 @@ theorem log_ineq :
   have h₃ : (k : ℝ) ^ (15 / 16 : ℝ) * k ^ (-1 / 8 : ℝ) ≤ (3 / 5) ^ 2 * k ^ (15 / 16 : ℝ) := by
     rw [mul_comm]
     refine' mul_le_mul_of_nonneg_right _ (rpow_nonneg (Nat.cast_nonneg _) _)
-    refine' (pow_le_pow_of_le_left (rpow_nonneg (Nat.cast_nonneg _) _) hk₁₆ _).trans' _
-    rw [← rpow_nat_cast, ← rpow_mul hk'.le]
+    refine' (pow_le_pow_left₀ (rpow_nonneg (Nat.cast_nonneg _) _) hk₁₆ _).trans' _
+    rw [← rpow_natCast, ← rpow_mul hk'.le]
     norm_num1
     rfl
   refine' (add_le_add_three h₁ h₂ h₃).trans _
@@ -938,7 +895,7 @@ theorem eq_42 (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1)
     norm_num1
   specialize hk₁ k hlk this
   specialize hk₂ k hlk this
-  rw [sub_le_iff_le_add, sub_le_iff_le_add, ← le_div_iff' this, add_div, ← div_mul_eq_mul_div] at hl
+  rw [sub_le_iff_le_add, sub_le_iff_le_add, ← le_div_iff₀' this, add_div, ← div_mul_eq_mul_div] at hl
   refine' hl.trans _
   refine' (add_le_add hk₂ (mul_le_mul_of_nonneg_right hk₁ (Nat.cast_nonneg _))).trans _
   rw [add_comm, one_add_mul, add_assoc, add_le_add_iff_left, ← le_sub_iff_add_le, ← sub_mul]
@@ -1066,7 +1023,7 @@ theorem eight_five (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
           7 / (1 - μ₁) * k ^ (15 / 16 : ℝ) :=
     add_le_add_right hmul _
   refine' hadd.trans' _
-  rw [div_mul_eq_mul_div, div_mul_eq_mul_div, ← add_div, le_div_iff]
+  rw [div_mul_eq_mul_div, div_mul_eq_mul_div, ← add_div, le_div_iff₀]
   swap
   · exact sub_pos_of_lt (hβ'.trans_lt (hμu.trans_lt hμ₁))
   rw [add_mul, ← add_assoc, mul_assoc, mul_left_comm, ← mul_add]
@@ -1075,7 +1032,7 @@ theorem eight_five (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
     add_sub_assoc', add_comm, add_sub_assoc, sub_eq_add_neg, add_le_add_iff_left,
     le_sub_iff_add_le', ← sub_eq_add_neg]
   refine' (mul_le_mul_of_nonneg_left h₄₂ (beta_nonneg (hμ₀.trans_le hμl))).trans' _
-  rw [mul_sub, mul_comm, sub_le_sub_iff_right, ← div_le_iff' hβ₀, div_eq_mul_one_div, beta_prop hS,
+  rw [mul_sub, mul_comm, sub_le_sub_iff_right, ← div_le_iff₀' hβ₀, div_eq_mul_one_div, beta_prop hS,
     one_div, mul_inv_cancel_left₀]
   exact_mod_cast (Finset.card_pos.mpr hS).ne'
 
@@ -1107,7 +1064,7 @@ theorem eight_six (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
   refine' ⟨fun k => -7 / (1 - μ₁) * k ^ (-(1 / 32) : ℝ), _, _⟩
   · refine' IsLittleO.const_mul_left _ _
     have : -(1 / 32 : ℝ) < 0 := by norm_num
-    refine' ((isLittleO_rpow_rpow this).comp_tendsto tendsto_nat_cast_atTop_atTop).congr_right _
+    refine' ((isLittleO_rpow_rpow this).comp_tendsto tendsto_natCast_atTop_atTop).congr_right _
     simp
   intro μ₀ p₀ hμ₀ hp₀
   filter_upwards [eight_five μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀, beta_pos μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀,
@@ -1118,7 +1075,7 @@ theorem eight_six (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
   specialize hβμ k hlk μ hμl hμu n χ ini hini
   specialize hk₀ k hlk
   have hk₀' : (0 : ℝ) < k := Nat.cast_pos.2 hk₀
-  rw [div_mul_eq_mul_div, ← sub_le_iff_le_add, le_div_iff, mul_one_sub] at hl
+  rw [div_mul_eq_mul_div, ← sub_le_iff_le_add, le_div_iff₀, mul_one_sub] at hl
   swap
   · rw [sub_pos]
     exact hβμ.trans_lt (hμu.trans_lt hμ₁)
@@ -1141,6 +1098,11 @@ theorem eight_six (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
   replace hl := (sub_le_sub h₁ h₂).trans hl
   rw [sub_le_iff_le_add', mul_comm _ (beta μ k l ini), ← mul_add] at hl
   rw [mul_div_assoc']
-  exact div_le_of_nonneg_of_le_mul (by positivity) (beta_nonneg (hμ₀.trans_le hμl)) hl
+  have hpos : 0 ≤ ((densitySteps μ k l ini).card + (redSteps μ k l ini).card : ℝ) := by positivity
+  rcases lt_or_eq_of_le hpos with (hc' | hzero)
+  · rw [div_le_iff₀' hc']
+    simpa [mul_comm] using hl
+  · rw [hzero.symm, div_zero]
+    exact beta_nonneg (hμ₀.trans_le hμl)
 
 end SimpleGraph
