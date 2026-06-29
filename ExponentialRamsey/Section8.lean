@@ -232,12 +232,9 @@ theorem prop_33 :
                 ∀ ini : BookConfig χ,
                   ∀ i, ∑ h ∈ Finset.Ico 1 (maxHeight k), Δ' μ k l ini i h = Δ μ k l ini i := by
   filter_upwards [p_le_q, maxHeight_large] with l hl hl' k hlk μ n χ ini i
-  have hmax :
-      Finset.Ico 1 (maxHeight k) = Finset.Icc 1 ⌊2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k⌋₊ := by
-    rw [maxHeight]
-    simpa using
-      (Finset.Ico_succ_right_eq_Icc 1 ⌊2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k⌋₊)
-  rw [hmax]
+  -- TODO: not sure about this one
+  change ∑ h ∈ Finset.Ico 1 (Order.succ ⌊2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k⌋₊ : ℕ), _ = _
+  rw [Finset.Ico_succ_right_eq_Icc]
   rw [prop33_aux, Δ, min_eq_right, min_eq_right]
   · refine' (hl k hlk _ _ _ _ _ _ le_rfl).trans _
     exact q_increasing le_rfl
