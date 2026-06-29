@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bhavik Mehta
 -/
 import ExponentialRamsey.Prereq.Mathlib.Algebra.BigOperators.Ring
-import ExponentialRamsey.Prereq.Mathlib.Algebra.Order.Monoid.Lemmas
 import ExponentialRamsey.Prereq.Mathlib.Combinatorics.SimpleGraph.Basic
 import ExponentialRamsey.Prereq.Mathlib.Combinatorics.SimpleGraph.DegreeSum
 import ExponentialRamsey.Prereq.Mathlib.Data.Nat.Choose.Basic
