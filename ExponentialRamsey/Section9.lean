@@ -26,7 +26,24 @@ theorem little_o_stirling :
     ∃ f : ℕ → ℝ,
       (f =o[atTop] fun i => (1 : ℝ)) ∧
         ∀ n : ℕ, n ≠ 0 → (n.factorial : ℝ) = (1 + f n) * sqrt (2 * π * n) * (n / exp 1) ^ n := by
-  sorry
+  refine' ⟨fun n => Stirling.stirlingSeq n / sqrt π - 1, _, _⟩
+  · rw [is_o_one_iff]
+    have hπ : √π ≠ 0 := sqrt_ne_zero'.2 pi_pos
+    have h : Tendsto (fun n => Stirling.stirlingSeq n / √π) atTop (nhds 1) := by
+      have := Stirling.tendsto_stirlingSeq_sqrt_pi.div_const (√π)
+      rwa [div_self hπ] at this
+    convert h.sub_const 1 using 2
+    norm_num
+  intro n hn
+  simp only [Stirling.stirlingSeq]
+  have h1 : (1 : ℝ) + (n.factorial / (√(2 * ↑n) * (↑n / exp 1) ^ n) / √π - 1) =
+      n.factorial / (√(2 * ↑n) * (↑n / exp 1) ^ n) / √π := by ring
+  rw [h1, show 2 * π * ↑n = 2 * ↑n * π from by ring,
+    sqrt_mul (by positivity : (0 : ℝ) ≤ 2 * ↑n) π]
+  have hπ : √π ≠ 0 := sqrt_ne_zero'.2 pi_pos
+  have hn2 : √(2 * ↑n) ≠ 0 := sqrt_ne_zero'.mpr (by positivity)
+  have hne : (↑n / exp 1) ^ n ≠ 0 := by positivity
+  field_simp
 
 
 -- giving explicit bounds here requires an explicit version of stirling
@@ -41,12 +58,43 @@ theorem nine_four_log_aux :
     ∃ g : ℕ → ℝ,
       (g =o[atTop] fun i => (i : ℝ)) ∧
         ∀ᶠ l : ℕ in atTop, ∀ k, l ≤ k → g k ≤ log (k + l) - log k - log l := by
-  sorry
+  refine' ⟨fun k => log 2 - log k, _, _⟩
+  · suffices (fun k : ℝ => log 2 - log k) =o[atTop] id by
+      exact this.comp_tendsto tendsto_natCast_atTop_atTop
+    exact IsLittleO.sub (isLittleO_const_id_atTop _) isLittleO_log_id_atTop
+  filter_upwards [eventually_gt_atTop 0] with l hl₀ k hlk
+  rw [sub_sub, add_comm (log _), ← sub_sub, sub_le_sub_iff_right, ← log_div]
+  · refine' log_le_log zero_lt_two _
+    rwa [le_div_iff₀, two_mul, add_le_add_iff_right, Nat.cast_le]
+    rwa [Nat.cast_pos]
+  · positivity
+  · positivity
 
 
 theorem nine_four_aux_aux {f : ℕ → ℝ} (hf : f =o[atTop] fun i => (1 : ℝ)) :
     ∀ᶠ l : ℕ in atTop, ∀ k, l ≤ k → 2 ^ (-3 : ℝ) ≤ (1 + f (k + l)) / ((1 + f k) * (1 + f l)) := by
-  sorry
+  rw [isLittleO_one_iff ℝ] at hf
+  have h₁ : (-1 / 2 : ℝ) < 0 := by norm_num
+  filter_upwards [eventually_gt_atTop 0, top_adjuster (hf.eventually (eventually_ge_nhds h₁)),
+    top_adjuster (hf.eventually (eventually_le_nhds zero_lt_one))] with l hn1 hneg h1 k hlk
+  have h₂ : ∀ k, l ≤ k → 1 / 2 ≤ 1 + f k := by
+    intro k hlk
+    linarith only [hneg k hlk]
+  have h₃ : ∀ k, l ≤ k → 1 + f k ≤ 2 := by
+    intro k hlk
+    linarith only [h1 k hlk]
+  have h₄ : ∀ k, l ≤ k → 0 < 1 + f k := by
+    intro k hlk
+    linarith only [h₂ k hlk]
+  have h23 : (2 : ℝ) ^ (-3 : ℝ) = 1 / 8 := by norm_num
+  rw [h23, le_div_iff₀ (mul_pos (h₄ _ hlk) (h₄ _ le_rfl))]
+  have h4le : (1 + f k : ℝ) * (1 + f l) ≤ 2 * 2 :=
+    mul_le_mul (h₃ _ hlk) (h₃ _ le_rfl) (h₄ _ le_rfl).le (le_of_lt zero_lt_two)
+  have h4 : (1 : ℝ) / 8 * ((1 + f k) * (1 + f l)) ≤ 1 / 2 :=
+    calc (1 : ℝ) / 8 * ((1 + f k) * (1 + f l)) ≤ 1 / 8 * (2 * 2) :=
+        mul_le_mul_of_nonneg_left h4le (by norm_num)
+    _ = 1 / 2 := by norm_num
+  linarith [h₂ _ (Nat.le_add_left l k)]
 
 
 -- f is -3 + (log 2 - log k - log (2 π)) / (2 log 2)
@@ -159,7 +207,24 @@ theorem cast_descFactorial_eq_prod {n k : ℕ} :
 
 
 theorem pow_div_le_choose {n k : ℕ} (h : k ≤ n) : (n / k : ℝ) ^ k ≤ n.choose k := by
-  sorry
+  have h1 : k.factorial ∣ n.descFactorial k := Nat.factorial_dvd_descFactorial _ _
+  have h2 : (↑k.factorial : ℝ) ≠ 0 := by positivity
+  rw [Nat.choose_eq_descFactorial_div_factorial, Nat.cast_div h1 h2,
+    ← Finset.prod_range_add_one_eq_factorial, Nat.cast_prod, ← Finset.prod_range_reflect,
+    cast_descFactorial_eq_prod, ← Finset.prod_div_distrib]
+  suffices h : ∀ x ∈ Finset.range k, (n / k : ℝ) ≤ (↑(n - x) : ℝ) / (k - 1 - x + 1 : ℕ) by
+    have key := Finset.prod_le_prod (fun x (_ : x ∈ Finset.range k) => by positivity) h
+    simp only [Finset.prod_const, Finset.card_range] at key ⊢
+    exact key
+  intro x hx
+  rw [Finset.mem_range] at hx
+  have hlt : 0 < k - x := Nat.sub_pos_of_lt hx
+  rw [Nat.sub_sub, add_comm 1, ← Nat.sub_sub, Nat.sub_add_cancel hlt]
+  rw [div_le_div_iff₀ (Nat.cast_pos.2 (Nat.pos_of_ne_zero (by omega : k ≠ 0)))
+    (Nat.cast_pos.2 hlt)]
+  rw [Nat.cast_sub hx.le, Nat.cast_sub (hx.le.trans h), mul_sub, sub_mul,
+    sub_le_sub_iff_left, mul_comm, ← Nat.cast_mul, ← Nat.cast_mul, Nat.cast_le]
+  exact Nat.mul_le_mul_right _ h
 
 
 theorem exp_le_one_sub_inv {x : ℝ} (hx : x < 1) : exp x ≤ (1 - x)⁻¹ := by
@@ -326,20 +391,28 @@ theorem ConcaveOn.hMul {f g : ℝ → ℝ} {s : Set ℝ} (hf : ConcaveOn ℝ s f
 -- lemma convex_on_sub_const {s : set ℝ} {c : ℝ} (hs : convex ℝ s) : concave_on ℝ s (λ x, x - c) :=
 -- (convex_on_id hs).sub (concave_on_const _ hs)
 theorem ConvexOn.const_hMul {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : ConvexOn ℝ s f) (hc : 0 ≤ c) :
-    ConvexOn ℝ s fun x => c * f x := by
-  sorry
+    ConvexOn ℝ s fun x => c * f x :=
+  ⟨hf.1, fun x hx y hy a b ha hb hab =>
+    (mul_le_mul_of_nonneg_left (hf.2 hx hy ha hb hab) hc).trans_eq
+      (by simp only [smul_eq_mul]; ring_nf)⟩
 
 theorem ConcaveOn.const_hMul {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : ConcaveOn ℝ s f) (hc : 0 ≤ c) :
-    ConcaveOn ℝ s fun x => c * f x := by
-  sorry
+    ConcaveOn ℝ s fun x => c * f x :=
+  ⟨hf.1, fun x hx y hy a b ha hb hab =>
+    (mul_le_mul_of_nonneg_left (hf.2 hx hy ha hb hab) hc).trans_eq'
+      (by simp only [smul_eq_mul]; ring_nf)⟩
 
 theorem StrictConvexOn.const_hMul_neg {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : StrictConvexOn ℝ s f)
-    (hc : c < 0) : StrictConcaveOn ℝ s fun x => c * f x := by
-  sorry
+    (hc : c < 0) : StrictConcaveOn ℝ s fun x => c * f x :=
+  ⟨hf.1, fun x hx y hy hxy a b ha hb hab =>
+    (mul_lt_mul_of_neg_left (hf.2 hx hy hxy ha hb hab) hc).trans_eq'
+      (by simp only [smul_eq_mul]; ring_nf)⟩
 
 theorem StrictConvexOn.const_hMul {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : StrictConvexOn ℝ s f)
-    (hc : 0 < c) : StrictConvexOn ℝ s fun x => c * f x := by
-  sorry
+    (hc : 0 < c) : StrictConvexOn ℝ s fun x => c * f x :=
+  ⟨hf.1, fun x hx y hy hxy a b ha hb hab =>
+    (mul_lt_mul_of_pos_left (hf.2 hx hy hxy ha hb hab) hc).trans_eq
+      (by simp only [smul_eq_mul]; ring_nf)⟩
 
 theorem convexOn_inv : ConvexOn ℝ (Set.Ioi (0 : ℝ)) fun x => x⁻¹ := by
   sorry
