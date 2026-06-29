@@ -61,16 +61,14 @@ theorem clamp_le {a b x : ℝ} (h : a ≤ b) : clamp a b x ≤ b :=
 theorem le_clamp {a b x : ℝ} : a ≤ clamp a b x :=
   le_max_left _ _
 
-theorem clamp_eq {a b x : ℝ} (h : a ≤ b) : clamp a b x = min b (max a x) :=
-  by
+theorem clamp_eq {a b x : ℝ} (h : a ≤ b) : clamp a b x = min b (max a x) := by
   rw [clamp]
   rcases min_cases b x with (h' | h')
   · rw [h'.1, max_eq_right h, min_eq_left (le_max_of_le_right h'.2)]
   rw [h'.1, min_eq_right]
   exact max_le h h'.2.le
 
-theorem yael {a b x : ℝ} (h : a ≤ b) : clamp a b x = a + min b x - min a x :=
-  by
+theorem yael {a b x : ℝ} (h : a ≤ b) : clamp a b x = a + min b x - min a x := by
   rw [clamp]
   rcases min_cases b x with (h' | h')
   · rw [h'.1, min_eq_left (h.trans h'.2), max_eq_right h]
@@ -82,15 +80,13 @@ noncomputable def p' (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) (i : ℕ) (h :
   if h = 1 then min (qFunction k ini.p h) (algorithm μ k l ini i).p
   else clamp (qFunction k ini.p (h - 1)) (qFunction k ini.p h) (algorithm μ k l ini i).p
 
-theorem p'_le {μ : ℝ} {i h : ℕ} : p' μ k l ini i h ≤ qFunction k ini.p h :=
-  by
+theorem p'_le {μ : ℝ} {i h : ℕ} : p' μ k l ini i h ≤ qFunction k ini.p h := by
   rw [p']
   split_ifs
   · exact min_le_left _ _
   exact clamp_le (q_increasing (by simp))
 
-theorem le_p' {μ : ℝ} {i h : ℕ} (hh : 1 < h) : qFunction k ini.p (h - 1) ≤ p' μ k l ini i h :=
-  by
+theorem le_p' {μ : ℝ} {i h : ℕ} (hh : 1 < h) : qFunction k ini.p (h - 1) ≤ p' μ k l ini i h := by
   rw [p', if_neg hh.ne']
   exact le_clamp
 
@@ -162,8 +158,7 @@ macro_rules
 theorem prop33_aux {μ : ℝ} {z : ℕ} (h : 1 ≤ z) :
     ∑ h ∈ Finset.Icc 1 z, Δ' μ k l ini i h =
       min (qFunction k ini.p z) (algorithm μ k l ini (i + 1)).p -
-        min (qFunction k ini.p z) (algorithm μ k l ini i).p :=
-  by
+        min (qFunction k ini.p z) (algorithm μ k l ini i).p := by
   cases z with
   | zero =>
       simp at h
@@ -203,16 +198,14 @@ theorem eventually_gt_at_top {α : Type*} [Preorder α] [NoTopOrder α] (a : α)
     ∀ᶠ x in Filter.atTop, a < x :=
   Filter.eventually_gt_atTop a
 
-theorem maxHeight_large : ∀ᶠ l : ℕ in atTop, ∀ k, l ≤ k → 1 < maxHeight k :=
-  by
+theorem maxHeight_large : ∀ᶠ l : ℕ in atTop, ∀ k, l ≤ k → 1 < maxHeight k := by
   filter_upwards [top_adjuster height_upper_bound] with l hl k hlk
   rw [maxHeight, lt_add_iff_pos_left, Nat.floor_pos]
   refine' (hl k hlk 0 le_rfl 1 le_rfl).trans' _
   exact_mod_cast one_le_height
 
 theorem p_le_q' {k h : ℕ} {p₀ p : ℝ} (hk : k ≠ 0) :
-    height k p₀ p < h → p ≤ qFunction k p₀ (h - 1) :=
-  by
+    height k p₀ p < h → p ≤ qFunction k p₀ (h - 1) := by
   intro hh
   refine' (q_increasing (Nat.le_pred_of_lt hh)).trans' _
   exact height_spec hk
@@ -225,8 +218,7 @@ theorem p_le_q :
             ∀ n : ℕ,
               ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
                 ∀ (ini : BookConfig χ) (h : ℕ) (i : ℕ),
-                  maxHeight k ≤ h → (algorithm μ k l ini i).p ≤ qFunction k ini.p (h - 1) :=
-  by
+                  maxHeight k ≤ h → (algorithm μ k l ini i).p ≤ qFunction k ini.p (h - 1) := by
   filter_upwards [top_adjuster height_upper_bound, top_adjuster (Filter.eventually_gt_atTop 0)] with l hl'
     hk k hlk μ n χ ini i h hh
   refine' p_le_q' (hk k hlk).ne' (hh.trans_lt' _)
@@ -241,8 +233,8 @@ theorem p_le_q :
 -- rwa le_tsub_iff_right,
 -- exact hh.trans' (hl' k hlk).le
 theorem p'_eq_of_ge' {μ : ℝ} {k h : ℕ} (hk : k ≠ 0) :
-    height k ini.p (algorithm μ k l ini i).p < h → p' μ k l ini i h = qFunction k ini.p (h - 1) :=
-  by
+    height k ini.p (algorithm μ k l ini i).p < h →
+    p' μ k l ini i h = qFunction k ini.p (h - 1) := by
   intro hh
   have h₁ : qFunction k ini.p (h - 1) ≤ qFunction k ini.p h := q_increasing (Nat.sub_le _ _)
   rw [p', clamp_eq h₁, max_eq_left, min_eq_right h₁, if_neg (one_le_height.trans_lt hh).ne']
@@ -256,8 +248,7 @@ theorem p'_eq_of_ge :
             ∀ n : ℕ,
               ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
                 ∀ (ini : BookConfig χ) (h i : ℕ),
-                  maxHeight k ≤ h → p' μ k l ini i h = qFunction k ini.p (h - 1) :=
-  by
+                  maxHeight k ≤ h → p' μ k l ini i h = qFunction k ini.p (h - 1) := by
   filter_upwards [p_le_q, maxHeight_large] with l hl hl' k hlk μ n χ ini h i hh
   have h₁ : qFunction k ini.p (h - 1) ≤ qFunction k ini.p h := q_increasing (Nat.sub_le _ _)
   rw [p', clamp_eq h₁, max_eq_left (hl k hlk μ n χ ini _ i hh), min_eq_right h₁, if_neg]
@@ -270,8 +261,7 @@ theorem Δ'_eq_of_ge :
           ∀ μ,
             ∀ n : ℕ,
               ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
-                ∀ (ini : BookConfig χ) (h i : ℕ), maxHeight k ≤ h → Δ' μ k l ini i h = 0 :=
-  by
+                ∀ (ini : BookConfig χ) (h i : ℕ), maxHeight k ≤ h → Δ' μ k l ini i h = 0 := by
   filter_upwards [p'_eq_of_ge] with l hl k hlk μ n χ ini h i hh
   rw [Δ', hl _ hlk _ _ _ _ _ _ hh, hl _ hlk _ _ _ _ _ _ hh, sub_self]
 
@@ -283,8 +273,7 @@ theorem prop_33 :
             ∀ n : ℕ,
               ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
                 ∀ ini : BookConfig χ,
-                  ∀ i, ∑ h ∈ Finset.Ico 1 (maxHeight k), Δ' μ k l ini i h = Δ μ k l ini i :=
-  by
+                  ∀ i, ∑ h ∈ Finset.Ico 1 (maxHeight k), Δ' μ k l ini i h = Δ μ k l ini i := by
   filter_upwards [p_le_q, maxHeight_large] with l hl hl' k hlk μ n χ ini i
   have hmax :
       Finset.Ico 1 (maxHeight k) = Finset.Icc 1 ⌊2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k⌋₊ := by
@@ -310,14 +299,12 @@ theorem p'_le_p'_of_p_le_p {μ : ℝ} {h i j : ℕ}
   exact max_le_max le_rfl (min_le_min le_rfl hp)
 
 theorem Δ'_nonneg_of_p_le_p {μ : ℝ} {h : ℕ}
-    (hp : (algorithm μ k l ini i).p ≤ (algorithm μ k l ini (i + 1)).p) : 0 ≤ Δ' μ k l ini i h :=
-  by
+    (hp : (algorithm μ k l ini i).p ≤ (algorithm μ k l ini (i + 1)).p) : 0 ≤ Δ' μ k l ini i h := by
   rw [Δ', sub_nonneg]
   exact p'_le_p'_of_p_le_p hp
 
 theorem Δ'_nonpos_of_p_le_p {μ : ℝ} {h : ℕ}
-    (hp : (algorithm μ k l ini (i + 1)).p ≤ (algorithm μ k l ini i).p) : Δ' μ k l ini i h ≤ 0 :=
-  by
+    (hp : (algorithm μ k l ini (i + 1)).p ≤ (algorithm μ k l ini i).p) : Δ' μ k l ini i h ≤ 0 := by
   rw [Δ', sub_nonpos]
   exact p'_le_p'_of_p_le_p hp
 
@@ -329,8 +316,7 @@ theorem forall_nonneg_iff_nonneg :
             ∀ n : ℕ,
               ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
                 ∀ ini : BookConfig χ,
-                  ∀ i, (∀ h, 1 ≤ h → 0 ≤ Δ' μ k l ini i h) ↔ 0 ≤ Δ μ k l ini i :=
-  by
+                  ∀ i, (∀ h, 1 ≤ h → 0 ≤ Δ' μ k l ini i h) ↔ 0 ≤ Δ μ k l ini i := by
   filter_upwards [prop_33] with l hl k hlk μ n χ ini i
   constructor
   · intro hi
@@ -351,8 +337,7 @@ theorem forall_nonpos_iff_nonpos :
             ∀ n : ℕ,
               ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
                 ∀ ini : BookConfig χ,
-                  ∀ i, (∀ h, 1 ≤ h → Δ' μ k l ini i h ≤ 0) ↔ Δ μ k l ini i ≤ 0 :=
-  by
+                  ∀ i, (∀ h, 1 ≤ h → Δ' μ k l ini i h ≤ 0) ↔ Δ μ k l ini i ≤ 0 := by
   filter_upwards [prop_33] with l hl k hlk μ n χ ini i
   constructor
   · intro hi
@@ -374,8 +359,7 @@ theorem prop_34 :
                 ∀ ini : BookConfig χ,
                   ∑ h ∈ Finset.Ico 1 (maxHeight k),
                       ∑ i ∈ Finset.range (finalStep μ k l ini), Δ' μ k l ini i h / αFunction k h ≤
-                    2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k :=
-  by
+                    2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k := by
   filter_upwards [Δ'_eq_of_ge, top_adjuster (Filter.eventually_ge_atTop 1)] with l hl hk k hlk μ n χ ini
   refine' (Finset.sum_le_card_nsmul _ _ 1 _).trans _
   · intro h hh
@@ -416,8 +400,7 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
                           ∑ i ∈ moderateSteps μ k l ini,
                             (1 - blueXRatio μ k l ini i) / blueXRatio μ k l ini i ≤
                         ∑ h ∈ Finset.Ico 1 (maxHeight k),
-                          ∑ i ∈ densitySteps μ k l ini, Δ' μ k l ini i h / αFunction k h :=
-  by
+                          ∑ i ∈ densitySteps μ k l ini, Δ' μ k l ini i h / αFunction k h := by
   have tt : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
   have hh₁ : (0 : ℝ) < 1 / 8 := by norm_num
   have hh₂ : (0 : ℝ) < 2 / 3 := by norm_num
@@ -447,8 +430,7 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
   have :
     ∀ h ∈ Finset.Ico 1 (maxHeight k),
       Δ' μ k l ini i h / αFunction k (height k ini.p (algorithm μ k l ini (i + 1)).p) ≤
-        Δ' μ k l ini i h / αFunction k h :=
-    by
+        Δ' μ k l ini i h / αFunction k h := by
     intro h hh
     cases' le_or_lt h (height k ini.p (algorithm μ k l ini (i + 1)).p) with hp hp
     · exact
@@ -477,8 +459,7 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
       (1 + ε) ^
           (height k ini.p (algorithm μ k l ini (i + 1)).p -
             height k ini.p (algorithm μ k l ini i).p) *
-        αFunction k (height k ini.p (algorithm μ k l ini i).p) :=
-    by
+        αFunction k (height k ini.p (algorithm μ k l ini i).p) := by
     rw [αFunction, αFunction, mul_div_assoc', mul_left_comm, ← pow_add, tsub_add_tsub_cancel]
     · exact height_mono (hk k hlk).ne' (h₅₃ _ hi.1)
     exact one_le_height
@@ -487,8 +468,7 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
   rw [← rpow_nat_cast, Nat.cast_sub]
   swap
   exact height_mono (hk k hlk).ne' (h₅₃ _ hi.1)
-  have hk₈ : (0 : ℝ) ≤ 1 - k ^ (-1 / 8 : ℝ) :=
-    by
+  have hk₈ : (0 : ℝ) ≤ 1 - k ^ (-1 / 8 : ℝ) := by
     rw [sub_nonneg]
     refine' rpow_le_one_of_one_le_of_nonpos _ _
     · rw [Nat.one_le_cast, Nat.succ_le_iff]
@@ -497,8 +477,7 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
   refine' (mul_le_mul_of_nonneg_left (rpow_le_rpow_of_exponent_le _ hi.2) _).trans _
   · simp only [le_add_iff_nonneg_right]; positivity
   · exact hk₈
-  have : (1 : ℝ) - ε = (1 - k ^ (-1 / 8 : ℝ)) * (1 + k ^ (-1 / 8 : ℝ)) :=
-    by
+  have : (1 : ℝ) - ε = (1 - k ^ (-1 / 8 : ℝ)) * (1 + k ^ (-1 / 8 : ℝ)) := by
     have hk0 : 0 < (k : ℝ) := by exact_mod_cast hk k hlk
     have hpow : ε = ((k : ℝ) ^ (-1 / 8 : ℝ)) ^ 2 := by
       rw [sq, ← rpow_add]
@@ -527,8 +506,7 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
   have : (k : ℝ) ^ (-1 / 8 : ℝ) ≤ 2 / 3 := by rw [neg_div]; exact h₁₈ k hlk
   refine' (log_inequality (by positivity) this).trans' _
   refine' (mul_le_mul_of_nonneg_left quick_calculation (by positivity)).trans' _
-  have : (k : ℝ) ^ (-3 / 16 : ℝ) = k ^ (-1 / 8 : ℝ) * k ^ (-(1 / 16) : ℝ) :=
-    by
+  have : (k : ℝ) ^ (-3 / 16 : ℝ) = k ^ (-1 / 8 : ℝ) * k ^ (-(1 / 16) : ℝ) := by
     rw [← rpow_add]
     · norm_num
     rw [Nat.cast_pos]
@@ -546,8 +524,8 @@ theorem eight_three :
               ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
                 ∀ ini : BookConfig χ,
                   -(1 + ε : ℝ) ^ 2 * (redSteps μ k l ini).card ≤
-                    ∑ h ∈ Finset.Ico 1 (maxHeight k), ∑ i ∈ ℛ, Δ' μ k l ini i h / αFunction k h :=
-  by
+                    ∑ h ∈ Finset.Ico 1 (maxHeight k), ∑ i ∈ ℛ,
+                    Δ' μ k l ini i h / αFunction k h := by
   filter_upwards [forall_nonneg_iff_nonneg, forall_nonpos_iff_nonpos, six_five_red,
     top_adjuster (Filter.eventually_gt_atTop 0), prop_33] with l hl₁ hl₂ hl₃ hk h₃₃ k hlk μ n χ ini
   specialize hl₁ k hlk μ n χ ini
@@ -562,21 +540,17 @@ theorem eight_three :
     rw [Finset.mem_Ico] at hj
     exact div_nonneg ((hl₁ i).2 hΔ j hj.1) (α_nonneg _ _)
   specialize hl₃ i hi
-  have : ∀ h, 1 ≤ h → h < height k ini.p (algorithm μ k l ini i).p - 2 → Δ' μ k l ini i h = 0 :=
-    by
+  have : ∀ h, 1 ≤ h → h < height k ini.p (algorithm μ k l ini i).p - 2 → Δ' μ k l ini i h = 0 := by
     intro h hh₁ hh₂
     have := hh₂.trans_le hl₃
     rw [Δ']
-    have h₁ : p' μ k l ini (i + 1) h = qFunction k ini.p h :=
-      by
-      have h₁ : qFunction k ini.p h ≤ (algorithm μ k l ini (i + 1)).p :=
-        by
+    have h₁ : p' μ k l ini (i + 1) h = qFunction k ini.p h := by
+      have h₁ : qFunction k ini.p h ≤ (algorithm μ k l ini (i + 1)).p := by
         refine' (q_increasing (Nat.le_pred_of_lt (hh₂.trans_le hl₃))).trans (q_height_lt_p _).le
         exact hh₁.trans_lt this
       rw [p', clamp, min_eq_left h₁, max_eq_right (q_increasing (Nat.sub_le _ _))]
       simp
-    have h₂ : p' μ k l ini i h = qFunction k ini.p h :=
-      by
+    have h₂ : p' μ k l ini i h = qFunction k ini.p h := by
       have h₂ : qFunction k ini.p h ≤ (algorithm μ k l ini i).p :=
         (q_increasing (Nat.le_pred_of_lt (hh₂.trans_le (Nat.sub_le _ _)))).trans
           (q_height_lt_p (hh₁.trans_lt (hh₂.trans_le (Nat.sub_le _ _)))).le
@@ -586,8 +560,7 @@ theorem eight_three :
   have :
     ∀ h ∈ Finset.Ico 1 (maxHeight k),
       (1 + ε : ℝ) ^ 2 * Δ' μ k l ini i h / αFunction k (height k ini.p (algorithm μ k l ini i).p) ≤
-        Δ' μ k l ini i h / αFunction k h :=
-    by
+        Δ' μ k l ini i h / αFunction k h := by
     intro h hh
     rw [Finset.mem_Ico] at hh
     cases' lt_or_le h (height k ini.p (algorithm μ k l ini i).p - 2) with hp hp
@@ -610,8 +583,7 @@ theorem eight_four_first_step (μ : ℝ) :
     ∑ h ∈ Finset.Ico 1 (maxHeight k),
         ∑ i ∈ bigBlueSteps μ k l ini, (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) / αFunction k h ≤
       ∑ h ∈ Finset.Ico 1 (maxHeight k),
-        ∑ i ∈ degreeSteps μ k l ini ∪ bigBlueSteps μ k l ini, Δ' μ k l ini i h / αFunction k h :=
-  by
+        ∑ i ∈ degreeSteps μ k l ini ∪ bigBlueSteps μ k l ini, Δ' μ k l ini i h / αFunction k h := by
   refine' Finset.sum_le_sum _
   intro h hh
   rw [Finset.sum_union (degreeSteps_disjoint_bigBlueSteps_union_redOrDensitySteps.mono_right _)]
@@ -619,8 +591,7 @@ theorem eight_four_first_step (μ : ℝ) :
   · intro i hi
     exact Finset.mem_union.mpr (Or.inl hi)
   simp only [add_div, Finset.sum_add_distrib, add_le_add_iff_right]
-  have : bigBlueSteps μ k l ini ⊆ (degreeSteps μ k l ini).map ⟨_, add_left_injective 1⟩ :=
-    by
+  have : bigBlueSteps μ k l ini ⊆ (degreeSteps μ k l ini).map ⟨_, add_left_injective 1⟩ := by
     intro i hi
     have := bigBlueSteps_sub_one_mem_degree hi
     rw [Finset.mem_map, Function.Embedding.coeFn_mk]
@@ -638,8 +609,7 @@ theorem eight_four_first_step (μ : ℝ) :
         ∑ x ∈ degreeSteps μ k l ini, Δ' μ k l ini x h / αFunction k h)
 
 theorem eq_39_end :
-    ∀ᶠ k : ℕ in atTop, (1 + (k : ℝ) ^ (-1 / 4 : ℝ)) ^ (2 * (k : ℝ) ^ (1 / 8 : ℝ)) ≤ 2 :=
-  by
+    ∀ᶠ k : ℕ in atTop, (1 + (k : ℝ) ^ (-1 / 4 : ℝ)) ^ (2 * (k : ℝ) ^ (1 / 8 : ℝ)) ≤ 2 := by
   have h₈ : (0 : ℝ) < 1 / 8 := by norm_num1
   have h₂ : 0 < log 2 / 2 := div_pos (log_pos (by norm_num1)) (by norm_num1)
   have := (tendsto_rpow_neg_atTop h₈).eventually (eventually_le_nhds h₂)
@@ -671,8 +641,7 @@ theorem eq_39 (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
                           (∀ h, Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h ≤ 0) →
                             (-2 : ℝ) * k ^ (1 / 8 : ℝ) ≤
                               ∑ h ∈ Finset.Ico 1 (maxHeight k),
-                                (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) / αFunction k h :=
-  by
+                                (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) / αFunction k h := by
   filter_upwards [six_five_blue μ₀ hμ₀, top_adjuster (Filter.eventually_gt_atTop 0), prop_33,
     top_adjuster eq_39_end] with l h₆₅ hk h₃₃ hl k hlk μ hμl n χ hχ ini i hi hh' hh
   obtain ⟨hi₁, hi₂⟩ := bigBlueSteps_sub_one_mem_degree hi
@@ -682,24 +651,19 @@ theorem eq_39 (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
     ∀ h : ℕ,
       1 ≤ h →
         (h : ℝ) < height k ini.p (algorithm μ k l ini (i - 1)).p - 2 * k ^ (1 / 8 : ℝ) →
-          Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h = 0 :=
-    by
+          Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h = 0 := by
     intro h hh₁ hh₂
     have := hh₂.trans_le h₆₅
     rw [Nat.cast_lt] at this
     rw [Δ', Δ', Nat.sub_add_cancel hi₁, sub_add_sub_cancel']
-    have h₁ : p' μ k l ini (i + 1) h = qFunction k ini.p h :=
-      by
-      have h₁ : qFunction k ini.p h ≤ (algorithm μ k l ini (i + 1)).p :=
-        by
+    have h₁ : p' μ k l ini (i + 1) h = qFunction k ini.p h := by
+      have h₁ : qFunction k ini.p h ≤ (algorithm μ k l ini (i + 1)).p := by
         refine' (q_increasing (Nat.le_pred_of_lt this)).trans (q_height_lt_p _).le
         exact hh₁.trans_lt this
       rw [p', clamp, min_eq_left h₁, max_eq_right (q_increasing (Nat.sub_le _ _))]
       simp
-    have h₂ : p' μ k l ini (i - 1) h = qFunction k ini.p h :=
-      by
-      have h₀ : h < height k ini.p (algorithm μ k l ini (i - 1)).p :=
-        by
+    have h₂ : p' μ k l ini (i - 1) h = qFunction k ini.p h := by
+      have h₀ : h < height k ini.p (algorithm μ k l ini (i - 1)).p := by
         rw [← @Nat.cast_lt ℝ]
         exact hh₂.trans_le (sub_le_self _ (by positivity))
       have h₂ : qFunction k ini.p h ≤ (algorithm μ k l ini (i - 1)).p :=
@@ -711,8 +675,7 @@ theorem eq_39 (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
     ∀ h ∈ Finset.Ico 1 (maxHeight k),
       (1 + ε : ℝ) ^ (2 * k ^ (1 / 8 : ℝ) : ℝ) * (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) /
           αFunction k (height k ini.p (algorithm μ k l ini (i - 1)).p) ≤
-        (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) / αFunction k h :=
-    by
+        (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) / αFunction k h := by
     intro h hh'
     rw [Finset.mem_Ico] at hh'
     cases'
@@ -751,16 +714,14 @@ theorem eight_four (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
                       -(2 : ℝ) * k ^ (7 / 8 : ℝ) ≤
                         ∑ h ∈ Finset.Ico 1 (maxHeight k),
                           ∑ i ∈ degreeSteps μ k l ini ∪ bigBlueSteps μ k l ini,
-                            Δ' μ k l ini i h / αFunction k h :=
-  by
+                            Δ' μ k l ini i h / αFunction k h := by
   filter_upwards [four_three hμ₀, top_adjuster (Filter.eventually_gt_atTop 0), eq_39 μ₀ hμ₀] with l h₄₃
     hk₀ hl k hlk μ hμl n χ hχ ini
   specialize h₄₃ k hlk μ hμl n χ hχ ini
   specialize hl k hlk μ hμl n χ hχ ini
   refine' (eight_four_first_step _).trans' _
   rw [Finset.sum_comm]
-  have : -(2 : ℝ) * k ^ (7 / 8 : ℝ) ≤ (bigBlueSteps μ k l ini).card • (-2 * k ^ (1 / 8 : ℝ)) :=
-    by
+  have : -(2 : ℝ) * k ^ (7 / 8 : ℝ) ≤ (bigBlueSteps μ k l ini).card • (-2 * k ^ (1 / 8 : ℝ)) := by
     rw [neg_mul, neg_mul, smul_neg, neg_le_neg_iff, nsmul_eq_mul]
     have := h₄₃.trans (rpow_le_rpow (Nat.cast_nonneg _) (Nat.cast_le.2 hlk) (by norm_num1))
     refine' (mul_le_mul_of_nonneg_right this (by positivity)).trans_eq _
@@ -785,8 +746,7 @@ theorem eight_four (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
       have : 0 ≤ (2 : ℝ) * k ^ (1 / 8 : ℝ) := by positivity
       linarith
     exact hleft.trans hsum
-  have : ∀ h, Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h ≤ 0 :=
-    by
+  have : ∀ h, Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h ≤ 0 := by
     intro h
     rw [Δ', Δ', Nat.sub_add_cancel this.1, sub_add_sub_cancel', sub_nonpos]
     rw [Δ, Δ, Nat.sub_add_cancel this.1, sub_add_sub_cancel', sub_neg] at hΔ
@@ -811,8 +771,7 @@ theorem eq_41 (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1)
                                     (1 - blueXRatio μ k l ini i) / blueXRatio μ k l ini i -
                                 (1 + k ^ (-1 / 4 : ℝ)) ^ 2 * (redSteps μ k l ini).card -
                               2 * k ^ (7 / 8 : ℝ) ≤
-                            2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k :=
-  by
+                            2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k := by
   filter_upwards [prop_34, eight_two μ₁ p₀ hμ₁ hp₀, eight_three, eight_four μ₀ hμ₀] with l h₃₄ h₈₂
     h₈₃ h₈₄ k hlk μ hμl hμu n χ hχ ini hini
   specialize h₃₄ k hlk μ n χ ini
@@ -834,14 +793,12 @@ theorem eq_41 (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1)
   exact Finset.mem_union.mpr (Or.inr hi)
 
 -- k ≥ 1.6
-theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2 * k ^ 5 ≤ 2 * k ^ 7 :=
-  by
+theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2 * k ^ 5 ≤ 2 * k ^ 7 := by
   filter_upwards [Filter.eventually_ge_atTop (1.6 : ℝ)] with k hk
   have hk58 : (8 / 5 : ℝ) ≤ k := by
     norm_num at hk ⊢
     exact hk
-  have h₄ : 2 * k ^ 4 ≤ 2 * (5 / 8) ^ 3 * k ^ 7 :=
-    by
+  have h₄ : 2 * k ^ 4 ≤ 2 * (5 / 8) ^ 3 * k ^ 7 := by
     have haux : 1 ≤ (5 / 8 : ℝ) ^ 3 * k ^ 3 := by
       have hpow : (8 / 5 : ℝ) ^ 3 ≤ k ^ 3 :=
         pow_le_pow_of_le_left (by positivity) hk58 3
@@ -851,8 +808,7 @@ theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2
       _ ≤ 2 * k ^ 4 * ((5 / 8 : ℝ) ^ 3 * k ^ 3) := by gcongr
       _ = 2 * (5 / 8 : ℝ) ^ 3 * (k ^ 4 * k ^ 3) := by ring
       _ = 2 * (5 / 8 : ℝ) ^ 3 * k ^ 7 := by rw [← pow_add]
-  have h₆ : k ^ 6 ≤ 5 / 8 * k ^ 7 :=
-    by
+  have h₆ : k ^ 6 ≤ 5 / 8 * k ^ 7 := by
     have haux : 1 ≤ (5 / 8 : ℝ) * k := by
       nlinarith
     calc
@@ -866,8 +822,7 @@ theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2
             _ = k ^ 5 * k ^ 2 := by rw [sq]
             _ = k ^ 7 := by rw [← pow_add]
         rw [hkpow]
-  have h₅ : 2 * k ^ 5 ≤ 2 * (5 / 8) ^ 2 * k ^ 7 :=
-    by
+  have h₅ : 2 * k ^ 5 ≤ 2 * (5 / 8) ^ 2 * k ^ 7 := by
     have haux : 1 ≤ (5 / 8 : ℝ) ^ 2 * k ^ 2 := by
       have hpow : (8 / 5 : ℝ) ^ 2 ≤ k ^ 2 :=
         pow_le_pow_of_le_left (by positivity) hk58 2
@@ -877,8 +832,7 @@ theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2
       _ ≤ 2 * k ^ 5 * ((5 / 8 : ℝ) ^ 2 * k ^ 2) := by gcongr
       _ = 2 * (5 / 8 : ℝ) ^ 2 * (k ^ 5 * k ^ 2) := by ring
       _ = 2 * (5 / 8 : ℝ) ^ 2 * k ^ 7 := by rw [← pow_add]
-  have h₁ : 1 ≤ 27 / 256 * k ^ 7 :=
-    by
+  have h₁ : 1 ≤ 27 / 256 * k ^ 7 := by
     have hpow : (8 / 5 : ℝ) ^ 7 ≤ k ^ 7 := pow_le_pow_of_le_left (by positivity) hk58 7
     have hmul := mul_le_mul_of_nonneg_left hpow (show 0 ≤ (27 / 256 : ℝ) by norm_num)
     have hone : (1 : ℝ) ≤ 27 / 256 * (8 / 5 : ℝ) ^ 7 := by norm_num
@@ -890,8 +844,7 @@ theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2
 theorem polynomial_ineq :
     ∀ᶠ k : ℕ in atTop,
       (0 : ℝ) < 1 - k ^ (-1 / 8 : ℝ) →
-        (1 + k ^ (-1 / 4 : ℝ) : ℝ) ^ 2 / (1 - k ^ (-1 / 8 : ℝ)) ≤ 1 + 2 * k ^ (-1 / 16 : ℝ) :=
-  by
+        (1 + k ^ (-1 / 4 : ℝ) : ℝ) ^ 2 / (1 - k ^ (-1 / 8 : ℝ)) ≤ 1 + 2 * k ^ (-1 / 16 : ℝ) := by
   have h : (0 : ℝ) < 1 / 16 := by norm_num
   have := (tendsto_rpow_atTop h).comp tendsto_nat_cast_atTop_atTop
   have := this.eventually polynomial_ineq_aux
@@ -913,8 +866,7 @@ theorem log_ineq :
     ∀ᶠ k : ℕ in atTop,
       (0 : ℝ) < 1 - k ^ (-1 / 8 : ℝ) →
         (2 / k ^ (-1 / 4 : ℝ) * log k + 2 * k ^ (7 / 8 : ℝ) : ℝ) / (1 - k ^ (-1 / 8 : ℝ)) ≤
-          2 * k ^ (15 / 16 : ℝ) :=
-  by
+          2 * k ^ (15 / 16 : ℝ) := by
   have h₁ : (0 : ℝ) < 1 / 25 := by norm_num
   have h₂ := (isLittleO_log_rpow_atTop (by norm_num : (0 : ℝ) < 11 / 16)).bound h₁
   have tt : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_nat_cast_atTop_atTop
@@ -923,8 +875,7 @@ theorem log_ineq :
   have hk' : (0 : ℝ) < k := by
     rw [Nat.cast_pos]
     exact hk₁.trans_le' zero_le_one
-  have hk₁₆ : (k : ℝ) ^ (-1 / 16 : ℝ) ≤ (3 / 5 : ℝ) :=
-    by
+  have hk₁₆ : (k : ℝ) ^ (-1 / 16 : ℝ) ≤ (3 / 5 : ℝ) := by
     rw [neg_div, ← div_neg, one_div, rpow_inv_le_iff_of_neg hk', rpow_neg, ← inv_rpow, inv_div]
     · refine' hk₅.trans_eq' _
       norm_num1
@@ -936,22 +887,19 @@ theorem log_ineq :
     mul_assoc, mul_one_sub]
   refine' mul_le_mul_of_nonneg_left _ two_pos.le
   rw [le_sub_iff_add_le]
-  have h₁ : (k : ℝ) ^ (1 / 4 : ℝ) * log k ≤ 1 / 25 * k ^ (15 / 16 : ℝ) :=
-    by
+  have h₁ : (k : ℝ) ^ (1 / 4 : ℝ) * log k ≤ 1 / 25 * k ^ (15 / 16 : ℝ) := by
     rw [norm_of_nonneg (log_nonneg (Nat.one_le_cast.2 hk₁.le)),
       norm_of_nonneg (rpow_nonneg (Nat.cast_nonneg _) _)] at hk₂
     refine' (mul_le_mul_of_nonneg_left hk₂ (rpow_nonneg (Nat.cast_nonneg _) _)).trans_eq _
     rw [mul_left_comm, ← rpow_add hk']
     norm_num1
     rfl
-  have h₂ : (k : ℝ) ^ (7 / 8 : ℝ) ≤ 3 / 5 * k ^ (15 / 16 : ℝ) :=
-    by
+  have h₂ : (k : ℝ) ^ (7 / 8 : ℝ) ≤ 3 / 5 * k ^ (15 / 16 : ℝ) := by
     refine' (mul_le_mul_of_nonneg_right hk₁₆ (rpow_nonneg (Nat.cast_nonneg _) _)).trans' _
     rw [← rpow_add hk']
     norm_num1
     rfl
-  have h₃ : (k : ℝ) ^ (15 / 16 : ℝ) * k ^ (-1 / 8 : ℝ) ≤ (3 / 5) ^ 2 * k ^ (15 / 16 : ℝ) :=
-    by
+  have h₃ : (k : ℝ) ^ (15 / 16 : ℝ) * k ^ (-1 / 8 : ℝ) ≤ (3 / 5) ^ 2 * k ^ (15 / 16 : ℝ) := by
     rw [mul_comm]
     refine' mul_le_mul_of_nonneg_right _ (rpow_nonneg (Nat.cast_nonneg _) _)
     refine' (pow_le_pow_of_le_left (rpow_nonneg (Nat.cast_nonneg _) _) hk₁₆ _).trans' _
@@ -977,8 +925,7 @@ theorem eq_42 (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1)
                         p₀ ≤ ini.p →
                           ∑ i ∈ moderateSteps μ k l ini,
                               (1 - blueXRatio μ k l ini i) / blueXRatio μ k l ini i ≤
-                            (redSteps μ k l ini).card + 4 * k ^ (15 / 16 : ℝ) :=
-  by
+                            (redSteps μ k l ini).card + 4 * k ^ (15 / 16 : ℝ) := by
   filter_upwards [eq_41 μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀, top_adjuster (Filter.eventually_gt_atTop 1),
     top_adjuster (Filter.eventually_gt_atTop 0), top_adjuster polynomial_ineq, top_adjuster log_ineq] with
     l hl hk hk₀ hk₁ hk₂ k hlk μ hμl hμu n χ hχ ini hini
@@ -1011,8 +958,7 @@ theorem one_div_sq_le_beta (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁
               μ ≤ μ₁ →
                 ∀ n : ℕ,
                   ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
-                    ∀ ini : BookConfig χ, p₀ ≤ ini.p → (1 : ℝ) / k ^ 2 ≤ beta μ k l ini :=
-  by
+                    ∀ ini : BookConfig χ, p₀ ≤ ini.p → (1 : ℝ) / k ^ 2 ≤ beta μ k l ini := by
   filter_upwards [five_three_right μ₁ p₀ hμ₁ hp₀, top_adjuster (Filter.eventually_gt_atTop 0),
     Filter.eventually_ge_atTop ⌈sqrt (1 / μ₀)⌉₊, blueXRatio_pos μ₁ p₀ hμ₁ hp₀] with l hβ hl hlμ hβ₀ k
     hlk μ hμl hμu n χ ini hini
@@ -1052,8 +998,7 @@ theorem beta_pos (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ <
               μ ≤ μ₁ →
                 ∀ n : ℕ,
                   ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
-                    ∀ ini : BookConfig χ, p₀ ≤ ini.p → 0 < beta μ k l ini :=
-  by
+                    ∀ ini : BookConfig χ, p₀ ≤ ini.p → 0 < beta μ k l ini := by
   filter_upwards [one_div_sq_le_beta μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀,
     top_adjuster (Filter.eventually_gt_atTop 0)] with l hβ hl k hlk μ hμl hμu n χ ini hini
   specialize hβ k hlk μ hμl hμu n χ ini hini
@@ -1076,8 +1021,7 @@ theorem eight_five (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
                         p₀ ≤ ini.p →
                           ((densitySteps μ k l ini).card : ℝ) ≤
                             beta μ k l ini / (1 - beta μ k l ini) * (redSteps μ k l ini).card +
-                              7 / (1 - μ₁) * k ^ (15 / 16 : ℝ) :=
-  by
+                              7 / (1 - μ₁) * k ^ (15 / 16 : ℝ) := by
   filter_upwards [eq_42 μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀, seven_five μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀,
     blueXRatio_pos μ₁ p₀ hμ₁ hp₀, beta_le_μ μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀,
     beta_pos μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀] with l h₄₂ h₇₅ hβ hβ' hβ₀ k hlk μ hμl hμu n χ hχ ini hini
@@ -1089,8 +1033,7 @@ theorem eight_five (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
   have hsum :
     ∑ i ∈ moderateSteps μ k l ini, (1 - blueXRatio μ k l ini i) / blueXRatio μ k l ini i =
       ∑ i ∈ moderateSteps μ k l ini, 1 / blueXRatio μ k l ini i -
-        (moderateSteps μ k l ini).card :=
-    by
+        (moderateSteps μ k l ini).card := by
     simp only [sub_div, Finset.sum_sub_distrib, sub_right_inj]
     rw [← nsmul_one, ← Finset.sum_const _]
     refine' Finset.sum_congr rfl fun i hi => _
@@ -1108,8 +1051,7 @@ theorem eight_five (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
     refine' (le_div_self (by norm_num1) (sub_pos_of_lt hμ₁) _).trans' (by norm_num1)
     rw [sub_le_self_iff]
     linarith only [hμ₀, hμl, hμu]
-  have : (4 * beta μ k l ini + 3) / (1 - beta μ k l ini) ≤ 7 / (1 - μ₁) :=
-    by
+  have : (4 * beta μ k l ini + 3) / (1 - beta μ k l ini) ≤ 7 / (1 - μ₁) := by
     refine' (div_le_div_iff₀ (sub_pos_of_lt (hβ'.trans_lt (hμu.trans_lt hμ₁)))
       (sub_pos_of_lt hμ₁)).2 _
     nlinarith [hβ', hμu, hμ₁]
@@ -1161,8 +1103,7 @@ theorem eight_six (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
                                           ((densitySteps μ k l ini).card /
                                             ((densitySteps μ k l ini).card +
                                               (redSteps μ k l ini).card)) ≤
-                                        beta μ k l ini :=
-  by
+                                        beta μ k l ini := by
   refine' ⟨fun k => -7 / (1 - μ₁) * k ^ (-(1 / 32) : ℝ), _, _⟩
   · refine' IsLittleO.const_mul_left _ _
     have : -(1 / 32 : ℝ) < 0 := by norm_num
@@ -1183,8 +1124,7 @@ theorem eight_six (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
     exact hβμ.trans_lt (hμu.trans_lt hμ₁)
   have h₁ :
     (1 + -7 / (1 - μ₁) * k ^ (-(1 / 32) : ℝ)) * (densitySteps μ k l ini).card ≤
-      ((densitySteps μ k l ini).card : ℝ) - 7 / (1 - μ₁) * k ^ (15 / 16 : ℝ) :=
-    by
+      ((densitySteps μ k l ini).card : ℝ) - 7 / (1 - μ₁) * k ^ (15 / 16 : ℝ) := by
     rw [neg_div, neg_mul, ← sub_eq_add_neg, one_sub_mul, sub_le_sub_iff_left]
     refine' (mul_le_mul_of_nonneg_left hs _).trans' _
     · refine' mul_nonneg (div_nonneg (by norm_num1) (sub_nonneg_of_le hμ₁.le)) _
@@ -1193,8 +1133,7 @@ theorem eight_six (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
     norm_num
   have h₂ :
     ((densitySteps μ k l ini).card - 7 / (1 - μ₁) * k ^ (15 / 16 : ℝ) : ℝ) * beta μ k l ini ≤
-      (densitySteps μ k l ini).card * beta μ k l ini :=
-    by
+      (densitySteps μ k l ini).card * beta μ k l ini := by
     refine' mul_le_mul_of_nonneg_right _ (beta_nonneg (hμ₀.trans_le hμl))
     rw [sub_le_self_iff]
     refine' mul_nonneg (div_nonneg (by norm_num1) (sub_nonneg_of_le hμ₁.le)) _
