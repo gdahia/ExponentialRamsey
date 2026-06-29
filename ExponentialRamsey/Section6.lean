@@ -903,13 +903,8 @@ theorem six_two_main (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
     rw [algorithm_zero]
   let j' : ℕ := js.max' hjs
   have hj' : j' ≤ j ∧ Odd j' ∧ ini.p ≤ p_ (j' - 1) := by
-    have hmem : j' ∈ js := by
-      dsimp [j']
-      exact Finset.max'_mem _ hjs
-    change j' ∈
-      (Finset.range (j + 1)).filter fun j' => Odd j' ∧ ini.p ≤ p_ (j' - 1) at hmem
-    rw [Finset.mem_filter, Finset.mem_range] at hmem
-    exact ⟨Nat.lt_succ_iff.mp hmem.1, hmem.2.1, hmem.2.2⟩
+    simpa only [j', js, Finset.mem_filter, Finset.mem_range_succ_iff, and_imp] using
+      Finset.max'_mem _ hjs
   have : ∀ i : ℕ, j' + 1 ≤ i → i ≤ j → Odd i → p_ (i - 1) ≤ ini.p := by
     intro i hi₁ hi₂ hi₃
     by_contra! hi₄
@@ -919,9 +914,8 @@ theorem six_two_main (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
     rw [Nat.succ_le_iff] at hi₁
     exact not_lt_of_ge (Finset.le_max' _ _ this) hi₁
   have p_first : p_ (j' + 1) - 2 * ε ≤ p_ (j + 1) := by
-    have htel :=
-      six_two_part_one (f := fun i => (algorithm μ k l ini i).p) hj₂ hj'.2.1 hj'.1
-    rw [sub_le_comm, htel]
+    rw [sub_le_comm,
+      six_two_part_one (f := fun i => (algorithm μ k l ini i).p) hj₂ hj'.2.1 hj'.1]
     refine' (six_two_part_two hj this).trans _
     exact hl k hlk μ hμl hμu n χ hχ ini hini
   refine' p_first.trans' _
