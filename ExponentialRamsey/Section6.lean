@@ -49,38 +49,6 @@ local syntax "ε" : term
 macro_rules
   | `(ε) => `((($(Lean.mkIdent `k) : ℝ) ^ (-1 / 4 : ℝ)))
 
-private def bit0 (n : ℕ) : ℕ := 2 * n
-
-private def bit1 (n : ℕ) : ℕ := 2 * n + 1
-
-private theorem bit0_eq_two_mul (n : ℕ) : bit0 n = 2 * n := rfl
-
-private theorem bit1_eq_two_mul_add_one (n : ℕ) : bit1 n = 2 * n + 1 := rfl
-
-private theorem bit0_le_bit0 {m n : ℕ} : bit0 m ≤ bit0 n ↔ m ≤ n := by
-  unfold bit0
-  omega
-
-private theorem bit1_le_bit1 {m n : ℕ} : bit1 m ≤ bit1 n ↔ m ≤ n := by
-  unfold bit1
-  omega
-
-private theorem bit0_add (m n : ℕ) : bit0 (m + n) = bit0 m + bit0 n := by
-  unfold bit0
-  omega
-
-private theorem bit1_inj {m n : ℕ} : bit1 m = bit1 n → m = n := by
-  unfold bit1
-  omega
-
-private theorem even_bit0 (n : ℕ) : Even (bit0 n) := by
-  unfold bit0
-  exact even_two_mul n
-
-private theorem odd_bit1 (n : ℕ) : Odd (bit1 n) := by
-  unfold bit1
-  exact ⟨n, rfl⟩
-
 theorem six_four_red {μ : ℝ} (hi : i ∈ redSteps μ k l ini) :
     (algorithm μ k l ini i).p - αFunction k (height k ini.p (algorithm μ k l ini i).p) ≤
       (algorithm μ k l ini (i + 1)).p := by
@@ -166,7 +134,9 @@ theorem six_four_degree {μ : ℝ} (hi : i ∈ degreeSteps μ k l ini) : p_ i �
   have :
     (C.X.filter fun x =>
         (C.p - k ^ (1 / 8 : ℝ) * α) * C.Y.card ≤ (colNeighbors χ 0 x ∩ C.Y).card) =
-      C.X.filter fun x => C.p - k ^ (1 / 8 : ℝ) * α ≤ (colNeighbors χ 0 x ∩ C.Y).card / C.Y.card := by
+      C.X.filter fun x =>
+        C.p - k ^ (1 / 8 : ℝ) * α ≤
+          (colNeighbors χ 0 x ∩ C.Y).card / C.Y.card := by
     refine' Finset.filter_congr _
     intro x hx
     have hY : (0 : ℝ) < C.Y.card := by
@@ -231,13 +201,14 @@ theorem six_four_blue {μ : ℝ} (hμ₀ : 0 < μ) (hi : i ∈ bigBlueSteps μ k
         k ^ (1 / 8 : ℝ) * αFunction k (height k ini.p (algorithm μ k l ini (i - 1)).p) ≤
       (algorithm μ k l ini (i + 1)).p := by
   have hi' := hi
-  rw [bigBlueSteps, Finset.mem_filter, Nat.not_even_iff_odd, odd_iff_exists_bit1] at hi
-  obtain ⟨b, rfl⟩ := hi.2.1
+  rw [bigBlueSteps, Finset.mem_filter, Nat.not_even_iff_odd] at hi
+  obtain ⟨b, rfl⟩ := hi.2.1.exists_bit1
   refine' six_four_blue' hμ₀ _
   rw [Nat.add_sub_cancel]
   exact hi'
 
-theorem height_mono {p₀ p₁ p₂ : ℝ} (hk : k ≠ 0) (h : p₁ ≤ p₂) : height k p₀ p₁ ≤ height k p₀ p₂ := by
+theorem height_mono {p₀ p₁ p₂ : ℝ} (hk : k ≠ 0) (h : p₁ ≤ p₂) :
+    height k p₀ p₁ ≤ height k p₀ p₂ := by
   refine' height_min hk _ _
   · rw [← pos_iff_ne_zero]
     exact one_le_height
@@ -366,7 +337,8 @@ theorem convex_thing_aux {x : ℝ} (hε : 0 ≤ x) (hx' : x ≤ 2 / 7) :
   congr 2
   norm_num1
 
-theorem convex_thing {x : ℝ} (hε : 0 ≤ x) (hε' : x ≤ 2 / 7) : exp (-(7 * log 2 / 4 * x)) ≤ 1 - x := by
+theorem convex_thing {x : ℝ} (hε : 0 ≤ x) (hε' : x ≤ 2 / 7) :
+    exp (-(7 * log 2 / 4 * x)) ≤ 1 - x := by
   refine' (convex_thing_aux hε hε').trans _
   rw [sub_le_sub_iff_left]
   refine' le_mul_of_one_le_left hε _
@@ -497,11 +469,10 @@ noncomputable def decreaseSteps (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) : F
 
 theorem sub_one_mem_degree {μ : ℝ} {i : ℕ} (hi : i < finalStep μ k l ini) (hi' : Odd i) :
     1 ≤ i ∧ i - 1 ∈ degreeSteps μ k l ini := by
-  rw [odd_iff_exists_bit1] at hi'
-  obtain ⟨i, rfl⟩ := hi'
+  obtain ⟨i, rfl⟩ := hi'.exists_bit1
   refine' ⟨by simp, _⟩
   rw [Nat.add_sub_cancel, degreeSteps, Finset.mem_filter, Finset.mem_range]
-  exact ⟨hi.trans_le' (Nat.le_succ _), even_bit0 _⟩
+  exact ⟨hi.trans_le' (Nat.le_succ _), even_two_mul _⟩
 
 theorem bigBlueSteps_sub_one_mem_degree {μ : ℝ} {i : ℕ} (hi : i ∈ bigBlueSteps μ k l ini) :
     1 ≤ i ∧ i - 1 ∈ degreeSteps μ k l ini := by
@@ -589,11 +560,13 @@ theorem six_three_red_aux :
           ∀ μ,
             ∀ n : ℕ,
               ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
-                ∀ ini : BookConfig χ,
-                  ∀ i ∈ redSteps μ k l ini,
-                    (algorithm μ k l ini (i + 1)).p < (algorithm μ k l ini (i - 1)).p →
-                      (algorithm μ k l ini (i - 1)).p ≤ ini.p →
-                        (algorithm μ k l ini (i - 1)).p - (algorithm μ k l ini (i + 1)).p ≤ ε / k := by
+                  ∀ ini : BookConfig χ,
+                    ∀ i ∈ redSteps μ k l ini,
+                      (algorithm μ k l ini (i + 1)).p < (algorithm μ k l ini (i - 1)).p →
+                        (algorithm μ k l ini (i - 1)).p ≤ ini.p →
+                          (algorithm μ k l ini (i - 1)).p -
+                              (algorithm μ k l ini (i + 1)).p ≤
+                            ε / k := by
   filter_upwards [top_adjuster (eventually_ge_atTop 1)] with l hl₁ k hlk μ n χ ini i hi hi₁ hi₂
   refine' (sub_le_sub_left (six_four_red hi) _).trans _
   cases' eq_or_lt_of_le one_le_height with h h
@@ -772,15 +745,17 @@ theorem six_four_weak (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ
 
 theorem six_two_part_one {f : ℕ → ℝ} {j j' : ℕ} (hj : Odd j) (hj' : Odd j') (hjj : j' ≤ j) :
     f (j' + 1) - f (j + 1) = ∑ i ∈ (Finset.Icc (j' + 2) j).filter Odd, (f (i - 1) - f (i + 1)) := by
-  rw [odd_iff_exists_bit1] at hj hj'
-  obtain ⟨j, rfl⟩ := hj
-  obtain ⟨j', rfl⟩ := hj'
+  obtain ⟨j, rfl⟩ := hj.exists_bit1
+  obtain ⟨j', rfl⟩ := hj'.exists_bit1
   replace hjj : j' ≤ j := by omega
   have :
-    (Finset.Icc (bit1 j' + 2) (bit1 j)).filter Odd =
-      (Finset.Icc (j' + 1) j).map ⟨(bit1 : ℕ → ℕ), fun i i' => bit1_inj⟩ := by
+    (Finset.Icc (2 * j' + 1 + 2) (2 * j + 1)).filter Odd =
+      (Finset.Icc (j' + 1) j).map ⟨(fun n => 2 * n + 1), by
+        intro i i' h
+        dsimp at h
+        omega⟩ := by
     ext i
-    simp only [Finset.mem_filter, Finset.mem_Icc, Finset.mem_map, odd_iff_exists_bit1, bit1,
+    simp only [Finset.mem_filter, Finset.mem_Icc, Finset.mem_map, odd_iff_exists_bit1,
       Function.Embedding.coeFn_mk, and_assoc]
     constructor
     · rintro ⟨hi, hi', i, rfl⟩
@@ -788,32 +763,28 @@ theorem six_two_part_one {f : ℕ → ℝ} {j j' : ℕ} (hj : Odd j) (hj' : Odd 
     rintro ⟨i, hi, hi', rfl⟩
     exact ⟨by omega, by omega, i, rfl⟩
   change
-    f (bit1 j' + 1) - f (bit1 j + 1) =
-      ∑ i ∈ Finset.Icc (bit1 j' + 2) (bit1 j) with Odd i, (f (i - 1) - f (i + 1))
+    f (2 * j' + 1 + 1) - f (2 * j + 1 + 1) =
+      ∑ i ∈ Finset.Icc (2 * j' + 1 + 2) (2 * j + 1) with Odd i,
+        (f (i - 1) - f (i + 1))
   have hlen : Order.succ j - (j' + 1) = j - j' := by
     simp [Order.succ_eq_add_one, Nat.add_sub_add_right]
   rw [this, Finset.sum_map, ← Finset.Ico_succ_right_eq_Icc, Finset.sum_Ico_eq_sum_range, hlen]
-  have :
+  change
+    f (2 * j' + 1 + 1) - f (2 * j + 1 + 1) =
+      ∑ x ∈ Finset.range (j - j'),
+        (f (2 * ((j' + 1) + x) + 1 - 1) - f (2 * ((j' + 1) + x) + 1 + 1))
+  have hstep :
     ∀ k : ℕ,
-      f (bit1 (j' + 1 + k) - 1) - f (bit1 (j' + 1 + k) + 1) =
-        f (bit0 (j' + 1 + k)) - f (bit0 (j' + 1 + (k + 1))) := by
+      f (2 * ((j' + 1) + k) + 1 - 1) - f (2 * ((j' + 1) + k) + 1 + 1) =
+        f (2 * ((j' + 1) + k)) - f (2 * ((j' + 1) + (k + 1))) := by
     intro k
-    have h₁ : bit1 (j' + 1 + k) - 1 = bit0 (j' + 1 + k) := by
-      unfold bit0 bit1
-      omega
-    have h₂ : bit1 (j' + 1 + k) + 1 = bit0 (j' + 1 + (k + 1)) := by
-      unfold bit0 bit1
-      omega
+    have h₁ : 2 * ((j' + 1) + k) + 1 - 1 = 2 * ((j' + 1) + k) := by omega
+    have h₂ : 2 * ((j' + 1) + k) + 1 + 1 = 2 * ((j' + 1) + (k + 1)) := by omega
     rw [h₁, h₂]
-  dsimp
-  simp only [this]
+  simp only [hstep]
   rw [Finset.sum_range_sub', add_zero]
-  have h₁ : bit1 j' + 1 = bit0 (j' + 1) := by
-    unfold bit0 bit1
-    omega
-  have h₂ : bit1 j + 1 = bit0 (j' + 1 + (j - j')) := by
-    unfold bit0 bit1
-    omega
+  have h₁ : 2 * j' + 1 + 1 = 2 * (j' + 1) := by omega
+  have h₂ : 2 * j + 1 + 1 = 2 * (j' + 1 + (j - j')) := by omega
   rw [h₁, h₂]
 
 theorem sum_le_of_nonneg {α : Type*} {f : α → ℝ} {s : Finset α} :
@@ -932,13 +903,8 @@ theorem six_two_main (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
     rw [algorithm_zero]
   let j' : ℕ := js.max' hjs
   have hj' : j' ≤ j ∧ Odd j' ∧ ini.p ≤ p_ (j' - 1) := by
-    have hmem : j' ∈ js := by
-      dsimp [j']
-      exact Finset.max'_mem _ hjs
-    change j' ∈
-      (Finset.range (j + 1)).filter fun j' => Odd j' ∧ ini.p ≤ p_ (j' - 1) at hmem
-    rw [Finset.mem_filter, Finset.mem_range] at hmem
-    exact ⟨Nat.lt_succ_iff.mp hmem.1, hmem.2.1, hmem.2.2⟩
+    simpa only [j', js, Finset.mem_filter, Finset.mem_range_succ_iff, and_imp] using
+      Finset.max'_mem _ hjs
   have : ∀ i : ℕ, j' + 1 ≤ i → i ≤ j → Odd i → p_ (i - 1) ≤ ini.p := by
     intro i hi₁ hi₂ hi₃
     by_contra! hi₄
@@ -948,9 +914,8 @@ theorem six_two_main (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
     rw [Nat.succ_le_iff] at hi₁
     exact not_lt_of_ge (Finset.le_max' _ _ this) hi₁
   have p_first : p_ (j' + 1) - 2 * ε ≤ p_ (j + 1) := by
-    have htel :=
-      six_two_part_one (f := fun i => (algorithm μ k l ini i).p) hj₂ hj'.2.1 hj'.1
-    rw [sub_le_comm, htel]
+    rw [sub_le_comm,
+      six_two_part_one (f := fun i => (algorithm μ k l ini i).p) hj₂ hj'.2.1 hj'.1]
     refine' (six_two_part_two hj this).trans _
     exact hl k hlk μ hμl hμu n χ hχ ini hini
   refine' p_first.trans' _
@@ -999,13 +964,13 @@ theorem six_two (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 
     · dsimp
       rw [algorithm_zero, sub_le_self_iff]
       positivity
-    have : 2 * i.succ = bit1 i + 1 := by rw [Nat.mul_succ, bit1, ← bit0_eq_two_mul, add_assoc]
+    have : 2 * i.succ = 2 * i + 1 + 1 := by omega
     rw [this] at *
-    refine' hl k hlk μ hμl hμu n χ hχ ini hini (bit1 i) _ _
+    refine' hl k hlk μ hμl hμu n χ hχ ini hini (2 * i + 1) _ _
     · exact hi.trans_le' (Nat.le_succ _)
     rw [degreeSteps, Finset.mem_filter]
     rintro ⟨-, h_even⟩
-    exact (Nat.not_even_iff_odd.mpr (odd_bit1 i)) h_even
+    exact (Nat.not_even_two_mul_add_one i) h_even
   exact hl k hlk μ hμl hμu n χ hχ ini hini i hi h
 
 theorem two_approx {x : ℝ} (hx : 0 ≤ x) (hx' : x ≤ 1 / 2) : 2 ^ (-2 * x) ≤ 1 - x := by
