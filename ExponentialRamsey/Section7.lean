@@ -86,8 +86,7 @@ theorem seven_two_single (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
                       ∀ i ∈ redSteps μ k l ini,
                         2 ^ (-2 * (1 / ((1 - μ) * k))) * (1 - μ) ≤
                           ((algorithm μ k l ini (i + 1)).X.card : ℝ) /
-                            (algorithm μ k l ini i).X.card :=
-  by
+                            (algorithm μ k l ini i).X.card := by
   have h34 : (0 : ℝ) < 3 / 4 := by norm_num1
   have tt : Tendsto (Nat.cast : ℕ → ℝ) _ _ := tendsto_natCast_atTop_atTop
   have := (tendsto_nat_ceil_atTop.comp (tendsto_rpow_atTop h34)).comp tt
@@ -152,8 +151,7 @@ theorem seven_two (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
                           2 ^ f k * (1 - μ) ^ (redSteps μ k l ini).card ≤
                             ∏ i ∈ redSteps μ k l ini,
                               ((algorithm μ k l ini (i + 1)).X.card : ℝ) /
-                                (algorithm μ k l ini i).X.card :=
-  by
+                                (algorithm μ k l ini i).X.card := by
   refine' ⟨fun k => -2 / (1 - μ₁) * 1, _, _⟩
   · refine' IsLittleO.const_mul_left _ _
     suffices (fun k : ℝ => (1 : ℝ)) =o[atTop] fun x : ℝ => x by
@@ -181,8 +179,7 @@ theorem seven_two (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
 theorem seven_three_aux_one {μ : ℝ} {m : ℕ} (hm : m ≤ finalStep μ k l ini) :
     ∑ i ∈ ℬ ∩ Finset.range m, (BookConfig.getBook χ μ (algorithm μ k l ini i).X).1.card +
         (densitySteps μ k l ini ∩ Finset.range m).card ≤
-      (algorithm μ k l ini m).B.card :=
-  by
+      (algorithm μ k l ini m).B.card := by
   induction' m with m ih
   · simp
   rw [Finset.range_add_one]
@@ -222,8 +219,7 @@ theorem seven_three_aux_one {μ : ℝ} {m : ℕ} (hm : m ≤ finalStep μ k l in
     exact this.2 (densitySteps_subset_redOrDensitySteps h)
 
 theorem seven_three_aux_two {μ : ℝ} :
-    ∑ i ∈ ℬ, (BookConfig.getBook χ μ (X_ i)).1.card + s ≤ (endState μ k l ini).B.card :=
-  by
+    ∑ i ∈ ℬ, (BookConfig.getBook χ μ (X_ i)).1.card + s ≤ (endState μ k l ini).B.card := by
   refine' (seven_three_aux_one le_rfl).trans' _
   rw [(Finset.inter_eq_left).2, (Finset.inter_eq_left).2]
   · exact densitySteps_subset_redOrDensitySteps.trans (Finset.filter_subset _ _)
@@ -231,8 +227,7 @@ theorem seven_three_aux_two {μ : ℝ} :
 
 theorem seven_three_aux_three {μ : ℝ}
     (hχ : ¬∃ (m : Finset V) (c : Fin 2), χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card) :
-    ∑ i ∈ bigBlueSteps μ k l ini, (BookConfig.getBook χ μ (X_ i)).1.card + s < l :=
-  by
+    ∑ i ∈ bigBlueSteps μ k l ini, (BookConfig.getBook χ μ (X_ i)).1.card + s < l := by
   refine' seven_three_aux_two.trans_lt _
   by_contra! hl
   refine' hχ ⟨_, _, (endState μ k l ini).blue_b, _⟩
@@ -263,8 +258,7 @@ theorem seven_three :
                                   2 ^ f k * μ ^ (l - (densitySteps μ k l ini).card) ≤
                                     ∏ i ∈ bigBlueSteps μ k l ini,
                                       ((algorithm μ k l ini (i + 1)).X.card : ℝ) /
-                                        (algorithm μ k l ini i).X.card :=
-  by
+                                        (algorithm μ k l ini i).X.card := by
   have tt : Tendsto (Nat.cast : ℕ → ℝ) _ _ := tendsto_natCast_atTop_atTop
   refine' ⟨fun k => -k ^ (3 / 4 : ℝ), _, _⟩
   · suffices (fun k : ℝ => -k ^ (3 / 4 : ℝ)) =o[atTop] fun x : ℝ => x by exact this.comp_tendsto tt
@@ -313,8 +307,7 @@ macro_rules
 
 theorem range_filter_odd_eq_union {μ : ℝ} :
     (Finset.range (finalStep μ k l ini)).filter Odd =
-      redSteps μ k l ini ∪ bigBlueSteps μ k l ini ∪ densitySteps μ k l ini :=
-  by
+      redSteps μ k l ini ∪ bigBlueSteps μ k l ini ∪ densitySteps μ k l ini := by
   ext i
   constructor
   · rw [Finset.mem_filter, Finset.mem_range, and_comm, and_imp]
@@ -325,8 +318,7 @@ theorem range_filter_odd_eq_union {μ : ℝ} :
   exact And.left
 
 theorem sum_range_odd_telescope' {k : ℕ} (f : ℕ → ℝ) {c : ℝ} (hc' : ∀ i, f i - f 0 ≤ c) :
-    ∑ i ∈ (Finset.range k).filter Odd, (f (i + 1) - f (i - 1)) ≤ c :=
-  by
+    ∑ i ∈ (Finset.range k).filter Odd, (f (i + 1) - f (i - 1)) ≤ c := by
   have :
       (Finset.range k).filter Odd =
         (Finset.range (k / 2)).map ⟨fun i => 2 * i + 1, fun i i' h => by
@@ -365,8 +357,7 @@ theorem sum_range_odd_telescope' {k : ℕ} (f : ℕ → ℝ) {c : ℝ} (hc' : �
   exact hc' _
 
 theorem sum_range_odd_telescope {k : ℕ} (f : ℕ → ℝ) {c : ℝ} (hc' : ∀ i, f i ≤ c) (hc : 0 ≤ f 0) :
-    ∑ i ∈ (Finset.range k).filter Odd, (f (i + 1) - f (i - 1)) ≤ c :=
-  by
+    ∑ i ∈ (Finset.range k).filter Odd, (f (i + 1) - f (i - 1)) ≤ c := by
   refine' sum_range_odd_telescope' _ _
   intro i
   exact (sub_le_self _ hc).trans (hc' _)
@@ -382,8 +373,7 @@ theorem eqn_25_26 :
                 ∀ ini : BookConfig χ,
                   ∑ i ∈ (Finset.range (finalStep μ k l ini)).filter Odd,
                       (h_ (p_ (i + 1)) - h_ (p_ (i - 1)) : ℝ) ≤
-                    2 / ε * log k :=
-  by
+                    2 / ε * log k := by
   filter_upwards [top_adjuster height_upper_bound] with l hl k hlk μ n χ ini
   refine' sum_range_odd_telescope (fun i => h_ (algorithm μ k l ini i).p) _ _
   · intro i
@@ -402,8 +392,7 @@ theorem eqn_25_26' :
                     ∀ ini : BookConfig χ,
                       ∑ i ∈ (Finset.range (finalStep μ k l ini)).filter Odd,
                           (h_ (p_ (i + 1)) - h_ (p_ (i - 1)) : ℝ) ≤
-                        f k :=
-  by
+                        f k := by
   refine' ⟨fun k => 2 / ε * log k, _, eqn_25_26⟩
   simp only [div_mul_eq_mul_div, mul_div_assoc, neg_div]
   refine' IsLittleO.const_mul_left _ _
@@ -439,8 +428,7 @@ theorem height_diff_blue :
                             ∀ ini : BookConfig χ,
                               f k ≤
                                 ∑ i ∈ bigBlueSteps μ k l ini,
-                                  (h_ (p_ (i + 1)) - h_ (p_ (i - 1)) : ℝ) :=
-  by
+                                  (h_ (p_ (i + 1)) - h_ (p_ (i - 1)) : ℝ) := by
   refine' ⟨fun k => -2 * k ^ (1 / 8 : ℝ) * k ^ (3 / 4 : ℝ), _, _⟩
   · simp only [mul_assoc]
     refine' IsLittleO.const_mul_left _ _
@@ -489,8 +477,7 @@ theorem red_or_density_height_diff :
                             ∀ ini : BookConfig χ,
                               ∑ i ∈ redSteps μ k l ini ∪ densitySteps μ k l ini,
                                   (h_ (p_ (i + 1)) - h_ (p_ (i - 1)) : ℝ) ≤
-                                f k :=
-  by
+                                f k := by
   obtain ⟨f₁, hf₁, h'f₁⟩ := eqn_25_26'
   obtain ⟨f₂, hf₂, h'f₂⟩ := height_diff_blue
   refine' ⟨fun k => f₁ k - f₂ k, hf₁.sub hf₂, _⟩
@@ -514,8 +501,7 @@ theorem red_height_diff :
                 (¬∃ (m : Finset (Fin n)) (c : Fin 2), χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card) →
                   ∀ ini : BookConfig χ,
                     (-2 : ℝ) * k ≤
-                      ∑ i ∈ redSteps μ k l ini, (h_ (p_ (i + 1)) - h_ (p_ (i - 1)) : ℝ) :=
-  by
+                      ∑ i ∈ redSteps μ k l ini, (h_ (p_ (i + 1)) - h_ (p_ (i - 1)) : ℝ) := by
   filter_upwards [top_adjuster (eventually_gt_atTop 0), six_five_red, six_five_degree] with l hl₀
     hk hk' k hlk μ n χ hχ ini
   have := four_four_red μ hχ ini
@@ -546,8 +532,7 @@ theorem density_height_diff (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 <
                     ∀ ini : BookConfig χ,
                       p₀ ≤ ini.p →
                         ((𝒮 \ 𝒮⁺).card : ℝ) * k ^ (1 / 16 : ℝ) ≤
-                          ∑ i ∈ 𝒮, (h_ (p_ (i + 1)) - h_ (p_ (i - 1)) : ℝ) :=
-  by
+                          ∑ i ∈ 𝒮, (h_ (p_ (i + 1)) - h_ (p_ (i - 1)) : ℝ) := by
   filter_upwards [six_five_density μ₁ p₀ hμ₁ hp₀, six_five_degree] with l hl hl' k hlk μ hμu n χ hχ
     ini hini
   have : moderateSteps μ k l ini ⊆ densitySteps μ k l ini := Finset.filter_subset _ _
@@ -587,8 +572,7 @@ theorem seven_five (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
                     (¬∃ (m : Finset (Fin n)) (c : Fin 2),
                           χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card) →
                       ∀ ini : BookConfig χ,
-                        p₀ ≤ ini.p → ((𝒮 \ 𝒮⁺).card : ℝ) ≤ 3 * k ^ (15 / 16 : ℝ) :=
-  by
+                        p₀ ≤ ini.p → ((𝒮 \ 𝒮⁺).card : ℝ) ≤ 3 * k ^ (15 / 16 : ℝ) := by
   obtain ⟨f, hf', hf⟩ := red_or_density_height_diff
   filter_upwards [red_height_diff, density_height_diff μ₁ p₀ hμ₁ hp₀,
     top_adjuster (hf'.bound zero_lt_one), hf μ₀ hμ₀, top_adjuster (eventually_gt_atTop 0)] with l
@@ -622,13 +606,11 @@ noncomputable def beta (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) : ℝ :=
 
 theorem beta_prop {μ : ℝ} (hS : Finset.Nonempty 𝒮⁺) :
     1 / beta μ k l ini =
-      1 / (moderateSteps μ k l ini).card * ∑ i ∈ 𝒮⁺, 1 / blueXRatio μ k l ini i :=
-  by
+      1 / (moderateSteps μ k l ini).card * ∑ i ∈ 𝒮⁺, 1 / blueXRatio μ k l ini i := by
   rw [Finset.nonempty_iff_ne_empty] at hS
   rw [beta, if_neg hS, ← one_div_mul_one_div, one_div, one_div, inv_inv]
 
-theorem beta_nonneg {μ : ℝ} (hμ₀ : 0 < μ) : 0 ≤ beta μ k l ini :=
-  by
+theorem beta_nonneg {μ : ℝ} (hμ₀ : 0 < μ) : 0 ≤ beta μ k l ini := by
   rw [beta]
   split_ifs
   · exact hμ₀.le
@@ -647,8 +629,7 @@ theorem beta_le_μ (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
               μ ≤ μ₁ →
                 ∀ n : ℕ,
                   ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
-                    ∀ ini : BookConfig χ, p₀ ≤ ini.p → beta μ k l ini ≤ μ :=
-  by
+                    ∀ ini : BookConfig χ, p₀ ≤ ini.p → beta μ k l ini ≤ μ := by
   filter_upwards [blueXRatio_pos μ₁ p₀ hμ₁ hp₀] with l hβ k hlk μ hμl hμu n χ ini hini
   rw [beta]
   split_ifs
@@ -677,14 +658,12 @@ theorem beta_le_one (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
               μ ≤ μ₁ →
                 ∀ n : ℕ,
                   ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
-                    ∀ ini : BookConfig χ, p₀ ≤ ini.p → beta μ k l ini < 1 :=
-  by
+                    ∀ ini : BookConfig χ, p₀ ≤ ini.p → beta μ k l ini < 1 := by
   filter_upwards [beta_le_μ μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀] with l hl k hlk μ hμl hμu n χ ini hini
   exact (hl k hlk μ hμl hμu n χ ini hini).trans_lt (hμ₁.trans_le' hμu)
 
 theorem my_ineq {α : Type*} {y : Finset α} (hy : y.Nonempty) {f : α → ℝ} (hf : ∀ i ∈ y, 0 < f i) :
-    ((y.card : ℝ) * (∑ i ∈ y, 1 / f i)⁻¹) ^ y.card ≤ ∏ i ∈ y, f i :=
-  by
+    ((y.card : ℝ) * (∑ i ∈ y, 1 / f i)⁻¹) ^ y.card ≤ ∏ i ∈ y, f i := by
   have hy' : 0 < y.card := by rwa [Finset.card_pos]
   have hycard_pos : (0 : ℝ) < y.card := Nat.cast_pos.2 hy'
   have hycard_ne : ((y.card : ℝ) ≠ 0) := ne_of_gt hycard_pos
@@ -740,8 +719,7 @@ theorem seven_four :
                                       2 ^ f k * beta μ k l ini ^ s ≤
                                         ∏ i ∈ 𝒮,
                                           ((algorithm μ k l ini (i + 1)).X.card : ℝ) /
-                                            (algorithm μ k l ini i).X.card :=
-  by
+                                            (algorithm μ k l ini i).X.card := by
   refine' ⟨fun k => (log 2)⁻¹ * (log k * -2 * (3 * k ^ (15 / 16 : ℝ))), _, _⟩
   · refine' IsLittleO.const_mul_left _ _
     simp only [mul_left_comm]
@@ -821,8 +799,7 @@ theorem seven_seven_aux {α : Type*} [Fintype α] [DecidableEq α] {χ : TopEdge
     (hY' : Y0.Nonempty)
     (h : X1 = X0.filter fun x => (p - q) * Y0.card ≤ ((red_neighbors χ) x ∩ Y0).card)
     (hX1 : X1.Nonempty) :
-    ((X0 \ X1).card / X1.card : ℝ) * q ≤ colDensity χ 0 X1 Y1 - colDensity χ 0 X0 Y0 :=
-  by
+    ((X0 \ X1).card / X1.card : ℝ) * q ≤ colDensity χ 0 X1 Y1 - colDensity χ 0 X0 Y0 := by
   cases hY
   have hX : X1 ⊆ X0 := by
     rw [h]
@@ -873,8 +850,7 @@ theorem seven_seven' {μ : ℝ} (hi : i ∈ degreeSteps μ k l ini) (h : (X_ (i 
     (h' : (algorithm μ k l ini i).Y.Nonempty) :
     ((X_ i \ X_ (i + 1)).card / (X_ (i + 1)).card : ℝ) *
         (k ^ (1 / 8 : ℝ) * αFunction k (h_ (p_ i))) ≤
-      p_ (i + 1) - p_ i :=
-  by
+      p_ (i + 1) - p_ i := by
   refine' seven_seven_aux _ rfl h' _ h
   · rw [degree_regularisation_applied hi, BookConfig.degreeRegularisationStep_Y]
   · rw [degree_regularisation_applied hi, BookConfig.degreeRegularisationStep_x]
@@ -892,8 +868,7 @@ theorem one_div_k_lt_p (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : �
                     (¬∃ (m : Finset (Fin n)) (c : Fin 2),
                           χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card) →
                       ∀ ini : BookConfig χ,
-                        p₀ ≤ ini.p → ∀ i, i ≤ finalStep μ k l ini → 1 / (k : ℝ) < p_ i :=
-  by
+                        p₀ ≤ ini.p → ∀ i, i ≤ finalStep μ k l ini → 1 / (k : ℝ) < p_ i := by
   have h : Tendsto (fun k : ℕ => (1 : ℝ) / k + 3 * k ^ (-1 / 4 : ℝ)) atTop (nhds (0 + 3 * 0)) :=
     by
     refine' Tendsto.add _ _
@@ -927,8 +902,7 @@ theorem x_y_nonempty (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
                           ∀ i,
                             i ≤ finalStep μ k l ini →
                               (algorithm μ k l ini i).X.Nonempty ∧
-                                (algorithm μ k l ini i).Y.Nonempty :=
-  by
+                                (algorithm μ k l ini i).Y.Nonempty := by
   filter_upwards [one_div_k_lt_p μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀] with l hl k hlk μ hμl hμu n χ hχ ini hini i
     hi
   have : (0 : ℝ) ≤ 1 / k := by simp
@@ -960,8 +934,7 @@ theorem seven_seven (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
                             i ∈ 𝒟 →
                               ((X_ i \ X_ (i + 1)).card / (X_ (i + 1)).card : ℝ) *
                                   (k ^ (1 / 8 : ℝ) * αFunction k (h_ (p_ i))) ≤
-                                p_ (i + 1) - p_ i :=
-  by
+                                p_ (i + 1) - p_ i := by
   filter_upwards [x_y_nonempty μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀] with l hl k hlk μ hμl hμu n χ hχ ini hini i hi
   refine' seven_seven' hi _ _
   · refine' (hl k hlk μ hμl hμu n χ hχ ini hini _ _).1
@@ -984,8 +957,7 @@ theorem seven_eight (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
                           χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card) →
                       ∀ ini : BookConfig χ,
                         p₀ ≤ ini.p →
-                          ∀ i : ℕ, i ∈ 𝒟 → ((X_ i).card : ℝ) / k ^ 2 ≤ (X_ (i + 1)).card :=
-  by
+                          ∀ i : ℕ, i ∈ 𝒟 → ((X_ i).card : ℝ) / k ^ 2 ≤ (X_ (i + 1)).card := by
   have tt : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have h : (0 : ℝ) < 1 / 8 + (-1 / 4 + 1) := by norm_num
   filter_upwards [seven_seven μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀, top_adjuster (eventually_gt_atTop 0),
@@ -1053,8 +1025,7 @@ theorem log_inequality {x a : ℝ} (hx : 0 ≤ x) (hxa : x ≤ a) : x * (log (1 
   rw [add_right_inj, exp_log (add_pos_of_pos_of_nonneg one_pos ha'.le), add_sub_cancel_left, hu']
   field_simp [ha, ha''.ne']
 
-theorem first_ineq : 3 / 4 ≤ log (1 + 1 / 2) / (1 / 2) :=
-  by
+theorem first_ineq : 3 / 4 ≤ log (1 + 1 / 2) / (1 / 2) := by
   rw [div_le_iff₀, div_mul_eq_mul_div, mul_div_assoc, mul_comm, ← log_rpow, le_log_iff_exp_le, ←
     exp_one_rpow]
   refine' (rpow_le_rpow (exp_pos _).le exp_one_lt_d9.le (by norm_num1)).trans _
@@ -1067,8 +1038,7 @@ theorem q_height_le_p {k : ℕ} {p₀ p : ℝ} (h' : p₀ ≤ p) : qFunction k p
   · rwa [h, Nat.sub_self, qFunction_zero]
 
 theorem seven_nine_asymp :
-    ∀ᶠ y : ℝ in nhds 0, 0 < y → (1 + y ^ 4) ^ (3 / 2 * y⁻¹) ≤ 1 + 2 * y ^ 3 :=
-  by
+    ∀ᶠ y : ℝ in nhds 0, 0 < y → (1 + y ^ 4) ^ (3 / 2 * y⁻¹) ≤ 1 + 2 * y ^ 3 := by
   have := eventually_le_nhds (by norm_num : (0 : ℝ) ^ 3 < 1 / 2 / 2)
   filter_upwards [(Tendsto.pow tendsto_id 3).eventually this] with y hy' hy
   have h₀ : 1 + y ^ 4 ≤ exp (y ^ 4) := by
@@ -1102,8 +1072,7 @@ theorem seven_nine_inner :
                       i ∈ degreeSteps μ k l ini →
                         ini.p ≤ p_ i →
                           (h_ (p_ (i + 1)) : ℝ) ≤ h_ (p_ i) + k ^ (1 / 16 : ℝ) →
-                            p_ (i + 1) - p_ i ≤ 2 * k ^ (1 / 16 : ℝ) * αFunction k (h_ (p_ i)) :=
-  by
+                            p_ (i + 1) - p_ i ≤ 2 * k ^ (1 / 16 : ℝ) * αFunction k (h_ (p_ i)) := by
   have tt : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have h16 : (0 : ℝ) < 1 / 16 := by norm_num
   filter_upwards [top_adjuster (eventually_gt_atTop 0), six_five_degree,
@@ -1182,8 +1151,7 @@ theorem seven_nine (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
                               ini.p ≤ p_ i →
                                 (h_ (p_ (i + 1)) : ℝ) ≤ h_ (p_ i) + k ^ (1 / 16 : ℝ) →
                                   (1 - 2 * k ^ (-1 / 16 : ℝ) : ℝ) * (X_ i).card ≤
-                                    (X_ (i + 1)).card :=
-  by
+                                    (X_ (i + 1)).card := by
   filter_upwards [seven_nine_inner, seven_seven μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀,
     top_adjuster (eventually_gt_atTop 0), x_y_nonempty μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀] with l hl hl' hk₀ hX k
     hlk μ hμl hμu n χ hχ ini hini i hi h₁ h₂
@@ -1235,8 +1203,7 @@ theorem seven_ten (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ 
                           (((redOrDensitySteps μ k l ini).filter fun i =>
                                   (h_ (p_ (i - 1)) : ℝ) + k ^ (1 / 16 : ℝ) ≤ h_ (p_ i)).card :
                               ℝ) ≤
-                            3 * k ^ (15 / 16 : ℝ) :=
-  by
+                            3 * k ^ (15 / 16 : ℝ) := by
   obtain ⟨f, hf', hf⟩ := red_or_density_height_diff
   filter_upwards [hf μ₀ hμ₀, top_adjuster (hf'.bound zero_lt_one), six_five_red, six_five_degree,
     six_five_density μ₁ p₀ hμ₁ hp₀, top_adjuster (eventually_gt_atTop 0)] with l hl hf'' hr hd hs
@@ -1317,16 +1284,14 @@ theorem seven_ten (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ 
 noncomputable def qStar (k : ℕ) (p₀ : ℝ) : ℝ :=
   p₀ + k ^ (1 / 16 : ℝ) * αFunction k 1
 
-theorem qStar_eq (k : ℕ) (p₀ : ℝ) : qStar k p₀ = p₀ + k ^ (-19 / 16 : ℝ) :=
-  by
+theorem qStar_eq (k : ℕ) (p₀ : ℝ) : qStar k p₀ = p₀ + k ^ (-19 / 16 : ℝ) := by
   rcases k.eq_zero_or_pos with (rfl | hk)
   · norm_num [qStar]
   have hk' : 0 < (k : ℝ) := by positivity
   rw [qStar, add_right_inj, α_one, mul_div_assoc', ← rpow_add hk', ← rpow_sub_one hk'.ne']
   norm_num
 
-theorem qStar_le_one : ∀ᶠ k : ℕ in atTop, ∀ inip, inip ≤ 1 → qStar k inip < 2 :=
-  by
+theorem qStar_le_one : ∀ᶠ k : ℕ in atTop, ∀ inip, inip ≤ 1 → qStar k inip < 2 := by
   filter_upwards [eventually_gt_atTop 1] with k hk inip hinip
   rw [qStar_eq]
   refine'
@@ -1340,8 +1305,7 @@ theorem qStar_le_one : ∀ᶠ k : ℕ in atTop, ∀ inip, inip ≤ 1 → qStar k
 -- log_inequality
 -- lemma log_inequality {x a : ℝ} (hx : 0 ≤ x) (hxa : x ≤ a) (ha : a ≠ 0) :
 --   x * (log (1 + a) / a) ≤ log (1 + x) :=
-theorem quick_calculation : 3 / 4 ≤ log (1 + 2 / 3) / (2 / 3) :=
-  by
+theorem quick_calculation : 3 / 4 ≤ log (1 + 2 / 3) / (2 / 3) := by
   rw [le_div_iff₀, le_log_iff_exp_le, ← exp_one_rpow]
   norm_num1
   rw [← sqrt_eq_rpow, sqrt_le_left]
@@ -1349,8 +1313,7 @@ theorem quick_calculation : 3 / 4 ≤ log (1 + 2 / 3) / (2 / 3) :=
   all_goals norm_num1
 
 theorem height_qStar_le :
-    ∀ᶠ k : ℕ in atTop, ∀ inip, (height k inip (qStar k inip) : ℝ) ≤ 2 * k ^ (1 / 16 : ℝ) :=
-  by
+    ∀ᶠ k : ℕ in atTop, ∀ inip, (height k inip (qStar k inip) : ℝ) ≤ 2 * k ^ (1 / 16 : ℝ) := by
   have tt : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have hh₁ : (0 : ℝ) < 1 / 16 := by norm_num
   have hh₂ : (0 : ℝ) < 1 / 4 := by norm_num
@@ -1421,8 +1384,7 @@ theorem seven_eleven_red_termwise :
                   ∀ ini : BookConfig χ,
                     ∀ i ∈ redSteps μ k l ini,
                       -αFunction k (height k ini.p (qStar k ini.p) + 2) ≤
-                        min (p_ (i + 1)) (qStar k ini.p) - min (p_ i) (qStar k ini.p) :=
-  by
+                        min (p_ (i + 1)) (qStar k ini.p) - min (p_ i) (qStar k ini.p) := by
   filter_upwards [six_five_red, top_adjuster (eventually_ne_atTop 0)] with l h₁ h₀ k hlk μ n χ hχ
     ini i hi
   rcases le_or_gt (height k ini.p (p_ i)) (height k ini.p (qStar k ini.p) + 2) with h | h
@@ -1451,8 +1413,7 @@ theorem seven_eleven_red :
                   ∀ ini : BookConfig χ,
                     -2 * αFunction k 1 * k ≤
                       ∑ i ∈ redSteps μ k l ini,
-                        (min (p_ (i + 1)) (qStar k ini.p) - min (p_ i) (qStar k ini.p)) :=
-  by
+                        (min (p_ (i + 1)) (qStar k ini.p) - min (p_ i) (qStar k ini.p)) := by
   have h :
     Tendsto (fun k : ℝ => 2 * k ^ (-1 / 4 + 1 / 16 : ℝ) + k ^ (-1 / 4 : ℝ)) atTop
       (nhds (2 * 0 + 0)) :=
@@ -1508,8 +1469,7 @@ theorem seven_eleven_red_or_density (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp�
                       p₀ ≤ ini.p →
                         -2 * αFunction k 1 * k ≤
                           ∑ i ∈ ℛ ∪ 𝒮,
-                            (min (p_ (i + 1)) (qStar k ini.p) - min (p_ i) (qStar k ini.p)) :=
-  by
+                            (min (p_ (i + 1)) (qStar k ini.p) - min (p_ i) (qStar k ini.p)) := by
   filter_upwards [seven_eleven_red, six_four_density μ₁ p₀ hμ₁ hp₀] with l h₁ h₂ k hlk μ hμu n χ hχ
     ini hini
   rw [Finset.sum_union redSteps_disjoint_densitySteps]
@@ -1535,8 +1495,7 @@ theorem seven_eleven_blue_termwise (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
                         -(k : ℝ) ^ (1 / 8 : ℝ) *
                             αFunction k
                               (height k ini.p (qStar k ini.p) + ⌊2 * (k : ℝ) ^ (1 / 8 : ℝ)⌋₊) ≤
-                          min (p_ (i + 1)) (qStar k ini.p) - min (p_ (i - 1)) (qStar k ini.p) :=
-  by
+                          min (p_ (i + 1)) (qStar k ini.p) - min (p_ (i - 1)) (qStar k ini.p) := by
   filter_upwards [six_five_blue μ₀ hμ₀, top_adjuster (eventually_gt_atTop 0)] with l h₁ h₀ k hlk μ
     hμl n χ hχ ini i hi
   have : (0 : ℝ) ≤ k ^ (1 / 8 : ℝ) := by positivity
@@ -1678,8 +1637,7 @@ theorem seven_eleven_red_or_density_other :
                                 p_ (i - 1) ≤ ini.p).card :
                           ℝ) ≤
                       ∑ i ∈ ℛ ∪ 𝒮,
-                        (min (p_ i) (qStar k ini.p) - min (p_ (i - 1)) (qStar k ini.p)) :=
-  by
+                        (min (p_ i) (qStar k ini.p) - min (p_ (i - 1)) (qStar k ini.p)) := by
   filter_upwards with l k hlk μ n χ hχ ini
   rw [redSteps_union_densitySteps]
   have :
@@ -1729,8 +1687,7 @@ theorem seven_eleven (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
                                   (p_ (i - 1) : ℝ) + k ^ (1 / 16 : ℝ) * αFunction k 1 ≤ p_ i ∧
                                     p_ (i - 1) ≤ ini.p).card :
                               ℝ) ≤
-                            4 * k ^ (15 / 16 : ℝ) :=
-  by
+                            4 * k ^ (15 / 16 : ℝ) := by
   filter_upwards [top_adjuster (eventually_gt_atTop 0), seven_eleven_blue μ₀ hμ₀,
     seven_eleven_red_or_density μ₁ p₀ hμ₁ hp₀, seven_eleven_red_or_density_other] with l h₀ hb hr hd
     k hlk μ hμl hμu n χ hχ ini hini
@@ -1805,8 +1762,7 @@ theorem seven_twelve (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
                                   ((X_ i).card : ℝ) <
                                     (1 - 2 * k ^ (-1 / 16 : ℝ)) * (X_ (i - 1)).card).card :
                               ℝ) ≤
-                            7 * k ^ (15 / 16 : ℝ) :=
-  by
+                            7 * k ^ (15 / 16 : ℝ) := by
   filter_upwards [seven_nine μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀, seven_ten μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀,
     seven_eleven μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀, seven_seven μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀,
     top_adjuster (eventually_gt_atTop 0)] with l h9 h10 h11 h7 hk₀ k hlk μ hμl hμu n χ hχ ini hini
@@ -1916,8 +1872,7 @@ theorem seven_six_large_jump_bound (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀)
                                   ((X_ (i + 1)).card : ℝ) <
                                     (1 - 2 * k ^ (-1 / 16 : ℝ)) * (X_ i).card).card :
                               ℝ) ≤
-                            7 * k ^ (15 / 16 : ℝ) + k ^ (3 / 4 : ℝ) + 1 :=
-  by
+                            7 * k ^ (15 / 16 : ℝ) + k ^ (3 / 4 : ℝ) + 1 := by
   filter_upwards [seven_twelve μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀, four_three hμ₀] with l h712 h43 k hlk μ hμl hμu
     n χ hχ ini hini
   specialize h712 k hlk μ hμl hμu n χ hχ ini hini
@@ -1981,8 +1936,7 @@ theorem seven_six_o :
     (fun k : ℕ =>
         -(2 / log 2 * ((7 * k ^ (15 / 16 : ℝ) + k ^ (3 / 4 : ℝ) + 1) * log k)) +
           -(4 * (k ^ (-1 / 16 : ℝ) * (3 * k)))) =o[atTop]
-      fun i => (i : ℝ) :=
-  by
+      fun i => (i : ℝ) := by
   suffices
     (fun k : ℝ =>
         -(2 / log 2 * ((7 * k ^ (15 / 16 : ℝ) + k ^ (3 / 4 : ℝ) + 1) * log k)) +
@@ -2051,8 +2005,7 @@ theorem seven_six :
                                       (2 : ℝ) ^ f k ≤
                                         ∏ i ∈ degreeSteps μ k l ini,
                                           ((algorithm μ k l ini (i + 1)).X.card : ℝ) /
-                                            (algorithm μ k l ini i).X.card :=
-  by
+                                            (algorithm μ k l ini i).X.card := by
   have tt : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   refine'
     ⟨fun k =>
@@ -2160,8 +2113,7 @@ theorem telescope_x_card (μ : ℝ)
         ((endState μ k l ini).X.card : ℝ) /
         ini.X.card =
       ∏ i ∈ Finset.range (finalStep μ k l ini),
-        ((algorithm μ k l ini (i + 1)).X.card : ℝ) / (algorithm μ k l ini i).X.card :=
-  by
+        ((algorithm μ k l ini (i + 1)).X.card : ℝ) / (algorithm μ k l ini i).X.card := by
   suffices
     ∀ j ≤ finalStep μ k l ini,
       ((algorithm μ k l ini j).X.card : ℝ) / ini.X.card =
@@ -2181,8 +2133,8 @@ theorem telescope_x_card (μ : ℝ)
 
 theorem seven_one_calc {frk fbk fsk fdk μ β : ℝ} {s_ t_ : ℕ} :
     2 ^ frk * 2 ^ fbk * 2 ^ fsk * 2 ^ fdk * μ ^ l * (1 - μ) ^ t_ * (β ^ s_ * (μ ^ s_)⁻¹) =
-      2 ^ fbk * (μ ^ l * (μ ^ s_)⁻¹) * (2 ^ frk * (1 - μ) ^ t_) * (2 ^ fsk * β ^ s_) * 2 ^ fdk :=
-  by ring_nf
+      2 ^ fbk * (μ ^ l * (μ ^ s_)⁻¹) * (2 ^ frk * (1 - μ) ^ t_) * (2 ^ fsk * β ^ s_) * 2 ^ fdk := by
+  ring_nf
 
 set_option maxHeartbeats 400000 in
 theorem seven_one (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
@@ -2205,8 +2157,7 @@ theorem seven_one (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
                                   p₀ ≤ ini.p →
                                     (2 : ℝ) ^ f k * μ ^ l * (1 - μ) ^ t * (beta μ k l ini / μ) ^ s *
                                         ini.X.card ≤
-                                      (endState μ k l ini).X.card :=
-  by
+                                      (endState μ k l ini).X.card := by
   obtain ⟨fr, hfr, hr'⟩ := seven_two μ₁ hμ₁
   obtain ⟨fb, hfb, hb'⟩ := seven_three
   obtain ⟨fs, hfs, hs'⟩ := seven_four
