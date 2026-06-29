@@ -1299,12 +1299,6 @@ theorem qStar_le_one : ∀ᶠ k : ℕ in atTop, ∀ inip, inip ≤ 1 → qStar k
           (rpow_lt_one_of_one_lt_of_neg (Nat.one_lt_cast.2 hk) (by norm_num1))).trans_eq
       (by norm_num)
 
--- (1 + y ^ 4) ^ (3 / 2 * y⁻¹) ≤ 1 + 2 * y ^ 3
--- lemma general_convex_thing {a x : ℝ} (hx : 0 ≤ x) (hxa : x ≤ a) :
---   exp x ≤ 1 + (exp a - 1) * x / a :=
--- log_inequality
--- lemma log_inequality {x a : ℝ} (hx : 0 ≤ x) (hxa : x ≤ a) (ha : a ≠ 0) :
---   x * (log (1 + a) / a) ≤ log (1 + x) :=
 theorem quick_calculation : 3 / 4 ≤ log (1 + 2 / 3) / (2 / 3) := by
   rw [le_div_iff₀, le_log_iff_exp_le, ← exp_one_rpow]
   norm_num1
@@ -1839,22 +1833,6 @@ theorem seven_twelve (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
       exact this.le
     rwa [Nat.sub_add_cancel hi₁'.1]
 
--- lemma num_degreeSteps_le_add :
---   (degreeSteps μ k l ini).card ≤ (redSteps μ k l ini).card +
---     (bigBlueSteps μ k l ini).card + (densitySteps μ k l ini).card + 1 :=
--- begin
---   have : bigBlueSteps μ k l ini ∪ redOrDensitySteps μ k l ini =
---     (Finset.range (finalStep μ k l ini)).filter (λ i, ¬ even i),
---   { rw [bigBlueSteps, redOrDensitySteps, ←Finset.filter_or],
---     refine filter_congr _,
---     intros i hi,
---     rw [←and_or_distrib_left, ←not_le, and_iff_left],
---     exact em _ },
---   rw [add_right_comm _ _ (finset.card _), ←card_disjoint_union redSteps_disjoint_densitySteps,
---     redSteps_union_densitySteps, add_comm _ (finset.card _),
---     ←card_disjoint_union bigBlueSteps_disjoint_redOrDensitySteps, this, degreeSteps],
---   apply filter_even_thing
--- end
 theorem seven_six_large_jump_bound (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
     ∀ᶠ l : ℕ in atTop,
       ∀ k,
@@ -2019,7 +1997,6 @@ theorem seven_six :
     top_adjuster (eventually_gt_atTop 0),
     top_adjuster (((tendsto_rpow_neg_atTop h16).comp tt).eventually (eventually_le_nhds h))] with l
     h78 h₁ hk0 h' k hlk μ hμl hμu n χ hχ ini hini
-  -- specialize h712 k hlk n χ hχ ini hini hini',
   specialize h₁ k hlk μ hμl hμu n χ hχ ini hini
   rw [←
     Finset.filter_union_filter_not_eq
