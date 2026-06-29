@@ -336,9 +336,7 @@ theorem prop_34 :
     · rw [hh1, qFunction_zero, algorithm_zero]
       exact le_min (by simpa [qFunction_zero] using (q_increasing zero_le_one)) le_rfl
     exact le_clamp
-  have hcard : (Finset.Ico 1 (maxHeight k)).card = maxHeight k - 1 := by
-    exact Nat.card_Ico 1 (maxHeight k)
-  rw [hcard, maxHeight, Nat.add_sub_cancel, nsmul_one]
+  rw [Nat.card_Ico 1 (maxHeight k), maxHeight, Nat.add_sub_cancel, nsmul_one]
   refine' Nat.floor_le _
   have : 0 ≤ log k := log_nonneg (Nat.one_le_cast.2 (hk k hlk))
   positivity
@@ -435,14 +433,10 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
   · simp only [le_add_iff_nonneg_right]; positivity
   · exact hk₈
   have : (1 : ℝ) - ε = (1 - k ^ (-1 / 8 : ℝ)) * (1 + k ^ (-1 / 8 : ℝ)) := by
-    have hk0 : 0 < (k : ℝ) := by exact_mod_cast hk k hlk
-    have hpow : ε = ((k : ℝ) ^ (-1 / 8 : ℝ)) ^ 2 := by
-      rw [sq, ← rpow_add]
-      · congr 1
-        norm_num
-      · exact hk0
-    rw [hpow]
-    ring
+    rw [one_sub_mul, mul_one_add, ← sub_sub, add_sub_cancel_right, ← rpow_add]
+    · norm_num
+    rw [Nat.cast_pos]
+    exact hk k hlk
   rw [this]
   refine' mul_le_mul_of_nonneg_left _ _
   swap
@@ -696,13 +690,9 @@ theorem eight_four (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
       rw [Δ', Δ', Nat.sub_add_cancel this.1, sub_add_sub_cancel', sub_nonneg]
       rw [Δ, Δ, Nat.sub_add_cancel this.1, sub_add_sub_cancel', sub_nonneg] at hΔ
       exact p'_le_p'_of_p_le_p hΔ
-    have hsum : 0 ≤ ∑ h ∈ Finset.Ico 1 (maxHeight k),
-        (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) / αFunction k h :=
-      Finset.sum_nonneg fun h _ => this h
-    have hleft : -(2 : ℝ) * k ^ (1 / 8 : ℝ) ≤ 0 := by
-      have : 0 ≤ (2 : ℝ) * k ^ (1 / 8 : ℝ) := by positivity
-      linarith
-    exact hleft.trans hsum
+    refine' (Finset.sum_nonneg fun h _ => this h).trans' ?_
+    have : 0 ≤ (2 : ℝ) * k ^ (1 / 8 : ℝ) := by positivity
+    linarith
   have : ∀ h, Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h ≤ 0 := by
     intro h
     rw [Δ', Δ', Nat.sub_add_cancel this.1, sub_add_sub_cancel', sub_nonpos]
@@ -1012,17 +1002,8 @@ theorem eight_five (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
     refine' (div_le_div_iff₀ (sub_pos_of_lt (hβ'.trans_lt (hμu.trans_lt hμ₁)))
       (sub_pos_of_lt hμ₁)).2 _
     nlinarith [hβ', hμu, hμ₁]
-  have hmul :
-      (4 * beta μ k l ini + 3) / (1 - beta μ k l ini) * k ^ (15 / 16 : ℝ) ≤
-        7 / (1 - μ₁) * k ^ (15 / 16 : ℝ) :=
-    mul_le_mul_of_nonneg_right this (rpow_nonneg (Nat.cast_nonneg _) _)
-  have hadd :
-      beta μ k l ini / (1 - beta μ k l ini) * (redSteps μ k l ini).card +
-          (4 * beta μ k l ini + 3) / (1 - beta μ k l ini) * k ^ (15 / 16 : ℝ) ≤
-        beta μ k l ini / (1 - beta μ k l ini) * (redSteps μ k l ini).card +
-          7 / (1 - μ₁) * k ^ (15 / 16 : ℝ) :=
-    add_le_add_right hmul _
-  refine' hadd.trans' _
+  refine' (add_le_add_right
+    (mul_le_mul_of_nonneg_right this (rpow_nonneg (Nat.cast_nonneg _) _)) _).trans' _
   rw [div_mul_eq_mul_div, div_mul_eq_mul_div, ← add_div, le_div_iff₀]
   swap
   · exact sub_pos_of_lt (hβ'.trans_lt (hμu.trans_lt hμ₁))
