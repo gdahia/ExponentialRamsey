@@ -1076,11 +1076,6 @@ theorem eight_six (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
   replace hl := (sub_le_sub h₁ h₂).trans hl
   rw [sub_le_iff_le_add', mul_comm _ (beta μ k l ini), ← mul_add] at hl
   rw [mul_div_assoc']
-  have hpos : 0 ≤ ((densitySteps μ k l ini).card + (redSteps μ k l ini).card : ℝ) := by positivity
-  rcases lt_or_eq_of_le hpos with (hc' | hzero)
-  · rw [div_le_iff₀' hc']
-    simpa [mul_comm] using hl
-  · rw [hzero.symm, div_zero]
-    exact beta_nonneg (hμ₀.trans_le hμl)
+  exact div_le_of_le_mul₀ (by positivity) (beta_nonneg (hμ₀.trans_le hμl)) hl
 
 end SimpleGraph
