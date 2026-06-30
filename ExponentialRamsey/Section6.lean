@@ -963,18 +963,16 @@ theorem six_two (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 
 theorem two_approx {x : ℝ} (hx : 0 ≤ x) (hx' : x ≤ 1 / 2) : 2 ^ (-2 * x) ≤ 1 - x := by
   have p : -2 * log 2 ≤ 0 := by simp [log_nonneg one_le_two]
   have hu₀ : x * (-2 * log 2) ≤ 0 := mul_nonpos_of_nonneg_of_nonpos hx p
-  have hu₁ : -log 2 ≤ x * (-2 * log 2) := by nlinarith [log_pos one_lt_two]
-  have hconv := general_convex_thing' hu₀ hu₁ (neg_ne_zero.2 (log_pos one_lt_two).ne')
-  have hright : 1 + (exp (-log 2) - 1) * (x * (-2 * log 2)) / (-log 2) = 1 - x := by
-    rw [Real.exp_neg, exp_log (by norm_num : (0 : ℝ) < 2)]
-    field_simp [(log_pos one_lt_two).ne']
-    ring
-  have hleft : (2 : ℝ) ^ (-2 * x) = exp (x * (-2 * log 2)) := by
-    rw [rpow_def_of_pos zero_lt_two]
-    congr 1
-    ring
-  rw [hleft]
-  exact hconv.trans_eq hright
+  have hu₁ : -log 2 ≤ x * (-2 * log 2) := by nlinarith
+  have h := general_convex_thing' hu₀ hu₁ (neg_ne_zero.2 (log_pos one_lt_two).ne')
+  rw [← mul_assoc, ← mul_assoc, div_neg, mul_div_cancel_right₀ _ (log_pos one_lt_two).ne', ←
+    sub_eq_add_neg, mul_comm, ← rpow_def_of_pos zero_lt_two, mul_comm] at h
+  refine' h.trans_eq _
+  rw [Real.exp_neg, exp_log]
+  · norm_num
+    rw [mul_comm, mul_one_div, mul_div_cancel_left₀]
+    norm_num1
+  norm_num1
 
 theorem six_one_ind (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
     ∀ᶠ l : ℕ in atTop,
