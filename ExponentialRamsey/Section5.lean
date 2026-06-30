@@ -201,11 +201,10 @@ theorem five_five_aux {X Y : Finset V} :
   · simp
   rcases Y.eq_empty_or_nonempty with (rfl | hY)
   · simp
-  have hY : 0 < (Y.card : ℝ) := by positivity
-  rw [← div_le_iff₀' hY] at this
+  rw [← div_le_iff₀' (by positivity)] at this
   refine' this.trans_eq' _
   rw [colDensity_comm, colDensity_eq_sum, div_pow, div_mul_eq_mul_div, mul_pow, mul_div_mul_right,
-    div_mul_eq_mul_div, sq (Y.card : ℝ), mul_div_mul_right _ _ hY.ne']
+    div_mul_eq_mul_div, sq (Y.card : ℝ), mul_div_mul_right _ _ (by positivity)]
   · simp
   · positivity
 
