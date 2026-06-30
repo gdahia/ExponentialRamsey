@@ -763,13 +763,16 @@ theorem nine_three (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
   have hl₀ : 0 < l := hk₀ l le_rfl
   specialize h9 k γ hγ hγl hγu hlk δ hδ n χ hχ ini hini hn' hn
   specialize herr k hlk
-  rw [norm_eq_abs, Nat.cast, abs_le] at herr
+  rw [norm_eq_abs, abs_le] at herr
   refine' h9.trans' _
   rw [mul_rotate]
-  refine' (add_le_add_left herr.1 _).trans' _
+  rw [add_comm ((1 - δ / γ) * (1 + 1 / (exp 1 * (1 - γ)))⁻¹ * (k : ℝ))]
+  refine' (add_le_add_left (by
+    simpa [abs_of_nonneg (Nat.cast_nonneg k : (0 : ℝ) ≤ (k : ℝ))] using herr.1)
+      ((1 - δ / γ) * (1 + 1 / (exp 1 * (1 - γ)))⁻¹ * (k : ℝ))).trans' _
   rw [← neg_mul, ← add_mul]
-  refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)
-  linarith only [numerics_one (hγ₀.trans_le hγl) hγu hδ]
+  refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg k)
+  linarith only [(numerics_one (hγ₀.trans_le hγl) hγu hδ).le]
 
 theorem yael_two {n k a : ℕ} : n.ascFactorial (k + a) = (n + a).ascFactorial k * n.ascFactorial a := by
   induction a with
