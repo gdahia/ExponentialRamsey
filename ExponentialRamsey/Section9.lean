@@ -1163,7 +1163,8 @@ theorem sum_offDiag {α β : Type*} [DecidableEq α] [AddCommMonoid β] {s : Fin
     rw [Finset.mem_offDiag] at h
     rw [Finset.mem_sigma, Finset.mem_erase]
     exact ⟨h.1, Ne.symm h.2.2, h.2.1⟩
-  · rintro ⟨a₁, a₂⟩ ⟨a₃, a₄⟩ _ _ ⟨⟩
+  · intro ⟨a₁, a₂⟩ _ ⟨a₃, a₄⟩ _ h
+    obtain ⟨rfl, rfl⟩ := Sigma.ext_iff.mp h
     rfl
   · rintro ⟨a, b⟩ h
     simp only [Finset.mem_sigma, Finset.mem_erase] at h
