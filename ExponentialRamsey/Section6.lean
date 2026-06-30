@@ -957,8 +957,7 @@ theorem six_two (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 
     refine' hl k hlk μ hμl hμu n χ hχ ini hini (2 * i + 1) _ _
     · exact hi.trans_le' (Nat.le_succ _)
     rw [degreeSteps, Finset.mem_filter]
-    rintro ⟨-, h_even⟩
-    exact (Nat.not_even_two_mul_add_one i) h_even
+    simp
   exact hl k hlk μ hμl hμu n χ hχ ini hini i hi h
 
 theorem two_approx {x : ℝ} (hx : 0 ≤ x) (hx' : x ≤ 1 / 2) : 2 ^ (-2 * x) ≤ 1 - x := by
