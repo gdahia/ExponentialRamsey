@@ -828,10 +828,11 @@ theorem red_neighbors_eq_blue_compl {x : V} :
   rintro ⟨p, q⟩
   exact ⟨Ne.symm p, q _⟩
 
-theorem red_neighbors_inter_eq {x : V} {X : Finset V} (_hx : x ∈ X) :
+theorem red_neighbors_inter_eq {x : V} {X : Finset V} (hx : x ∈ X) :
     (red_neighbors χ) x ∩ X = X \ insert x ((blue_neighbors χ) x ∩ X) := by
-  ext y
-  by_cases hyX : y ∈ X <;> simp [red_neighbors_eq_blue_compl, Finset.mem_sdiff, Finset.mem_inter, hyX]
+  rw [red_neighbors_eq_blue_compl, Finset.sdiff_eq_inter_compl, Finset.inter_comm,
+    ← Finset.insert_inter_of_mem hx, Finset.compl_inter, ← Finset.inf_eq_inter,
+    ← Finset.inf_eq_inter, ← Finset.sup_eq_union, inf_sup_left, inf_compl_self, sup_bot_eq]
 
 theorem card_red_neighbors_inter {μ : ℝ} (hi : i ∈ redOrDensitySteps μ k l ini) :
     (((red_neighbors χ) (getX hi) ∩ (algorithm μ k l ini i).X).card : ℝ) =
@@ -884,9 +885,8 @@ theorem five_one_case_a {α : ℝ} (X Y : Finset V) {x : V} (hxX : ((red_neighbo
   intro h
   conv_rhs => rw [colDensity_eq_sum]
   simp only [pairWeight, ← Finset.mul_sum] at h
-  have : 0 < (Y.card : ℝ) := by
-    exact_mod_cast Finset.card_pos.2 (hxY.mono Finset.inter_subset_right)
-  rw [inv_mul_eq_div, div_le_div_iff_of_pos_right this,
+  rw [inv_mul_eq_div, div_le_div_iff_of_pos_right
+      (mod_cast (hxY.mono Finset.inter_subset_right).card_pos),
     Finset.sum_sub_distrib, Finset.sum_const, nsmul_eq_mul,
     le_sub_iff_add_le', mul_left_comm, ← add_mul, ← sub_eq_add_neg] at h
   rw [le_div_iff₀']
@@ -1021,14 +1021,8 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
         _
     rw [div_mul_eq_mul_div, div_mul_eq_mul_div, mul_left_comm, pow_succ]
     field_simp
-  have hthis :
-      -(α * (((red_neighbors χ) x ∩ C.Y).card : ℝ)) +
-          (-((2 : ℝ) / k ^ 4) * (C.X.card * ((red_neighbors χ) x ∩ C.Y).card)) ≤
-        -(α * (((red_neighbors χ) x ∩ C.Y).card : ℝ)) +
-          weight χ C.X C.Y x * C.Y.card := by
-    simpa [add_comm, add_left_comm, add_assoc] using
-      add_le_add_left this (-(α * (((red_neighbors χ) x ∩ C.Y).card : ℝ)))
-  refine' hthis.trans' _
+  refine'
+    (add_le_add_right this (-(α * (((red_neighbors χ) x ∩ C.Y).card : ℝ)))).trans' _
   rw [neg_mul, ← neg_add, neg_le_neg_iff, ← mul_assoc, ← add_mul]
   refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)
   rw [← le_sub_iff_add_le, ← sub_mul, div_sub_div_same]
