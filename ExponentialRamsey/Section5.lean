@@ -488,22 +488,13 @@ theorem five_four_aux (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) (i : ℕ)
   rw [BookConfig.numBigBlues] at hi'
   have : C.X.card - m ≤ (BookConfig.centralVertices μ C).card := by
     rw [tsub_le_iff_right, BookConfig.centralVertices]
-    let B := C.X.filter fun x => μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card
-    let G := C.X.filter fun x => ((blue_neighbors χ) x ∩ C.X).card ≤ μ * C.X.card
-    change C.X.card ≤ G.card + m
-    calc
-      C.X.card ≤ (B ∪ G).card := by
-        refine' Finset.card_le_card _
-        intro x hx
-        rw [Finset.mem_union]
-        rcases le_total (μ * C.X.card) (((blue_neighbors χ) x ∩ C.X).card : ℝ) with hx' | hx'
-        · left
-          exact Finset.mem_filter.2 ⟨hx, hx'⟩
-        · right
-          exact Finset.mem_filter.2 ⟨hx, hx'⟩
-      _ ≤ B.card + G.card := Finset.card_union_le _ _
-      _ ≤ m + G.card := Nat.add_le_add_right hi'.2.2.le _
-      _ = G.card + m := Nat.add_comm _ _
+    refine'
+      (Nat.add_le_add_left hi'.2.2.le _).trans'
+        ((Finset.card_union_le _ _).trans' (Finset.card_le_card _))
+    rw [← Finset.filter_or]
+    simp (config := { contextual := true }) only [Finset.subset_iff, Finset.mem_filter, true_and]
+    intro x hx
+    exact le_total _ _
   obtain ⟨nei, Bnei, neicard⟩ := Finset.exists_subset_card_eq this
   have : ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] < C.X.card :=
     ramseyNumber_lt_of_lt_finalStep hi'.1
