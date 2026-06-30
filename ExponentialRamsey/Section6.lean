@@ -139,12 +139,11 @@ theorem six_four_degree {μ : ℝ} (hi : i ∈ degreeSteps μ k l ini) : p_ i �
           (colNeighbors χ 0 x ∩ C.Y).card / C.Y.card := by
     refine' Finset.filter_congr _
     intro x hx
-    have hY : (0 : ℝ) < C.Y.card := by
-      rw [Nat.cast_pos, Finset.card_pos]
-      refine' y_nonempty _
-      rw [degreeSteps, Finset.mem_filter, Finset.mem_range] at hi
-      exact hi.1
-    exact (le_div_iff₀ hY).symm
+    refine' (le_div_iff₀ _).symm
+    rw [Nat.cast_pos, Finset.card_pos]
+    refine' y_nonempty _
+    rw [degreeSteps, Finset.mem_filter, Finset.mem_range] at hi
+    exact hi.1
   rw [this, colDensity_eq_average]
   refine' increase_average _
   rw [← colDensity_eq_average, BookConfig.p, sub_le_self_iff]
