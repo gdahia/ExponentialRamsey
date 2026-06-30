@@ -890,9 +890,9 @@ theorem five_one_case_a {α : ℝ} (X Y : Finset V) {x : V} (hxX : ((red_neighbo
   intro h
   conv_rhs => rw [colDensity_eq_sum]
   simp only [pairWeight, ← Finset.mul_sum] at h
-  have hYpos : 0 < (Y.card : ℝ) := by
+  have : 0 < (Y.card : ℝ) := by
     exact_mod_cast Finset.card_pos.2 (hxY.mono Finset.inter_subset_right)
-  rw [inv_mul_eq_div, div_le_div_iff_of_pos_right hYpos,
+  rw [inv_mul_eq_div, div_le_div_iff_of_pos_right this,
     Finset.sum_sub_distrib, Finset.sum_const, nsmul_eq_mul,
     le_sub_iff_add_le', mul_left_comm, ← add_mul, ← sub_eq_add_neg] at h
   rw [le_div_iff₀']
@@ -929,9 +929,8 @@ theorem five_one_case_b_aux {α : ℝ} (X Y : Finset V) {x : V} (hx : x ∈ X) (
       exact ⟨Finset.inter_subset_right, by simp [not_mem_colNeighbors]⟩
     exact disjoint_sdiff_self_left
   simp only [pairWeight, ← Finset.mul_sum] at hle
-  have hYpos : 0 < (Y.card : ℝ) := by exact_mod_cast Finset.card_pos.2 hy
-  rw [inv_mul_eq_div, le_div_iff₀' hYpos, Finset.sum_sub_distrib, Finset.sum_const, mul_add,
-    mul_div_cancel₀ _ hYpos.ne', nsmul_eq_mul, le_sub_iff_add_le',
+  rw [inv_mul_eq_div, le_div_iff₀' (by positivity), Finset.sum_sub_distrib, Finset.sum_const, mul_add,
+    mul_div_cancel₀ _ (by positivity), nsmul_eq_mul, le_sub_iff_add_le',
     mul_left_comm _ (colDensity χ 0 X Y), ← add_assoc, add_right_comm] at hle
   rw [Nat.cast_sum, mul_comm (weight χ X Y x) (Y.card : ℝ)]
   refine' hle.trans_eq (Finset.sum_congr rfl _)
