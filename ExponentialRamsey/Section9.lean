@@ -1209,7 +1209,8 @@ theorem density_compl [Fintype V] (G : SimpleGraph V) [Fintype G.edgeSet]
   exact Nat.choose_pos h
 
 theorem sum_ite_fintype {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMonoid β] (s : Finset α)
-    (f : α → β) : ∑ x ∈ s, f x = ∑ x, ite (x ∈ s) (f x) 0 := by simp only [sum_ite_mem, univ_inter]
+    (f : α → β) : ∑ x ∈ s, f x = ∑ x, ite (x ∈ s) (f x) 0 := by
+  simp
 
 theorem sum_powersetCard_erase {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMonoid β] {n : ℕ}
     {s : Finset α} (f : Finset α → α → β) :
