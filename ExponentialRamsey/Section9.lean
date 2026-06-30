@@ -6,6 +6,7 @@ Authors: Bhavik Mehta
 import ExponentialRamsey.Section8
 import ExponentialRamsey.Prereq.Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.Data.Nat.Factorial.BigOperators
+import Mathlib.Data.Finset.Powerset
 import Mathlib.Analysis.Convex.Mul
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 
@@ -1181,8 +1182,11 @@ theorem density_eq_average [Fintype V] [DecidableEq V] (G : SimpleGraph V)
         ∑ x : V, ∑ y ∈ Finset.univ.erase x, if G.Adj x y then 1 else 0 := by
   rw [SimpleGraph.density, edgeFinset_eq_filter', ← Finset.sum_boole, Nat.cast_choose_two,
     div_div_eq_mul_div, mul_comm, ← Nat.cast_two, ← nsmul_eq_mul, sum_sym2, div_eq_mul_inv,
-    mul_comm, sum_offDiag]
-  rfl
+    mul_comm, sum_offDiag, Nat.cast_mul]
+  simp only [Function.uncurry, Sym2.fromRel_prop]
+  by_cases hc : card V = 0
+  · simp [hc]
+  · rw [Nat.cast_sub (by grind), Nat.cast_one, mul_inv]
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 theorem density_eq_average' [Fintype V] (G : SimpleGraph V) [Fintype G.edgeSet]
