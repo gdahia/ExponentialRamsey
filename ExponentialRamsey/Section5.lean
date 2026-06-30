@@ -83,12 +83,13 @@ theorem isLittleO_one_rpow {s : ℝ} (hrs : 0 < s) :
 
 theorem one_lt_q_function_aux :
     ∀ᶠ k : ℕ in atTop,
-      0.8 * (2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k) ≤ ⌊2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k⌋₊ := by
+      (4 / 5) * (2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k) ≤
+        ⌊2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k⌋₊ := by
   have : Tendsto (fun x : ℝ => 2 * x ^ (1 / 4 : ℝ) * log x) atTop atTop := by
     refine' Tendsto.atTop_mul_atTop₀ _ tendsto_log_atTop
     exact (tendsto_rpow_atTop (by norm_num)).const_mul_atTop two_pos
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
-  have := (this.comp t).eventually (eventually_le_floor 0.8 (by norm_num))
+  have := (this.comp t).eventually (eventually_le_floor (4 / 5) (by norm_num))
   filter_upwards [this] with k hk
   rwa [neg_div, rpow_neg (Nat.cast_nonneg _), div_inv_eq_mul]
 
@@ -132,10 +133,8 @@ theorem one_lt_qFunction :
     rw [mul_div_assoc' _ _ ε, le_div_iff₀' hε, ← mul_assoc, mul_assoc (Real.log _)]
     refine' mul_le_mul_of_nonneg_right (mul_log_two_le_log_one_add hε.le hε₁) _
     norm_num1
-  have h45 : (4/5 : ℝ) = 0.8 := by norm_num
-  rw [h45] at this
   refine' (rpow_le_rpow_of_exponent_le hk₁ this).trans' _
-  rwa [h45, norm_of_nonneg, one_mul, norm_of_nonneg] at hk₂
+  rwa [norm_of_nonneg, one_mul, norm_of_nonneg] at hk₂
   · exact rpow_nonneg (Nat.cast_nonneg _) _
   positivity
 
