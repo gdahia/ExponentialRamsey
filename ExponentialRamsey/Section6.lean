@@ -759,26 +759,17 @@ theorem six_two_part_one {f : ℕ → ℝ} {j j' : ℕ} (hj : Odd j) (hj' : Odd 
       exact ⟨i, by omega, by omega, rfl⟩
     rintro ⟨i, hi, hi', rfl⟩
     exact ⟨by omega, by omega, i, rfl⟩
-  change
-    f (2 * j' + 1 + 1) - f (2 * j + 1 + 1) =
-      ∑ i ∈ Finset.Icc (2 * j' + 1 + 2) (2 * j + 1) with Odd i,
-        (f (i - 1) - f (i + 1))
-  have hlen : Order.succ j - (j' + 1) = j - j' := by
-    simp [Order.succ_eq_add_one, Nat.add_sub_add_right]
-  rw [this, Finset.sum_map, ← Finset.Ico_succ_right_eq_Icc, Finset.sum_Ico_eq_sum_range, hlen]
-  change
-    f (2 * j' + 1 + 1) - f (2 * j + 1 + 1) =
-      ∑ x ∈ Finset.range (j - j'),
-        (f (2 * ((j' + 1) + x) + 1 - 1) - f (2 * ((j' + 1) + x) + 1 + 1))
-  have hstep :
+  rw [this, Finset.sum_map, ← Finset.Ico_succ_right_eq_Icc, Finset.sum_Ico_eq_sum_range,
+    Order.succ_eq_add_one, Nat.add_sub_add_right]
+  simp only [Function.Embedding.coeFn_mk]
+  have :
     ∀ k : ℕ,
       f (2 * ((j' + 1) + k) + 1 - 1) - f (2 * ((j' + 1) + k) + 1 + 1) =
         f (2 * ((j' + 1) + k)) - f (2 * ((j' + 1) + (k + 1))) := by
     intro k
-    have h₁ : 2 * ((j' + 1) + k) + 1 - 1 = 2 * ((j' + 1) + k) := by omega
-    have h₂ : 2 * ((j' + 1) + k) + 1 + 1 = 2 * ((j' + 1) + (k + 1)) := by omega
-    rw [h₁, h₂]
-  simp only [hstep]
+    rw [Nat.add_sub_cancel]
+    congr 1
+  simp only [this]
   rw [Finset.sum_range_sub', add_zero]
   have h₁ : 2 * j' + 1 + 1 = 2 * (j' + 1) := by omega
   have h₂ : 2 * j + 1 + 1 = 2 * (j' + 1 + (j - j')) := by omega
