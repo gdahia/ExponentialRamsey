@@ -1183,12 +1183,11 @@ theorem density_eq_average [Fintype V] [DecidableEq V] (G : SimpleGraph V)
   rw [SimpleGraph.density, edgeFinset_eq_filter', ← Finset.sum_boole, Nat.cast_choose_two,
     div_div_eq_mul_div, mul_comm, ← Nat.cast_two, ← nsmul_eq_mul, sum_sym2, div_eq_mul_inv,
     mul_comm, sum_offDiag, Nat.cast_mul]
-  simp only [Function.uncurry, Sym2.fromRel_prop]
-  by_cases hc : card V = 0
-  · simp [hc]
+  by_cases hV : card V = 0
+  · simp [hV]
   · rw [Nat.cast_sub (by grind), Nat.cast_one, mul_inv]
+    rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 theorem density_eq_average' [Fintype V] (G : SimpleGraph V) [Fintype G.edgeSet]
     [DecidableRel G.Adj] :
     G.density =
