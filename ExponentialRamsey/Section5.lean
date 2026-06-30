@@ -918,45 +918,28 @@ theorem five_one_case_b_aux {α : ℝ} (X Y : Finset V) {x : V} (hx : x ∈ X) (
           α * ((NR x ∩ X).card * (NR x ∩ Y).card) +
         weight χ X Y x * Y.card ≤
       ∑ y ∈ NB x ∩ X, (NR y ∩ (NR x ∩ Y)).card := by
-  have hred_eq : NR x ∩ X = X.erase x \ (NB x ∩ X) := by
-    rw [red_neighbors_inter_eq hx]
-    ext y
-    by_cases hyx : y = x
-    · subst y
-      simp [not_mem_colNeighbors]
-    · simp [Finset.mem_sdiff, Finset.mem_erase, Finset.mem_insert, hyx]
-  have hsubset : NB x ∩ X ⊆ X.erase x := by
-    rw [Finset.subset_erase]
-    exact ⟨Finset.inter_subset_right, by simp [not_mem_colNeighbors]⟩
-  have hsum_red :
-      ∑ y ∈ NR x ∩ X, pairWeight χ X Y x y =
-        weight χ X Y x - ∑ y ∈ NB x ∩ X, pairWeight χ X Y x y := by
-    rw [hred_eq, weight, Finset.sum_sdiff_eq_sub hsubset]
   have hle :
     weight χ X Y x + α * ((NR x ∩ X).card * (NR x ∩ Y).card) / Y.card ≤
       ∑ y ∈ NB x ∩ X, pairWeight χ X Y x y := by
-    rw [hsum_red] at h
-    have hneg :
-        -α * (↑(NR x ∩ X).card * ↑(NR x ∩ Y).card) / ↑Y.card =
-          -(α * (↑(NR x ∩ X).card * ↑(NR x ∩ Y).card) / ↑Y.card) := by
-      ring
-    rw [hneg] at h
-    linarith
+    rw [← le_sub_iff_add_le, sub_eq_add_neg, ← sub_le_iff_le_add',
+      ← neg_div, ← neg_mul]
+    refine' h.le.trans_eq' _
+    rw [red_neighbors_inter_eq hx, eq_sub_iff_add_eq, Finset.insert_eq,
+      Finset.sdiff_union_distrib, Finset.sdiff_singleton_eq_erase, ← Finset.inter_sdiff_assoc,
+      (Finset.inter_eq_left.2 (Finset.erase_subset x X)), ← Finset.sum_union,
+      Finset.sdiff_union_of_subset, weight]
+    · rw [Finset.subset_erase]
+      exact ⟨Finset.inter_subset_right, by simp [not_mem_colNeighbors]⟩
+    exact disjoint_sdiff_self_left
   simp only [pairWeight, ← Finset.mul_sum] at hle
   have hYpos : 0 < (Y.card : ℝ) := by exact_mod_cast Finset.card_pos.2 hy
   rw [inv_mul_eq_div, le_div_iff₀' hYpos, Finset.sum_sub_distrib, Finset.sum_const, mul_add,
-    mul_div_cancel₀ _ hYpos.ne', nsmul_eq_mul, le_sub_iff_add_le'] at hle
-  rw [Nat.cast_sum]
-  calc
-    (red_density χ) X Y * (↑(NB x ∩ X).card * ↑(NR x ∩ Y).card) +
-          α * (↑(NR x ∩ X).card * ↑(NR x ∩ Y).card) +
-        weight χ X Y x * ↑Y.card
-        = ↑(NB x ∩ X).card * ((red_density χ) X Y * ↑(NR x ∩ Y).card) +
-            (↑Y.card * weight χ X Y x +
-              α * (↑(NR x ∩ X).card * ↑(NR x ∩ Y).card)) := by ring
-    _ ≤ ∑ y ∈ NB x ∩ X, ↑((NR x ∩ NR y ∩ Y).card) := hle
-    _ = ∑ y ∈ NB x ∩ X, ↑((NR y ∩ (NR x ∩ Y)).card) :=
-      Finset.sum_congr rfl fun y hy => by rw [Finset.inter_left_comm, Finset.inter_assoc]
+    mul_div_cancel₀ _ hYpos.ne', nsmul_eq_mul, le_sub_iff_add_le',
+    mul_left_comm _ (colDensity χ 0 X Y), ← add_assoc, add_right_comm] at hle
+  rw [Nat.cast_sum, mul_comm (weight χ X Y x) (Y.card : ℝ)]
+  refine' hle.trans_eq (Finset.sum_congr rfl _)
+  intro y hy
+  rw [Finset.inter_left_comm, Finset.inter_assoc]
 
 theorem five_one_case_b_end (m : ℕ) :
     ∀ᶠ l : ℕ in atTop, ∀ k, l ≤ k → k ^ m ≤ ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] := by
