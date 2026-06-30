@@ -772,10 +772,11 @@ theorem nine_three (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
   linarith only [numerics_one (hγ₀.trans_le hγl) hγu hδ]
 
 theorem yael_two {n k a : ℕ} : n.ascFactorial (k + a) = (n + a).ascFactorial k * n.ascFactorial a := by
-  induction a with a ih
-  · simp
-  rw [Nat.add_succ, Nat.ascFactorial_succ, Nat.ascFactorial_succ, mul_left_comm, ← mul_assoc,
-    Nat.add_succ n a, Nat.succ_ascFactorial (n + a), ih, mul_assoc, add_comm k a, ← add_assoc]
+  induction a with
+  | zero => simp
+  | succ a ih =>
+    rw [Nat.add_succ, Nat.ascFactorial_succ, Nat.ascFactorial_succ, mul_left_comm, ← mul_assoc,
+      Nat.add_succ n a, Nat.succ_ascFactorial (n + a), ih, mul_assoc, add_comm k a, ← add_assoc]
 
 theorem asc_hMul_asc {a b c : ℕ} :
     a.ascFactorial b * (a + b).ascFactorial c = a.ascFactorial c * (a + c).ascFactorial b := by
