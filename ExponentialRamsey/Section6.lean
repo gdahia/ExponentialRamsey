@@ -768,7 +768,7 @@ theorem six_two_part_one {f : ℕ → ℝ} {j j' : ℕ} (hj : Odd j) (hj' : Odd 
         f (2 * ((j' + 1) + k)) - f (2 * ((j' + 1) + (k + 1))) := by
     intro k
     rw [Nat.add_sub_cancel]
-    congr 1
+    ring_nf
   simp only [this]
   rw [Finset.sum_range_sub', add_zero]
   have h₁ : 2 * j' + 1 + 1 = 2 * (j' + 1) := by omega
