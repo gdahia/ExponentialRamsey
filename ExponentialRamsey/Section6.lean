@@ -188,12 +188,10 @@ theorem six_four_blue' {μ : ℝ} (hμ₀ : 0 < μ) (hi : i + 1 ∈ bigBlueSteps
   refine'
     (div_le_div_of_nonneg_right (Finset.card_nsmul_le_sum _ _ _ this) (Nat.cast_nonneg _)).trans'
       _
-  have hcard :
-      (((BookConfig.getBook χ μ (algorithm μ k l ini (i + 1)).X).2.card : ℝ) ≠ 0) := by
-    rw [Nat.cast_ne_zero, ← pos_iff_ne_zero, Finset.card_pos]
-    refine' BookConfig.getBook_snd_nonempty hμ₀ _
-    exact x_nonempty h
-  rw [BookConfig.bigBlueStep_x, nsmul_eq_mul, mul_div_cancel_left₀ _ hcard]
+  rw [BookConfig.bigBlueStep_x, nsmul_eq_mul, mul_div_cancel_left₀]
+  rw [Nat.cast_ne_zero, ← pos_iff_ne_zero, Finset.card_pos]
+  refine' BookConfig.getBook_snd_nonempty hμ₀ _
+  exact x_nonempty h
 
 theorem six_four_blue {μ : ℝ} (hμ₀ : 0 < μ) (hi : i ∈ bigBlueSteps μ k l ini) :
     (algorithm μ k l ini (i - 1)).p -
