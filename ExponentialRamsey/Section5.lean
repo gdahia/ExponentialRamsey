@@ -586,15 +586,15 @@ theorem five_four :
     exact div_nonneg h₅₄ (mul_nonneg b.le (Nat.cast_nonneg _))
   refine' this.trans' _
   rw [neg_le_neg_iff]
-  have hk₀ : (0 : ℝ) < k := Nat.cast_pos.2 (Nat.zero_lt_of_lt hl₂)
-  have hk₁ : (1 : ℝ) < k := Nat.one_lt_cast.2 hl₂
-  have hk6pos : 0 < (k : ℝ) ^ 6 := pow_pos hk₀ _
-  have hk6subpos : 0 < (k : ℝ) ^ 6 - 1 := sub_pos.2 (one_lt_pow₀ hk₁ (by norm_num))
-  have hfirst : (m : ℝ) / (C.X.card - m) ≤ 1 / ((k : ℝ) ^ 6 - 1) := by
-    rwa [div_le_iff₀' b, ← div_eq_mul_one_div, le_div_iff₀' hk6subpos]
-  have hsecond : (1 : ℝ) / C.X.card ≤ 1 / (k : ℝ) ^ 6 :=
-    one_div_le_one_div_of_le hk6pos c
-  exact (add_le_add hfirst hsecond).trans hl₃
+  refine' (add_le_add (div_le_div_of_nonneg_left _ _ h) (div_le_div_of_nonneg_left zero_le_one _ c)).trans _
+  · exact Nat.cast_nonneg _
+  · refine' mul_pos (sub_pos.2 (one_lt_pow₀ (Nat.one_lt_cast.2 hl₂) (by norm_num))) _
+    rwa [Nat.cast_pos]
+  · exact pow_pos (Nat.cast_pos.2 (Nat.zero_lt_of_lt hl₂) : (0 : ℝ) < k) _
+  rw [mul_comm, ← div_div, div_self]
+  · exact hl₃
+  rw [Nat.cast_ne_zero, ← pos_iff_ne_zero]
+  exact hm
 
 theorem five_seven_aux {k : ℕ} {p₀ p : ℝ} :
     αFunction k (height k p₀ p) =
