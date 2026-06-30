@@ -828,10 +828,11 @@ theorem red_neighbors_eq_blue_compl {x : V} :
   rintro ⟨p, q⟩
   exact ⟨Ne.symm p, q _⟩
 
-theorem red_neighbors_inter_eq {x : V} {X : Finset V} (_hx : x ∈ X) :
+theorem red_neighbors_inter_eq {x : V} {X : Finset V} (hx : x ∈ X) :
     (red_neighbors χ) x ∩ X = X \ insert x ((blue_neighbors χ) x ∩ X) := by
-  ext y
-  by_cases hyX : y ∈ X <;> simp [red_neighbors_eq_blue_compl, Finset.mem_sdiff, Finset.mem_inter, hyX]
+  rw [red_neighbors_eq_blue_compl, Finset.sdiff_eq_inter_compl, Finset.inter_comm,
+    ← Finset.insert_inter_of_mem hx, Finset.compl_inter, ← Finset.inf_eq_inter,
+    ← Finset.inf_eq_inter, ← Finset.sup_eq_union, inf_sup_left, inf_compl_self, sup_bot_eq]
 
 theorem card_red_neighbors_inter {μ : ℝ} (hi : i ∈ redOrDensitySteps μ k l ini) :
     (((red_neighbors χ) (getX hi) ∩ (algorithm μ k l ini i).X).card : ℝ) =
