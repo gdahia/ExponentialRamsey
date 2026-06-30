@@ -1298,29 +1298,38 @@ theorem erase_eq_filter {α : Type*} [DecidableEq α] {s : Finset α} (a : α) :
 
 theorem sum_pair_subset {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMonoid β] {n : ℕ}
     {s : Finset α} (f : Finset α → α → α → β) :
-    ∑ U ∈ powersetCard (n + 1) s, ∑ x ∈ U, ∑ y ∈ Uᶜ, f U x y =
-      ∑ x ∈ s, ∑ y ∈ univ.erase x, ∑ U ∈ powersetCard n (s \ {x, y}), f (insert x U) x y := by
-  simp_rw [@sum_comm _ α α _ _ (_ᶜ)]
+    ∑ U ∈ Finset.powersetCard (n + 1) s, ∑ x ∈ U, ∑ y ∈ Uᶜ, f U x y =
+      ∑ x ∈ s, ∑ y ∈ (Finset.univ : Finset α).erase x,
+        ∑ U ∈ Finset.powersetCard n (s \ {x, y}), f (insert x U) x y := by
+  rw [show (∑ U ∈ Finset.powersetCard (n + 1) s, ∑ x ∈ U, ∑ y ∈ Uᶜ, f U x y) =
+      ∑ U ∈ Finset.powersetCard (n + 1) s, ∑ y ∈ Uᶜ, ∑ x ∈ U, f U x y by
+    refine' Finset.sum_congr rfl fun U hU => _
+    exact Finset.sum_comm]
   rw [sum_powersetCard_erase]
   simp only [sum_powersetCard_insert]
-  rw [sum_sigma' univ, sum_sigma' s]
-  refine' sum_bij (fun x hx => ⟨x.2, x.1⟩) _ _ _ _
+  rw [Finset.sum_sigma' Finset.univ, Finset.sum_sigma' s]
+  refine' Finset.sum_bij (fun x hx => ⟨x.2, x.1⟩) _ _ _ _
   · simp (config := { contextual := true }) [eq_comm]
   · rintro ⟨x, y⟩ hx
-    refine' sum_congr _ fun y hy => rfl
     dsimp
-    rw [sdiff_insert, sdiff_singleton_eq_erase]
-  · rintro ⟨x₁, x₂⟩ ⟨y₁, y₂⟩
-    simp (config := { contextual := true })
-  · rintro ⟨x, y⟩
-    simp only [mem_sigma, mem_erase, mem_univ, and_true_iff, Sigma.exists, true_and_iff, heq_iff_eq,
-      and_imp, exists_prop, and_assoc']
-    intro hx hxy
-    exact ⟨y, x, hxy.symm, hx, rfl, rfl⟩
+    refine' Finset.sum_congr _ fun U hU => rfl
+    ext z
+    simp [Finset.mem_erase, Finset.mem_sdiff, Finset.mem_insert, and_left_comm, and_assoc,
+      and_comm]
+  · rintro ⟨x₁, x₂⟩ hx ⟨y₁, y₂⟩ hy h
+    dsimp at h
+    exact Prod.ext h.2 h.1
+  · rintro ⟨x, y⟩ hxy
+    dsimp at hxy ⊢
+    rw [Finset.mem_sigma, Finset.mem_erase] at hxy
+    exact ⟨⟨y, x⟩, by
+      rw [Finset.mem_sigma, Finset.mem_erase]
+      exact ⟨Finset.mem_univ y, hxy.2.1, hxy.1⟩, rfl⟩
 
 theorem choose_helper {n k : ℕ} (h : k + 1 < n) :
-    (n.choose (k + 1) : ℚ)⁻¹ * ((n - 2).choose k * (1 / ((k + 1) * (n - (k + 1))))) =
-      (n * (n - 1))⁻¹ := by
+    (n.choose (k + 1) : ℚ)⁻¹ *
+        (((n - 2).choose k : ℚ) * (1 / (((k + 1) * (n - (k + 1)) : ℕ) : ℚ))) =
+      (((n * (n - 1) : ℕ) : ℚ))⁻¹ := by
   have : k + 2 ≤ n := h
   have : 2 ≤ n := h.trans_le' (by simp)
   obtain ⟨n, rfl⟩ := le_iff_exists_add'.1 this
@@ -1341,11 +1350,13 @@ variable [Fintype V]
 
 theorem density_eq_average_partition [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj]
     [Fintype G.edgeSet] (n : ℕ) (hn₀ : 0 < n) (hn : n < card V) :
-    G.density = ((card V).choose n)⁻¹ * ∑ U ∈ powersetCard n univ, G.edgeDensity U (Uᶜ) := by
+    G.density =
+      (((card V).choose n : ℕ) : ℚ)⁻¹ *
+        ∑ U ∈ Finset.powersetCard n Finset.univ, G.edgeDensity U (Uᶜ) := by
   cases' n
   · simpa using hn₀
-  simp only [SimpleGraph.edgeDensity_def, SimpleGraph.interedges_def, ← sum_boole, sum_div,
-    sum_product, density_eq_average, Finset.mul_sum]
+  simp only [SimpleGraph.edgeDensity_def, SimpleGraph.interedges_def, ← Finset.sum_boole,
+    Finset.sum_div, Finset.sum_product, density_eq_average, Finset.mul_sum]
   rw [sum_pair_subset]
   refine' sum_congr rfl _
   intro x hx
@@ -1356,26 +1367,28 @@ theorem density_eq_average_partition [DecidableEq V] (G : SimpleGraph V) [Decida
   · simp
   simp only [← Finset.mul_sum]
   have :
-    ∑ U : Finset V in powersetCard n (univ \ {x, y}),
+    ∑ U ∈ Finset.powersetCard n (Finset.univ \ {x, y}),
         (1 : ℚ) / ((insert x U).card * insert x Uᶜ.card) =
-      ∑ U : Finset V in powersetCard n (univ \ {x, y}), 1 / ((n + 1) * (card V - (n + 1))) := by
+      ∑ U ∈ Finset.powersetCard n (Finset.univ \ {x, y}),
+        1 / (((n + 1) * (card V - (n + 1)) : ℕ) : ℚ) := by
     refine' sum_congr rfl fun U hU => _
-    simp only [mem_powersetCard, subset_sdiff, disjoint_insert_right, disjoint_singleton_right,
+    simp only [Finset.mem_powersetCard, Finset.subset_sdiff, Finset.disjoint_insert_right, Finset.disjoint_singleton_right,
       subset_univ, true_and_iff, and_assoc'] at hU
-    rw [card_compl, card_insert_of_not_mem hU.1, hU.2.2, Nat.cast_sub hn.le, Nat.cast_add_one]
-  rw [this, sum_const, card_powersetCard, card_sdiff (subset_univ _), card_univ,
+    rw [Finset.card_compl, Finset.card_insert_of_notMem hU.1, hU.2.2, Nat.cast_sub hn.le,
+      Nat.cast_add_one]
+  rw [this, Finset.sum_const, Finset.card_powersetCard, card_sdiff (subset_univ _), card_univ,
     card_doubleton h.ne, mul_one, nsmul_eq_mul]
   rw [choose_helper hn]
 
 theorem exists_density_edgeDensity [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj]
     [Fintype G.edgeSet] (n : ℕ) (hn₀ : 0 < n) (hn : n < card V) :
     ∃ U : Finset V, U.card = n ∧ G.density ≤ G.edgeDensity U (Uᶜ) := by
-  suffices ∃ U ∈ powersetCard n (univ : Finset V), G.density ≤ G.edgeDensity U (Uᶜ) by
-    simpa [mem_powersetCard]
-  refine' exists_le_of_sum_le _ _
-  · rw [← Finset.card_pos, card_powersetCard, card_univ]
+  suffices ∃ U ∈ Finset.powersetCard n (Finset.univ : Finset V), G.density ≤ G.edgeDensity U (Uᶜ) by
+    simpa [Finset.mem_powersetCard]
+  refine' Finset.exists_le_of_sum_le _ _
+  · rw [← Finset.card_pos, Finset.card_powersetCard, card_univ]
     exact Nat.choose_pos hn.le
-  rw [sum_const, density_eq_average_partition _ _ hn₀ hn, card_powersetCard, card_univ,
+  rw [Finset.sum_const, density_eq_average_partition _ _ hn₀ hn, Finset.card_powersetCard, card_univ,
     nsmul_eq_mul, mul_inv_cancel_left₀]
   rw [Nat.cast_ne_zero]
   exact (Nat.choose_pos hn.le).ne'
@@ -1392,7 +1405,7 @@ theorem exists_equibipartition_edgeDensity (G : SimpleGraph V) [DecidableRel G.A
   have h₂ : card V / 2 < card V := Nat.div_lt_self (pos_of_gt hn) one_lt_two
   obtain ⟨U, hU, hU'⟩ := exists_density_edgeDensity G (card V / 2) h₁ h₂
   refine' ⟨U, Uᶜ, disjoint_compl_right, hU.ge, _, hU'⟩
-  rw [card_compl, hU, le_tsub_iff_left h₂.le, ← two_mul]
+  rw [Finset.card_compl, hU, le_tsub_iff_left h₂.le, ← two_mul]
   exact Nat.mul_div_le _ _
 
 end
