@@ -212,8 +212,7 @@ theorem five_five_aux {X Y : Finset V} :
   rw [colDensity_comm, colDensity_eq_sum, div_pow, div_mul_eq_mul_div, mul_pow, mul_div_mul_right,
     div_mul_eq_mul_div, sq (Y.card : ℝ), mul_div_mul_right _ _ hY.ne']
   · simp
-  · have hX0 : (X.card : ℝ) ≠ 0 := Nat.cast_ne_zero.2 (Finset.card_ne_zero.2 hX)
-    simpa using pow_ne_zero 2 hX0
+  · positivity
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 -- (13) observation 5.5
@@ -221,7 +220,8 @@ theorem five_five (χ : TopEdgeLabelling V (Fin 2)) (X Y : Finset V) :
     0 ≤ ∑ x ∈ X, ∑ y ∈ X, pairWeight χ X Y x y := by
   simp_rw [pairWeight, ← Finset.mul_sum, Finset.sum_sub_distrib]
   refine' mul_nonneg (by positivity) (sub_nonneg_of_le _)
-  simpa only [Nat.cast_sum] using five_five_aux (χ := χ) (X := X) (Y := Y)
+  norm_cast
+  exact five_five_aux
 
 theorem tendsto_nat_ceil_atTop {α : Type*} [Semiring α] [LinearOrder α] [IsStrictOrderedRing α] [FloorSemiring α] :
     Tendsto (fun x : α => ⌈x⌉₊) atTop atTop :=
