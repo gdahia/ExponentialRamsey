@@ -884,9 +884,8 @@ theorem five_one_case_a {α : ℝ} (X Y : Finset V) {x : V} (hxX : ((red_neighbo
   intro h
   conv_rhs => rw [colDensity_eq_sum]
   simp only [pairWeight, ← Finset.mul_sum] at h
-  have : 0 < (Y.card : ℝ) := by
-    exact_mod_cast Finset.card_pos.2 (hxY.mono Finset.inter_subset_right)
-  rw [inv_mul_eq_div, div_le_div_iff_of_pos_right this,
+  rw [inv_mul_eq_div, div_le_div_iff_of_pos_right
+      (mod_cast (hxY.mono Finset.inter_subset_right).card_pos),
     Finset.sum_sub_distrib, Finset.sum_const, nsmul_eq_mul,
     le_sub_iff_add_le', mul_left_comm, ← add_mul, ← sub_eq_add_neg] at h
   rw [le_div_iff₀']
