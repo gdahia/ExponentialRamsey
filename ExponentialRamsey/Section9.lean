@@ -1193,15 +1193,16 @@ theorem density_eq_average' [Fintype V] (G : SimpleGraph V) [Fintype G.edgeSet]
     G.density =
       (↑(card V * (card V - 1)) : ℚ)⁻¹ * ∑ (x : V) (y : V), if G.Adj x y then 1 else 0 := by
   classical
-  rw [density_eq_average]
-  congr 2 with x : 1
-  simp
+  rw [density_eq_average, Finset.sum_product]
+  congr 1
+  exact Finset.sum_congr rfl fun x _ => by
+    simp [Finset.filter_erase]
 
 theorem density_eq_average_neighbors [Fintype V] (G : SimpleGraph V) [Fintype G.edgeSet]
     [DecidableRel G.Adj] :
-    G.density = (card V * (card V - 1))⁻¹ * ∑ x : V, (G.neighborFinset x).card := by
-  rw [density_eq_average']
-  congr 2 with x : 1
+    G.density = (↑(card V * (card V - 1)) : ℚ)⁻¹ * ∑ x : V, (G.neighborFinset x).card := by
+  rw [density_eq_average', Finset.sum_product]
+  congr 1
   simp [neighborFinset_eq_filter]
 
 theorem density_compl [Fintype V] (G : SimpleGraph V) [Fintype G.edgeSet]
@@ -1217,19 +1218,25 @@ theorem sum_ite_fintype {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
 
 theorem sum_powersetCard_erase {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMonoid β] {n : ℕ}
     {s : Finset α} (f : Finset α → α → β) :
-    ∑ U ∈ powersetCard n s, ∑ y ∈ Uᶜ, f U y = ∑ y, ∑ U ∈ powersetCard n (s.erase y), f U y := by
-  simp_rw [sum_ite_fintype (_ᶜ : Finset α), @sum_comm _ α]
-  refine' sum_congr rfl fun y hy => _
-  rw [← sum_filter]
-  refine' sum_congr _ fun _ _ => rfl
+  ∑ U ∈ Finset.powersetCard n s, ∑ y ∈ Uᶜ, f U y =
+      ∑ y, ∑ U ∈ Finset.powersetCard n (s.erase y), f U y := by
+  rw [show (∑ U ∈ Finset.powersetCard n s, ∑ y ∈ Uᶜ, f U y) =
+      ∑ U ∈ Finset.powersetCard n s, ∑ y, if y ∈ Uᶜ then f U y else 0 by
+    refine Finset.sum_congr rfl ?_
+    intro U hU
+    exact sum_ite_fintype Uᶜ (f U)]
+  rw [Finset.sum_comm]
+  refine' Finset.sum_congr rfl fun y hy => _
+  rw [← Finset.sum_filter]
+  refine' Finset.sum_congr _ fun _ _ => rfl
   ext U
-  simp [mem_powersetCard, subset_erase]
+  simp [Finset.mem_powersetCard, Finset.subset_erase]
   tauto
 
 theorem powersetCard_filter_mem {α : Type*} [DecidableEq α] {n : ℕ} {s : Finset α} {x : α}
     (hx : x ∈ s) :
-    ((powersetCard (n + 1) s).filter fun U => x ∈ U) =
-      (powersetCard n (s.erase x)).image (insert x) := by
+    ((Finset.powersetCard (n + 1) s).filter fun U => x ∈ U) =
+      (Finset.powersetCard n (s.erase x)).image (insert x) := by
   rw [← insert_erase hx, powersetCard_succ_insert, insert_erase hx, filter_union,
     filter_false_of_mem, filter_true_of_mem, empty_union]
   · simp
