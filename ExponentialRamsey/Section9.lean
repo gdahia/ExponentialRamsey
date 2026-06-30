@@ -785,36 +785,52 @@ theorem asc_hMul_asc {a b c : ℕ} :
     a.ascFactorial b * (a + b).ascFactorial c = a.ascFactorial c * (a + c).ascFactorial b := by
   rw [mul_comm, ← yael_two, mul_comm, ← yael_two, add_comm]
 
-theorem asc_div_asc_const_right' {a b c : ℕ} :
+theorem asc_div_asc_const_right' {a b c : ℕ} (ha : 0 < a) :
     (a.ascFactorial b : ℝ) / (a + c).ascFactorial b = a.ascFactorial c / (a + b).ascFactorial c := by
-  rw [div_eq_div_iff, ← Nat.cast_mul, Nat.ascFactorial_mul_ascFactorial, Nat.cast_mul]
-  · positivity
-  · positivity
+  obtain ⟨a, rfl⟩ := Nat.exists_eq_succ_of_ne_zero ha.ne'
+  rw [div_eq_div_iff]
+  · exact_mod_cast asc_hMul_asc (a := a.succ) (b := b) (c := c)
+  · simpa [Nat.succ_eq_add_one, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using
+      (show ((a + c + 1).ascFactorial b : ℝ) ≠ 0 by
+        exact_mod_cast (Nat.ascFactorial_pos (a + c) b).ne')
+  · simpa [Nat.succ_eq_add_one, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using
+      (show ((a + b + 1).ascFactorial c : ℝ) ≠ 0 by
+        exact_mod_cast (Nat.ascFactorial_pos (a + b) c).ne')
 
-theorem asc_div_asc_const_right {a b c : ℕ} :
+theorem asc_div_asc_const_right {a b c : ℕ} (ha : 0 < a) :
     ((a + c).ascFactorial b : ℝ) / a.ascFactorial b = (a + b).ascFactorial c / a.ascFactorial c := by
-  rw [div_eq_div_iff, mul_comm, ← Nat.cast_mul, Nat.ascFactorial_mul_ascFactorial, Nat.cast_mul, mul_comm]
-  · positivity
-  · positivity
+  obtain ⟨a, rfl⟩ := Nat.exists_eq_succ_of_ne_zero ha.ne'
+  rw [div_eq_div_iff]
+  · rw [mul_comm ((a.succ + c).ascFactorial b : ℝ),
+      mul_comm ((a.succ + b).ascFactorial c : ℝ)]
+    exact_mod_cast (asc_hMul_asc (a := a.succ) (b := b) (c := c)).symm
+  · exact_mod_cast (Nat.ascFactorial_pos a b).ne'
+  · exact_mod_cast (Nat.ascFactorial_pos a c).ne'
 
 -- d = a + c
 -- a = d - c
 theorem asc_div_asc_const_right_sub' {b c d : ℕ} (h : c ≤ d) :
-    ((d - c).ascFactorial b : ℝ) / d.ascFactorial b =
-      (d - c).ascFactorial c / (d - c + b).ascFactorial c := by
-  obtain ⟨a, rfl⟩ := exists_add_of_le h
-  rw [add_tsub_cancel_left, add_comm, asc_div_asc_const_right']
+    ((d - c + 1).ascFactorial b : ℝ) / (d + 1).ascFactorial b =
+      d.descFactorial c / (d + b).descFactorial c := by
+  rw [← show d - c + 1 + c = d + 1 by omega]
+  rw [asc_div_asc_const_right' (Nat.succ_pos _), ← Nat.add_descFactorial_eq_ascFactorial',
+    ← Nat.add_descFactorial_eq_ascFactorial']
+  congr 3 <;> omega
 
 theorem choose_ratio {l k t : ℕ} (h : t ≤ k) :
-    ((k + l - t).choose l : ℝ) / (k + l).choose l = ∏ i ∈ Finset.range t, (k - i) / (k + l - i) := by
+    ((k + l - t).choose l : ℝ) / (k + l).choose l =
+      ∏ i ∈ Finset.range t, (k - i : ℝ) / (k + l - i : ℝ) := by
   rw [Nat.choose_eq_descFactorial_div_factorial, Nat.choose_eq_descFactorial_div_factorial,
     Nat.cast_div_div_div_cancel_right, ← tsub_add_eq_add_tsub h,
     Nat.add_descFactorial_eq_ascFactorial, Nat.add_descFactorial_eq_ascFactorial,
-    asc_div_asc_const_right_sub' h, ← Nat.add_descFactorial_eq_ascFactorial, Nat.sub_add_cancel h, ←
-    Nat.add_descFactorial_eq_ascFactorial, tsub_add_eq_add_tsub h, Nat.sub_add_cancel,
-    cast_descFactorial_eq_prod, cast_descFactorial_eq_prod, ← prod_div_distrib]
+    asc_div_asc_const_right_sub' h, cast_descFactorial_eq_prod, cast_descFactorial_eq_prod,
+    ← Finset.prod_div_distrib (s := Finset.range t) (fun i => (↑(k - i) : ℝ))
+      (fun i => (↑(k + l - i) : ℝ))]
+  refine' Finset.prod_congr rfl _
+  intro i hi
+  rw [Finset.mem_range] at hi
+  rw [Nat.cast_sub (hi.le.trans h), Nat.cast_sub ((hi.le.trans h).trans (Nat.le_add_right k l))]
   · simp
-  · exact le_add_right h
   · exact Nat.factorial_dvd_descFactorial _ _
   · exact Nat.factorial_dvd_descFactorial _ _
 
@@ -869,18 +885,19 @@ theorem d_two {l k t : ℕ} {γ : ℝ} (ht : 0 < k) (h : t ≤ k) (hγ : γ = l 
     ((k + l - t).choose l : ℝ) ≤
       exp (-γ * (t * (t - 1)) / (2 * k)) * (1 - γ) ^ t * (k + l).choose l := by
   have hγ₀ : 0 ≤ γ := by rw [hγ]; positivity
-  have hγ₁ : γ ≤ 1 := by rw [hγ]; refine' div_le_one_of_le (by simp) (by positivity)
+  have hγ₁ : γ ≤ 1 := by rw [hγ]; refine' div_le_one_of_le₀ (by simp) (by positivity)
   rw [← div_le_iff₀, fact_d_two_part_one h]
   swap
   · rw [Nat.cast_pos]
     exact Nat.choose_pos (Nat.le_add_left _ _)
-  rw [mul_comm, hγ, one_sub_div, add_sub_cancel]
+  rw [mul_comm, hγ, one_sub_div]
   swap
   · positivity
+  rw [show (↑k + ↑l - ↑l : ℝ) = k by ring]
   refine' mul_le_mul_of_nonneg_right ((fact_d_two_part_two h).trans _) (by positivity)
   rw [exp_le_exp, ← div_div _ (2 : ℝ), mul_div_assoc, ← div_mul_eq_mul_div, neg_div, neg_div,
-    div_div, neg_mul, neg_mul, mul_comm (k : ℝ), neg_le_neg_iff, ← Nat.cast_sum, sum_range_id, ←
-    Nat.choose_two_right, Nat.cast_choose_two]
+    div_div, neg_mul, neg_mul, mul_comm (k : ℝ), neg_le_neg_iff, Finset.sum_range_id,
+    ← Nat.choose_two_right, Nat.cast_choose_two]
 
 theorem nine_six :
     ∀ (l k t : ℕ) (γ : ℝ),
@@ -1107,42 +1124,61 @@ theorem edgeFinset_eq_filter' [Fintype V] [DecidableEq V] (G : SimpleGraph V)
   rw [edgeFinset_eq_filter_filter, ← Finset.sym2_univ, ← univ_image_quotient_mk]
 
 theorem sum_sym2 {α β : Type*} [DecidableEq α] [AddCommMonoid β] {s : Finset α} {f : Sym2 α → β} :
-    2 • ∑ x ∈ s.offDiag.image Quotient.mk', f x = ∑ x ∈ s.offDiag, f (Quotient.mk' x) := by
-  rw [smul_sum, sum_image']
-  rintro ⟨x, y⟩ hxy
-  rw [mem_offDiag] at hxy
+    2 • ∑ x ∈ s.offDiag.image Sym2.mk.uncurry, f x =
+      ∑ x ∈ s.offDiag, f (Sym2.mk.uncurry x) := by
+  rw [Finset.smul_sum]
+  rw [← Finset.sum_fiberwise_of_maps_to' (fun _ => Finset.mem_image_of_mem Sym2.mk.uncurry)]
+  refine' Finset.sum_congr rfl _
+  rintro z hz
+  rw [Finset.mem_image] at hz
+  obtain ⟨⟨x, y⟩, hxy, rfl⟩ := hz
+  rw [Finset.mem_offDiag] at hxy
   obtain ⟨hx : x ∈ s, hy : y ∈ s, hxy : x ≠ y⟩ := hxy
   have hxy' : y ≠ x := hxy.symm
-  have : (s.offDiag.filter fun z => ⟦z⟧ = ⟦(x, y)⟧) = ({(x, y), (y, x)} : Finset _) := by
+  have : (s.offDiag.filter fun z => Sym2.mk.uncurry z = s(x, y)) =
+      ({(x, y), (y, x)} : Finset _) := by
     ext ⟨x₁, y₁⟩
-    rw [mem_filter, mem_insert, mem_singleton, Sym2.eq_iff, Prod.mk.inj_iff, Prod.mk.inj_iff,
-      and_iff_right_iff_imp]
-    rintro (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) <;> rw [mem_offDiag] <;> exact ⟨‹_›, ‹_›, ‹_›⟩
-  rw [this, sum_pair, Sym2.eq_swap, two_smul]
-  simpa using hxy
+    rw [Finset.mem_filter, Finset.mem_insert, Finset.mem_singleton, Finset.mem_offDiag]
+    constructor
+    · rintro ⟨⟨hx₁, hy₁, hne⟩, hq⟩
+      change s(x₁, y₁) = s(x, y) at hq
+      rw [Sym2.eq_iff] at hq
+      rcases hq with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
+      · exact Or.inl rfl
+      · exact Or.inr rfl
+    rintro (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩)
+    · exact ⟨⟨hx, hy, hxy⟩, rfl⟩
+    · exact ⟨⟨hy, hx, hxy'⟩, show s(y, x) = s(x, y) from Sym2.eq_swap⟩
+  change 2 • f s(x, y) = ∑ i ∈ (s.offDiag.filter fun z => Sym2.mk.uncurry z = s(x, y)), f s(x, y)
+  rw [this, Finset.sum_pair (by
+    intro h
+    exact hxy (Prod.ext_iff.1 h).1), Sym2.eq_swap, two_smul]
 
 theorem sum_offDiag {α β : Type*} [DecidableEq α] [AddCommMonoid β] {s : Finset α}
     {f : α × α → β} : ∑ x ∈ s.offDiag, f x = ∑ x ∈ s, ∑ y ∈ s.erase x, f (x, y) := by
-  rw [sum_sigma']
-  refine' sum_bij (fun x _ => ⟨x.1, x.2⟩) _ _ _ _
+  rw [← Finset.sum_sigma (s := s) (t := fun x => s.erase x)
+    (f := fun z : Sigma fun _ : α => α => f (z.1, z.2))]
+  refine' Finset.sum_bij (fun x _ => ⟨x.1, x.2⟩) _ _ _ _
   · rintro ⟨x, y⟩ h
-    rw [mem_offDiag] at h
-    rw [mem_sigma, mem_erase, Ne.def]
+    rw [Finset.mem_offDiag] at h
+    rw [Finset.mem_sigma, Finset.mem_erase]
     exact ⟨h.1, Ne.symm h.2.2, h.2.1⟩
-  · rintro ⟨x, y⟩ h
-    rfl
   · rintro ⟨a₁, a₂⟩ ⟨a₃, a₄⟩ _ _ ⟨⟩
     rfl
-  rintro ⟨a, b⟩ h
-  simp only [mem_sigma, mem_erase] at h
-  refine' ⟨(a, b), _⟩
-  simp [h.1, h.2.2, Ne.symm h.2.1]
+  · rintro ⟨a, b⟩ h
+    simp only [Finset.mem_sigma, Finset.mem_erase] at h
+    refine' ⟨(a, b), _, rfl⟩
+    rw [Finset.mem_offDiag]
+    exact ⟨h.1, h.2.2, Ne.symm h.2.1⟩
+  · rintro ⟨x, y⟩ h
+    rfl
 
 theorem density_eq_average [Fintype V] [DecidableEq V] (G : SimpleGraph V)
     [Fintype G.edgeSet] [DecidableRel G.Adj] :
     G.density =
-      (card V * (card V - 1))⁻¹ * ∑ x : V, ∑ y ∈ univ.erase x, if G.Adj x y then 1 else 0 := by
-  rw [SimpleGraph.density, edgeFinset_eq_filter', ← sum_boole, Nat.cast_choose_two,
+      (↑(card V * (card V - 1)) : ℚ)⁻¹ *
+        ∑ x : V, ∑ y ∈ Finset.univ.erase x, if G.Adj x y then 1 else 0 := by
+  rw [SimpleGraph.density, edgeFinset_eq_filter', ← Finset.sum_boole, Nat.cast_choose_two,
     div_div_eq_mul_div, mul_comm, ← Nat.cast_two, ← nsmul_eq_mul, sum_sym2, div_eq_mul_inv,
     mul_comm, sum_offDiag]
   rfl
@@ -1150,7 +1186,8 @@ theorem density_eq_average [Fintype V] [DecidableEq V] (G : SimpleGraph V)
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 theorem density_eq_average' [Fintype V] (G : SimpleGraph V) [Fintype G.edgeSet]
     [DecidableRel G.Adj] :
-    G.density = (card V * (card V - 1))⁻¹ * ∑ (x : V) (y : V), if G.Adj x y then 1 else 0 := by
+    G.density =
+      (↑(card V * (card V - 1)) : ℚ)⁻¹ * ∑ (x : V) (y : V), if G.Adj x y then 1 else 0 := by
   classical
   rw [density_eq_average]
   congr 2 with x : 1
