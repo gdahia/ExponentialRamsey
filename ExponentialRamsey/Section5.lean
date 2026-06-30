@@ -984,8 +984,11 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
   filter_upwards [top_adjuster (t.eventually_ge_atTop p₀l⁻¹),
     top_adjuster (t.eventually_gt_atTop (0 : ℝ)), five_eight_weaker' p₀l hp₀l, five_four,
     five_one_case_b_end 4, eventually_ge_atTop (2 ^ 4)] with l hl hk₀ h₅₈ h₅₄ hk₄ hl₄ k hlk μ n χ
-    ini hini i hi C hbad
+    ini hini i hi
+  dsimp only
   specialize hl k hlk
+  let C := algorithm μ k l ini i
+  intro h
   let x := getX hi
   let β := blueXRatio μ k l ini i
   let α := αFunction k (height k ini.p C.p)
@@ -997,7 +1000,7 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
   have hβ' := card_red_neighbors_inter hi
   refine'
     (five_one_case_b_aux (χ := χ) (X := C.X) (Y := C.Y) (x := x)
-      hx (y_nonempty hi'.1) hbad).trans' _
+      hx (y_nonempty hi'.1) h).trans' _
   change
     _ ≤
       C.p * (((blue_neighbors χ) x ∩ C.X).card * ((red_neighbors χ) x ∩ C.Y).card) +
@@ -1162,30 +1165,22 @@ theorem five_one_case_b_condition (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp�
     refine' hini.trans' _
     rw [one_div]
     exact inv_le_of_inv_le₀ hp₀l (hl' k hlk)
-  have hpos :
-      0 <
-        αFunction k (height k ini.p C.p) * (1 - (k : ℝ) ^ (-1 / 4 : ℝ)) *
-          ((C.X.card : ℝ) * (((red_neighbors χ) (getX hi) ∩ C.Y).card : ℝ)) := by
-    refine' mul_pos _ _
-    · have hk₀ : (0 : ℝ) < k := hk₁.trans_le' zero_le_one
-      refine' mul_pos _ _
-      · exact α_pos _ _ (Nat.cast_pos.1 hk₀)
-      · exact sub_pos_of_lt (hε k hlk)
-    · rw [← Nat.cast_mul, Nat.cast_pos, pos_iff_ne_zero, mul_ne_zero_iff, ← pos_iff_ne_zero, ←
-        pos_iff_ne_zero, Finset.card_pos, Finset.card_pos]
-      refine' ⟨x_nonempty _, _⟩
-      · rw [redOrDensitySteps, Finset.mem_filter, Finset.mem_range] at hi
-        exact hi.1
-      exact
-        red_neighbors_y_nonempty' hp₀ (hl₁.trans_le hlk) hi _
-          (BookConfig.getCentralVertex_mem_x _ _ _)
-  have hpos' :
-      0 <
-        αFunction k (height k ini.p (algorithm μ k l ini i).p) * (1 - (k : ℝ) ^ (-1 / 4 : ℝ)) *
-          (((algorithm μ k l ini i).X.card : ℝ) *
-            (((red_neighbors χ) (getX hi) ∩ (algorithm μ k l ini i).Y).card : ℝ)) := by
-    simpa [C] using hpos
-  exact (not_le_of_gt hpos') (by simpa using hl)
+  refine' (not_le_of_gt ?_) (by simpa using hl)
+  refine' mul_pos _ _
+  swap
+  · rw [← Nat.cast_mul, Nat.cast_pos, pos_iff_ne_zero, mul_ne_zero_iff, ← pos_iff_ne_zero, ←
+      pos_iff_ne_zero, Finset.card_pos, Finset.card_pos]
+    refine' ⟨x_nonempty _, _⟩
+    · rw [redOrDensitySteps, Finset.mem_filter, Finset.mem_range] at hi
+      exact hi.1
+    exact
+      red_neighbors_y_nonempty' hp₀ (hl₁.trans_le hlk) hi _
+        (BookConfig.getCentralVertex_mem_x _ _ _)
+  have hk₀ : (0 : ℝ) < k := hk₁.trans_le' zero_le_one
+  refine' mul_pos _ _
+  · exact α_pos _ _ (Nat.cast_pos.1 hk₀)
+  refine' sub_pos_of_lt _
+  exact hε k hlk
 
 theorem five_one (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp₀l : 0 < p₀l) :
     ∀ᶠ l : ℕ in atTop,
@@ -1371,11 +1366,11 @@ theorem five_three_right (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp₀l : 0 < 
     rw [← rpow_sub_one]
     · norm_num
     exact hk₀.ne'
-  have hnonneg : 0 ≤ (1 - blueXRatio μ k l ini i) / blueXRatio μ k l ini i := by
-    have hβle : blueXRatio μ k l ini i ≤ 1 := by
-      exact blueXRatio_le_one (χ := χ) (k := k) (l := l) (ini := ini) (i := i) (μ := μ)
-    exact div_nonneg (sub_nonneg_of_le hβle) hβ.le
-  replace h := (mul_le_mul_of_nonneg_right this hnonneg).trans h
+  replace h :=
+    (mul_le_mul_of_nonneg_right this (by
+      refine' div_nonneg (sub_nonneg_of_le _)
+        (blueXRatio_nonneg (χ := χ) (k := k) (l := l) (ini := ini) (i := i) (μ := μ))
+      exact blueXRatio_le_one (χ := χ) (k := k) (l := l) (ini := ini) (i := i) (μ := μ))).trans h
   rw [mul_comm, mul_one_div, sub_div, div_self hβ.ne', div_le_iff₀, one_mul, sub_le_iff_le_add] at h
   swap
   · exact mul_pos two_pos (rpow_pos_of_pos hk₀ _)
