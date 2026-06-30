@@ -24,17 +24,12 @@ theorem mul_log_two_le_log_one_add {ε : ℝ} (hε : 0 ≤ ε) (hε' : ε ≤ 1)
   rw [le_log_iff_exp_le]
   swap
   · linarith
-  have hlog : 0 < log 2 := log_pos one_lt_two
-  have hεlog : 0 ≤ ε * log 2 := mul_nonneg hε hlog.le
-  have hεlog_le : ε * log 2 ≤ log 2 :=
-    calc
-      ε * log 2 ≤ 1 * log 2 := mul_le_mul_of_nonneg_right hε' hlog.le
-      _ = log 2 := one_mul _
-  have h := general_convex_thing (a := log 2) (x := ε * log 2) hεlog hεlog_le hlog.ne'
-  rw [exp_log two_pos] at h
-  refine' h.trans_eq _
-  field_simp [hlog.ne']
-  ring
+  have : 0 ≤ 1 - ε := by rwa [sub_nonneg]
+  have := convexOn_exp.2 (Set.mem_univ 0) (Set.mem_univ (log 2)) this hε (by simp)
+  simp only [smul_eq_mul, MulZeroClass.mul_zero, zero_add, Real.exp_zero, mul_one,
+    exp_log two_pos] at this
+  refine' this.trans_eq _
+  ring_nf
 namespace SimpleGraph
 
 open scoped ExponentialRamsey
