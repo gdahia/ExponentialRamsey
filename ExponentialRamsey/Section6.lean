@@ -168,8 +168,7 @@ theorem six_four_blue' {μ : ℝ} (hμ₀ : 0 < μ) (hi : i + 1 ∈ bigBlueSteps
     rw [degreeSteps, Finset.mem_filter, Finset.mem_range]
     exact ⟨h.trans_le' (Nat.le_succ _), hi.2.1⟩
   rw [degree_regularisation_applied hi', BookConfig.degreeRegularisationStep_Y, ←
-    degree_regularisation_applied hi']
-  rw [colDensity_eq_average]
+    degree_regularisation_applied hi', colDensity_eq_average]
   let C := algorithm μ k l ini i
   let C' := algorithm μ k l ini (i + 1)
   have :
