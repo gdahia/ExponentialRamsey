@@ -783,7 +783,7 @@ theorem x_nonempty {μ : ℝ} (hi : i < finalStep μ k l ini) : (algorithm μ k 
   refine' (p_pos hi).ne' _
   rw [BookConfig.p, h, colDensity_empty_left]
 
-theorem y_nonempty {μ : ℝ} (hi : i < finalStep μ k l ini) : (algorithm μ k l ini i).Y.Nonempty := by
+theorem Y_nonempty {μ : ℝ} (hi : i < finalStep μ k l ini) : (algorithm μ k l ini i).Y.Nonempty := by
   refine' Finset.nonempty_of_ne_empty _
   intro h
   refine' (p_pos hi).ne' _
@@ -791,7 +791,7 @@ theorem y_nonempty {μ : ℝ} (hi : i < finalStep μ k l ini) : (algorithm μ k 
 
 -- WARNING: the hypothesis 1 / k ≤ ini.p should be seen as setting an absolute lower bound on p₀,
 -- and k and ini both depend on it, with 1 / k ≤ it ≤ ini.p
-theorem red_neighbors_y_nonempty {μ : ℝ} (h : 1 / (k : ℝ) ≤ ini.p) (hk : 1 < k)
+theorem red_neighbors_Y_nonempty {μ : ℝ} (h : 1 / (k : ℝ) ≤ ini.p) (hk : 1 < k)
     (hi : i ∈ degreeSteps μ k l ini) (x : V) (hx : x ∈ (algorithm μ k l ini (i + 1)).X) :
     ((red_neighbors χ) x ∩ (algorithm μ k l ini (i + 1)).Y).Nonempty := by
   rw [← Finset.card_pos, ← @Nat.cast_pos ℝ]
@@ -806,14 +806,14 @@ theorem red_neighbors_y_nonempty {μ : ℝ} (h : 1 / (k : ℝ) ≤ ini.p) (hk : 
     norm_num1
   rw [Nat.cast_pos, Finset.card_pos, degree_regularisation_applied hi,
     BookConfig.degreeRegularisationStep_Y]
-  exact y_nonempty this
+  exact Y_nonempty this
 
-theorem red_neighbors_y_nonempty' {μ : ℝ} (h : 1 / (k : ℝ) ≤ ini.p) (hk : 1 < k)
+theorem red_neighbors_Y_nonempty' {μ : ℝ} (h : 1 / (k : ℝ) ≤ ini.p) (hk : 1 < k)
     (hi : i ∈ redOrDensitySteps μ k l ini) (x : V) (hx : x ∈ (algorithm μ k l ini i).X) :
     ((red_neighbors χ) x ∩ (algorithm μ k l ini i).Y).Nonempty := by
   rw [redOrDensitySteps, Finset.mem_filter, Nat.not_even_iff_odd, Finset.mem_range] at hi
   rcases hi.2.1 with ⟨j, rfl⟩
-  refine' red_neighbors_y_nonempty h hk _ x hx
+  refine' red_neighbors_Y_nonempty h hk _ x hx
   rw [degreeSteps, Finset.mem_filter, Finset.mem_range]
   exact ⟨hi.1.trans_le' (Nat.le_succ _), by simp⟩
 
@@ -990,7 +990,7 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
   have hβ' := card_red_neighbors_inter hi
   refine'
     (five_one_case_b_aux (χ := χ) (X := C.X) (Y := C.Y) (x := x)
-      hx (y_nonempty hi'.1) h).trans' _
+      hx (Y_nonempty hi'.1) h).trans' _
   change
     _ ≤
       C.p * (((blue_neighbors χ) x ∩ C.X).card * ((red_neighbors χ) x ∩ C.Y).card) +
@@ -1158,7 +1158,7 @@ theorem five_one_case_b_condition (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp�
     · rw [redOrDensitySteps, Finset.mem_filter, Finset.mem_range] at hi
       exact hi.1
     exact
-      red_neighbors_y_nonempty' hp₀ (hl₁.trans_le hlk) hi _
+      red_neighbors_Y_nonempty' hp₀ (hl₁.trans_le hlk) hi _
         (BookConfig.getCentralVertex_mem_x _ _ _)
   have hk₀ : (0 : ℝ) < k := hk₁.trans_le' zero_le_one
   refine' mul_pos _ _
@@ -1208,7 +1208,7 @@ theorem five_one (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp₀l : 0 < p₀l) :
     rw [one_div]
     exact inv_le_of_inv_le₀ hp₀l (hkp k hlk)
   have hYr : Yr.Nonempty :=
-    red_neighbors_y_nonempty' hp₀ (hl₁.trans_le hlk) hi _
+    red_neighbors_Y_nonempty' hp₀ (hl₁.trans_le hlk) hi _
       (BookConfig.getCentralVertex_mem_x _ _ _)
   have hX : C.X.Nonempty := by
     refine' x_nonempty _
