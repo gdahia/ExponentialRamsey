@@ -141,7 +141,7 @@ theorem six_four_degree {μ : ℝ} (hi : i ∈ degreeSteps μ k l ini) : p_ i �
     intro x hx
     rw [le_div_iff₀]
     rw [Nat.cast_pos, Finset.card_pos]
-    refine' y_nonempty _
+    refine' Y_nonempty _
     rw [degreeSteps, Finset.mem_filter, Finset.mem_range] at hi
     exact hi.1
   rw [this, colDensity_eq_average]
@@ -183,7 +183,7 @@ theorem six_four_blue' {μ : ℝ} (hμ₀ : 0 < μ) (hi : i + 1 ∈ bigBlueSteps
     rw [le_div_iff₀]
     · exact this.2
     rw [Nat.cast_pos, Finset.card_pos]
-    refine' y_nonempty _
+    refine' Y_nonempty _
     exact h.trans_le' (Nat.le_succ _)
   refine'
     (div_le_div_of_nonneg_right (Finset.card_nsmul_le_sum _ _ _ this) (Nat.cast_nonneg _)).trans'
