@@ -820,17 +820,20 @@ theorem choose_ratio {l k t : ℕ} (h : t ≤ k) :
 
 theorem fact_d_two_part_one {l k t : ℕ} (h : t ≤ k) :
     ((k + l - t).choose l : ℝ) / (k + l).choose l =
-      (k / (k + l)) ^ t * ∏ i ∈ Finset.range t, (1 - i * l / (k * (k + l - i))) := by
-  have : ((k : ℝ) / (k + l)) ^ t = ∏ i ∈ Finset.range t, k / (k + l) := by simp
+      (k / (k + l)) ^ t *
+        ∏ i ∈ Finset.range t, (1 - (i : ℝ) * l / (k * (k + l - i))) := by
+  have : ((k : ℝ) / (k + l)) ^ t = ∏ i ∈ Finset.range t, (k : ℝ) / (k + l) := by
+    rw [div_pow]
+    simp
   rw [this, choose_ratio h, ← Finset.prod_mul_distrib]
-  refine' prod_congr rfl _
+  refine' Finset.prod_congr rfl _
   intro i hi
   rw [Finset.mem_range] at hi
   have hik : i < k := hi.trans_le h
   have : 0 < k := pos_of_gt hik
   have : 0 < k - i := Nat.sub_pos_of_lt hik
   rw [one_sub_div, mul_div_assoc', div_mul_eq_mul_div, mul_div_assoc, mul_div_mul_left, mul_sub,
-    mul_comm _ (i : ℝ), sub_sub, ← mul_add, ← sub_mul, mul_div_cancel]
+    mul_comm _ (i : ℝ), sub_sub, ← mul_add, ← sub_mul, mul_div_cancel_right₀]
   · positivity
   · positivity
   rw [← sub_add_eq_add_sub, ← Nat.cast_sub hik.le]
@@ -839,7 +842,7 @@ theorem fact_d_two_part_one {l k t : ℕ} (h : t ≤ k) :
 theorem fact_d_two_part_two {l k t : ℕ} (h : t ≤ k) :
     ∏ i ∈ Finset.range t, (1 - i * l / (k * (k + l - i)) : ℝ) ≤
       exp (-l / (k * (k + l)) * ∑ i ∈ Finset.range t, i) := by
-  rw [Finset.mul_sum, Real.exp_sum]
+  rw [Nat.cast_sum, Finset.mul_sum, Real.exp_sum]
   refine' Finset.prod_le_prod _ _
   · intro i hi
     rw [Finset.mem_range] at hi
@@ -847,7 +850,7 @@ theorem fact_d_two_part_two {l k t : ℕ} (h : t ≤ k) :
     have : 0 < k := pos_of_gt hik
     have : 0 < k - i := Nat.sub_pos_of_lt hik
     rw [sub_nonneg, ← sub_add_eq_add_sub, ← Nat.cast_sub hik.le]
-    refine' div_le_one_of_le _ (by positivity)
+    refine' div_le_one_of_le₀ _ (by positivity)
     rw [← Nat.cast_add, ← Nat.cast_mul, ← Nat.cast_mul, Nat.cast_le]
     exact Nat.mul_le_mul hik.le (Nat.le_add_left _ _)
   intro i hi
@@ -857,7 +860,7 @@ theorem fact_d_two_part_two {l k t : ℕ} (h : t ≤ k) :
   have hik : i < k := hi.trans_le h
   have : 0 < k := pos_of_gt hik
   have : 0 < k - i := Nat.sub_pos_of_lt hik
-  refine' div_le_div_of_le_left (by positivity) _ (mul_le_mul_of_nonneg_left _ (Nat.cast_nonneg _))
+  refine' div_le_div_of_nonneg_left (by positivity) _ (mul_le_mul_of_nonneg_left _ (Nat.cast_nonneg _))
   · rw [← sub_add_eq_add_sub, ← Nat.cast_sub hik.le]
     positivity
   simp
@@ -898,13 +901,13 @@ theorem nine_six :
       mul_nonneg (mul_nonneg (exp_pos _).le (Real.rpow_nonneg (sub_pos_of_lt hγ₁).le _))
         (exp_pos _).le
   rw [← mul_assoc, mul_right_comm (exp _ : ℝ), ← Real.exp_add, mul_mul_mul_comm, ← Real.exp_add,
-    add_assoc, ← add_div, ← Real.rpow_natCast _ t, ← Real.rpow_add (sub_pos_of_lt hγ₁), neg_add_self,
+    add_assoc, ← add_div, ← Real.rpow_natCast _ t, ← Real.rpow_add (sub_pos_of_lt hγ₁), neg_add_cancel,
     Real.rpow_zero, mul_one, neg_mul, ← sub_eq_add_neg, ← mul_sub, sq, ← mul_sub, sub_sub_cancel,
     mul_one]
   refine' mul_le_of_le_one_left (Nat.cast_nonneg _) _
   rw [exp_le_one_iff]
   rw [neg_add_le_iff_le_add, add_zero]
-  refine' div_le_one_of_le _ (by positivity)
+  refine' div_le_one_of_le₀ _ (by positivity)
   exact
     mul_le_mul (hγ₁.le.trans (by norm_num1)) (Nat.cast_le.2 htk) (Nat.cast_nonneg _) (by norm_num1)
 
@@ -943,7 +946,7 @@ theorem nine_five_density :
     refine' IsLittleO.const_mul_left _ _
     suffices (fun k : ℝ => k ^ (15 / 16 : ℝ)) =o[atTop] id by
       exact IsLittleO.comp_tendsto this tendsto_natCast_atTop_atTop
-    simpa using is_o_rpow_rpow (by norm_num1 : 15 / 16 < (1 : ℝ))
+    simpa only [Real.rpow_one] using isLittleO_rpow_rpow (by norm_num1 : 15 / 16 < (1 : ℝ))
   intro γ₀ hγ₀
   filter_upwards [eight_five γ₀ (1 / 2) (1 / 2) hγ₀ hμ₁ hp₀, top_adjuster (eventually_gt_atTop 0),
     beta_le_μ γ₀ _ _ hγ₀ hμ₁ hp₀] with l h₈₅ hk₀ hβμ k γ η hγl hη hγη n χ hχ ini hini hγu hγ₁ hlk
@@ -953,19 +956,19 @@ theorem nine_five_density :
   have hst :
     ((densitySteps γ k l ini).card : ℝ) ≤
       γ / (1 - γ) * (redSteps γ k l ini).card + 7 / (1 - 1 / 2) * k ^ (15 / 16 : ℝ) := by
-    refine' h₈₅.trans (add_le_add_right (mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)) _)
-    exact div_le_div (hγ₀.le.trans hγl) hβμ (sub_pos_of_lt hγ₁) (sub_le_sub_left hβμ _)
+    refine' h₈₅.trans (add_le_add_left (mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)) _)
+    exact div_le_div₀ (hγ₀.le.trans hγl) hβμ (sub_pos_of_lt hγ₁) (sub_le_sub_left hβμ _)
   have hp₀'' : 0 < ini.p := hp₀.trans_le hp₀'
   rw [← Real.log_inv, ← Real.rpow_def_of_pos, add_comm, ← one_div, pow_add]
   swap
   · norm_num1
-  refine
+  refine'
     mul_le_mul _ (pow_le_pow_left₀ (hp₀.le.trans hγη) hini _) (pow_nonneg (hp₀.le.trans hγη) _)
-      (pow_nonneg col_density_nonneg _)
+      (pow_nonneg hp₀''.le _)
   rw [← Real.rpow_natCast, mul_comm]
-  refine' (rpow_le_rpow_of_exponent_ge hp₀'' col_density_le_one hst).trans' _
+  refine' (rpow_le_rpow_of_exponent_ge hp₀'' (by simpa [BookConfig.p] using colDensity_le_one) hst).trans' _
   rw [div_mul_eq_mul_div γ, Real.rpow_add hp₀'']
-  refine
+  refine'
     mul_le_mul (Real.rpow_le_rpow (hp₀.le.trans hγη) hini _) (Real.rpow_le_rpow hp₀.le hp₀' (by positivity))
       (by positivity) (Real.rpow_nonneg hp₀''.le _)
   exact div_nonneg (mul_nonneg (hγ₀.le.trans hγl) (Nat.cast_nonneg _)) (sub_pos_of_lt hγ₁).le
@@ -1050,7 +1053,7 @@ theorem nine_five :
     div_eq_mul_inv (_ ^ _), ← mul_assoc]
   refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)
   refine' mul_le_mul_of_nonneg_right _ (exp_pos _).le
-  refine
+  refine'
     mul_le_mul_of_nonneg_right _ (inv_nonneg_of_nonneg (pow_nonneg (sub_nonneg_of_le hγ₁.le) _))
   rw [mul_mul_mul_comm, ← Real.rpow_add two_pos, ← mul_assoc, mul_assoc _ (Real.exp _), ← Real.exp_add,
     mul_right_comm _ (ini.p ^ _), Real.rpow_def_of_pos two_pos, ← Real.exp_add]
@@ -1078,19 +1081,20 @@ theorem density_congr [Fintype V] (G₁ G₂ : SimpleGraph V) [Fintype G₁.edge
   rw [h]
 
 theorem edgeFinset_eq_filter [Fintype (Sym2 V)] (G : SimpleGraph V) [Fintype G.edgeSet]
-    [DecidableRel G.Adj] : G.edgeFinset = univ.filter (· ∈ Sym2.fromRel G.symm) := by
-  rw [← Finset.coe_inj, coe_edgeFinset, coe_filter, coe_univ, Set.sep_univ]
+    [DecidableRel G.Adj] : G.edgeFinset = Finset.univ.filter (· ∈ Sym2.fromRel G.symm) := by
+  rw [← Finset.coe_inj, coe_edgeFinset, Finset.coe_filter_univ]
   rfl
 
 theorem univ_image_quotient_mk {α : Type*} (s : Finset α) [DecidableEq α] :
-    s.offDiag.image Quotient.mk' = s.Sym2.filter fun a => ¬a.IsDiag :=
-  (Sym2.filter_image_quotient_mk''_not_isDiag _).symm
+    s.offDiag.image Sym2.mk.uncurry = s.sym2.filter fun a => ¬a.IsDiag := by
+  rw [Finset.sym2_eq_image, ← Sym2.filter_image_mk_not_isDiag]
 
 theorem edgeFinset_eq_filter_filter [DecidableEq V] [Fintype (Sym2 V)] (G : SimpleGraph V)
     [Fintype G.edgeSet] [DecidableRel G.Adj] :
-    G.edgeFinset = (univ.filter fun a : Sym2 V => ¬a.IsDiag).filter (· ∈ Sym2.fromRel G.symm) := by
-  rw [edgeFinset_eq_filter, filter_filter]
-  refine' filter_congr _
+    G.edgeFinset =
+      (Finset.univ.filter fun a : Sym2 V => ¬a.IsDiag).filter (· ∈ Sym2.fromRel G.symm) := by
+  rw [edgeFinset_eq_filter, Finset.filter_filter]
+  refine' Finset.filter_congr _
   rw [Sym2.forall]
   intro x y h
   simp only [Sym2.isDiag_iff_proj_eq, iff_and_self, Sym2.fromRel_prop]
@@ -1099,8 +1103,8 @@ theorem edgeFinset_eq_filter_filter [DecidableEq V] [Fintype (Sym2 V)] (G : Simp
 
 theorem edgeFinset_eq_filter' [Fintype V] [DecidableEq V] (G : SimpleGraph V)
     [Fintype G.edgeSet] [DecidableRel G.Adj] :
-    G.edgeFinset = (univ.offDiag.image Quotient.mk').filter (· ∈ Sym2.fromRel G.symm) := by
-  rw [edgeFinset_eq_filter_filter, ← sym2_univ, ← univ_image_quotient_mk]
+    G.edgeFinset = (Finset.univ.offDiag.image Sym2.mk.uncurry).filter (· ∈ Sym2.fromRel G.symm) := by
+  rw [edgeFinset_eq_filter_filter, ← Finset.sym2_univ, ← univ_image_quotient_mk]
 
 theorem sum_sym2 {α β : Type*} [DecidableEq α] [AddCommMonoid β] {s : Finset α} {f : Sym2 α → β} :
     2 • ∑ x ∈ s.offDiag.image Quotient.mk', f x = ∑ x ∈ s.offDiag, f (Quotient.mk' x) := by
