@@ -356,8 +356,8 @@ theorem six_five_blue_aux : ∀ᶠ x : ℝ in 𝓝 0, 0 < x → (1 + x ^ 2) ^ (-
   specialize hε hε₀
   have : 7 / (4 * x) ≤ ⌊2 * x⁻¹⌋₊ := by
     refine' hε.trans_eq' _
-    field_simp [hε₀.ne']
-    ring
+    rw [← div_div, div_eq_mul_inv, ← mul_assoc, div_eq_mul_inv]
+    norm_num
   have h₃ : 1 < 1 + x ^ 2 := by
     rw [lt_add_iff_pos_right]
     exact pow_pos hε₀ _
