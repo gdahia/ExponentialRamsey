@@ -940,7 +940,7 @@ theorem seven_seven (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
   · refine' (hl k hlk μ hμl hμu n χ hχ ini hini _ _).1
     rw [Nat.add_one_le_iff, ← Finset.mem_range]
     exact Finset.filter_subset _ _ hi
-  refine' y_nonempty _
+  refine' Y_nonempty _
   rw [← Finset.mem_range]
   exact Finset.filter_subset _ _ hi
 
