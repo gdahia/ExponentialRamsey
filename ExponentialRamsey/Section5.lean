@@ -1020,14 +1020,8 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
         _
     rw [div_mul_eq_mul_div, div_mul_eq_mul_div, mul_left_comm, pow_succ]
     field_simp
-  have hthis :
-      -(α * (((red_neighbors χ) x ∩ C.Y).card : ℝ)) +
-          (-((2 : ℝ) / k ^ 4) * (C.X.card * ((red_neighbors χ) x ∩ C.Y).card)) ≤
-        -(α * (((red_neighbors χ) x ∩ C.Y).card : ℝ)) +
-          weight χ C.X C.Y x * C.Y.card := by
-    simpa [add_comm, add_left_comm, add_assoc] using
-      add_le_add_left this (-(α * (((red_neighbors χ) x ∩ C.Y).card : ℝ)))
-  refine' hthis.trans' _
+  refine'
+    (add_le_add_right this (-(α * (((red_neighbors χ) x ∩ C.Y).card : ℝ)))).trans' _
   rw [neg_mul, ← neg_add, neg_le_neg_iff, ← mul_assoc, ← add_mul]
   refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)
   rw [← le_sub_iff_add_le, ← sub_mul, div_sub_div_same]
