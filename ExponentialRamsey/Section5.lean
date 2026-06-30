@@ -527,10 +527,7 @@ theorem five_four_end : ∀ᶠ k : ℝ in atTop, 1 / (k ^ 6 - 1) + 1 / k ^ 6 ≤
   · refine' add_le_add (one_div_le_one_div_of_le h1 h2) (one_div_le_one_div_of_le h1 (h2.trans _))
     simp
   rw [pow_succ' _ 5, le_sub_comm, mul_comm (k ^ 5) 2, ← sub_mul]
-  have hkge1 : (1 : ℝ) ≤ k := by linarith
-  have hk5 : (1 : ℝ) ≤ k ^ 5 := one_le_pow₀ hkge1
-  have hksub : (1 : ℝ) ≤ k - 2 := by linarith
-  exact one_le_mul_of_one_le_of_one_le hksub hk5
+  exact one_le_mul_of_one_le_of_one_le (by linarith) (one_le_pow₀ (by linarith))
 
 theorem five_four :
     ∀ᶠ l : ℕ in atTop,
