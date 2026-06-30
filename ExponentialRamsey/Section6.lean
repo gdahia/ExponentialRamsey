@@ -139,7 +139,7 @@ theorem six_four_degree {μ : ℝ} (hi : i ∈ degreeSteps μ k l ini) : p_ i �
           (colNeighbors χ 0 x ∩ C.Y).card / C.Y.card := by
     refine' Finset.filter_congr _
     intro x hx
-    refine' (le_div_iff₀ _).symm
+    rw [le_div_iff₀]
     rw [Nat.cast_pos, Finset.card_pos]
     refine' y_nonempty _
     rw [degreeSteps, Finset.mem_filter, Finset.mem_range] at hi
