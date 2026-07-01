@@ -940,7 +940,7 @@ theorem seven_seven (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
   · refine' (hl k hlk μ hμl hμu n χ hχ ini hini _ _).1
     rw [Nat.add_one_le_iff, ← Finset.mem_range]
     exact Finset.filter_subset _ _ hi
-  refine' y_nonempty _
+  refine' Y_nonempty _
   rw [← Finset.mem_range]
   exact Finset.filter_subset _ _ hi
 
@@ -1831,7 +1831,8 @@ theorem seven_twelve (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
     refine' (not_lt_of_ge (h9 (i - 1) hi₁'.2 hi₃.le _)) _
     · rw [Nat.sub_add_cancel hi₁'.1]
       exact this.le
-    rwa [Nat.sub_add_cancel hi₁'.1]
+    rw [Nat.sub_add_cancel hi₁'.1]
+    exact hi₂
 
 theorem seven_six_large_jump_bound (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
     ∀ᶠ l : ℕ in atTop,
@@ -1934,31 +1935,22 @@ theorem seven_six_o :
         norm_num1
       · refine' (isLittleO_one_rpow _).isBigO
         norm_num1
-    have hsmall :
-        (fun k : ℝ => (7 * k ^ (15 / 16 : ℝ) + k ^ (3 / 4 : ℝ) + 1) * log k) =o[atTop]
-          fun k : ℝ => k ^ (15 / 16 : ℝ) * k ^ (1 / 16 : ℝ) :=
-      this.mul_isLittleO (isLittleO_log_rpow_atTop (by norm_num1 : (0 : ℝ) < 1 / 16))
-    have hg :
-        (fun k : ℝ => k ^ (15 / 16 : ℝ) * k ^ (1 / 16 : ℝ)) =ᶠ[atTop] fun k : ℝ => k := by
-      filter_upwards [eventually_gt_atTop (0 : ℝ)] with k hk
-      rw [← rpow_add hk]
-      norm_num
-    exact hsmall.congr' EventuallyEq.rfl hg
+    refine'
+      (this.mul_isLittleO (isLittleO_log_rpow_atTop (by norm_num1 : (0 : ℝ) < 1 / 16))).congr'
+        EventuallyEq.rfl _
+    filter_upwards [eventually_gt_atTop (0 : ℝ)] with k hk
+    rw [← rpow_add hk]
+    norm_num
   · refine' IsLittleO.neg_left _
     refine' IsLittleO.const_mul_left _ _
     simp only [mul_left_comm]
     refine' IsLittleO.const_mul_left _ _
-    have hsmall := isLittleO_rpow_rpow (by norm_num1 : (15 / 16 : ℝ) < 1)
-    have hf :
-        (fun k : ℝ => k ^ (15 / 16 : ℝ)) =ᶠ[atTop]
-          fun k : ℝ => k ^ (-1 / 16 : ℝ) * k := by
-      filter_upwards [eventually_gt_atTop (0 : ℝ)] with k hk
+    refine' (isLittleO_rpow_rpow (by norm_num1 : (15 / 16 : ℝ) < 1)).congr' _ _
+    · filter_upwards [eventually_gt_atTop (0 : ℝ)] with k hk
       rw [← rpow_add_one hk.ne']
       norm_num
-    have hg : (fun k : ℝ => k ^ (1 : ℝ)) =ᶠ[atTop] fun k : ℝ => k := by
-      simpa only [rpow_one] using
+    · simpa only [rpow_one] using
         (EventuallyEq.rfl : (fun k : ℝ => k) =ᶠ[atTop] fun k : ℝ => k)
-    exact hsmall.congr' hf hg
 
 -- uses k ≥ 4 ^ 16, but this can be weakened a lot by putting an extra factor of 2 in f
 theorem seven_six :
@@ -2069,21 +2061,17 @@ theorem seven_six :
     exact rpow_nonneg two_pos.le _
   rw [Finset.prod_const, ← Real.rpow_natCast, ← rpow_mul two_pos.le]
   refine' rpow_le_rpow_of_exponent_le one_le_two _
-  rw [neg_mul, neg_mul, neg_le_neg_iff, ← mul_assoc, ← mul_assoc]
-  have hcard :
-      (((degreeSteps μ k l ini).filter fun i =>
-          ¬((algorithm μ k l ini (i + 1)).X.card : ℝ) <
-            (1 - 2 * k ^ (-1 / 16 : ℝ)) * (algorithm μ k l ini i).X.card).card : ℝ) ≤
-        3 * (k : ℝ) := by
-    norm_cast
-    refine' (Finset.card_le_card (Finset.filter_subset _ _)).trans _
-    refine' (four_four_degree μ (hk0 k hlk).ne' (hk0 l le_rfl).ne' hχ ini).trans _
-    have : 1 ≤ k := by
-      rw [Nat.succ_le_iff]
-      exact hk0 k hlk
-    linarith only [this, hlk]
-  have hfac : 0 ≤ (k : ℝ) ^ (-1 / 16 : ℝ) := rpow_nonneg hk₀.le _
-  nlinarith
+  have h22 : (2 : ℝ) * 2 = 4 := by norm_num
+  rw [neg_mul, neg_mul, neg_le_neg_iff, ← mul_assoc, ← mul_assoc, h22]
+  refine' mul_le_mul_of_nonneg_left _ (mul_nonneg (by norm_num : (0 : ℝ) ≤ 4)
+    (rpow_nonneg hk₀.le _))
+  norm_cast
+  refine' (Finset.card_le_card (Finset.filter_subset _ _)).trans _
+  refine' (four_four_degree μ (hk0 k hlk).ne' (hk0 l le_rfl).ne' hχ ini).trans _
+  have : 1 ≤ k := by
+    rw [Nat.succ_le_iff]
+    exact hk0 k hlk
+  linarith only [this, hlk]
 
 theorem telescope_x_card (μ : ℝ)
     (h : ini.X.Nonempty) :-- (hp₀ : 0 < p₀) (h : p₀ ≤ ini.p) :
