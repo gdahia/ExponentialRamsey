@@ -1222,11 +1222,12 @@ theorem sum_powersetCard_erase {α β : Type*} [Fintype α] [DecidableEq α] [Ad
     {s : Finset α} (f : Finset α → α → β) :
   ∑ U ∈ Finset.powersetCard n s, ∑ y ∈ Uᶜ, f U y =
       ∑ y, ∑ U ∈ Finset.powersetCard n (s.erase y), f U y := by
-  rw [show (∑ U ∈ Finset.powersetCard n s, ∑ y ∈ Uᶜ, f U y) =
-      ∑ U ∈ Finset.powersetCard n s, ∑ y, if y ∈ Uᶜ then f U y else 0 by
+  have : (∑ U ∈ Finset.powersetCard n s, ∑ y ∈ Uᶜ, f U y) =
+      ∑ U ∈ Finset.powersetCard n s, ∑ y, if y ∈ Uᶜ then f U y else 0 := by
     refine Finset.sum_congr rfl ?_
     intro U hU
-    exact sum_ite_fintype Uᶜ (f U)]
+    exact sum_ite_fintype Uᶜ (f U)
+  rw [this]
   rw [Finset.sum_comm]
   refine' Finset.sum_congr rfl fun y hy => _
   rw [← Finset.sum_filter]
@@ -1302,10 +1303,11 @@ theorem sum_pair_subset {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
     ∑ U ∈ Finset.powersetCard (n + 1) s, ∑ x ∈ U, ∑ y ∈ Uᶜ, f U x y =
       ∑ x ∈ s, ∑ y ∈ (Finset.univ : Finset α).erase x,
         ∑ U ∈ Finset.powersetCard n (s \ {x, y}), f (insert x U) x y := by
-  rw [show (∑ U ∈ Finset.powersetCard (n + 1) s, ∑ x ∈ U, ∑ y ∈ Uᶜ, f U x y) =
-      ∑ U ∈ Finset.powersetCard (n + 1) s, ∑ y ∈ Uᶜ, ∑ x ∈ U, f U x y by
+  have : (∑ U ∈ Finset.powersetCard (n + 1) s, ∑ x ∈ U, ∑ y ∈ Uᶜ, f U x y) =
+      ∑ U ∈ Finset.powersetCard (n + 1) s, ∑ y ∈ Uᶜ, ∑ x ∈ U, f U x y := by
     refine' Finset.sum_congr rfl fun U hU => _
-    exact Finset.sum_comm]
+    exact Finset.sum_comm
+  rw [this]
   rw [sum_powersetCard_erase]
   simp only [sum_powersetCard_insert]
   rw [Finset.sum_sigma' Finset.univ, Finset.sum_sigma' s]
