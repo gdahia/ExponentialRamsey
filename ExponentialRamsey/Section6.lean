@@ -139,12 +139,11 @@ theorem six_four_degree {μ : ℝ} (hi : i ∈ degreeSteps μ k l ini) : p_ i �
           (colNeighbors χ 0 x ∩ C.Y).card / C.Y.card := by
     refine' Finset.filter_congr _
     intro x hx
-    have hY : (0 : ℝ) < C.Y.card := by
-      rw [Nat.cast_pos, Finset.card_pos]
-      refine' y_nonempty _
-      rw [degreeSteps, Finset.mem_filter, Finset.mem_range] at hi
-      exact hi.1
-    exact (le_div_iff₀ hY).symm
+    rw [le_div_iff₀]
+    rw [Nat.cast_pos, Finset.card_pos]
+    refine' Y_nonempty _
+    rw [degreeSteps, Finset.mem_filter, Finset.mem_range] at hi
+    exact hi.1
   rw [this, colDensity_eq_average]
   refine' increase_average _
   rw [← colDensity_eq_average, BookConfig.p, sub_le_self_iff]
@@ -169,8 +168,7 @@ theorem six_four_blue' {μ : ℝ} (hμ₀ : 0 < μ) (hi : i + 1 ∈ bigBlueSteps
     rw [degreeSteps, Finset.mem_filter, Finset.mem_range]
     exact ⟨h.trans_le' (Nat.le_succ _), hi.2.1⟩
   rw [degree_regularisation_applied hi', BookConfig.degreeRegularisationStep_Y, ←
-    degree_regularisation_applied hi']
-  rw [colDensity_eq_average]
+    degree_regularisation_applied hi', colDensity_eq_average]
   let C := algorithm μ k l ini i
   let C' := algorithm μ k l ini (i + 1)
   have :
@@ -184,17 +182,15 @@ theorem six_four_blue' {μ : ℝ} (hμ₀ : 0 < μ) (hi : i + 1 ∈ bigBlueSteps
     rw [le_div_iff₀]
     · exact this.2
     rw [Nat.cast_pos, Finset.card_pos]
-    refine' y_nonempty _
+    refine' Y_nonempty _
     exact h.trans_le' (Nat.le_succ _)
   refine'
     (div_le_div_of_nonneg_right (Finset.card_nsmul_le_sum _ _ _ this) (Nat.cast_nonneg _)).trans'
       _
-  have hcard :
-      (((BookConfig.getBook χ μ (algorithm μ k l ini (i + 1)).X).2.card : ℝ) ≠ 0) := by
-    rw [Nat.cast_ne_zero, ← pos_iff_ne_zero, Finset.card_pos]
-    refine' BookConfig.getBook_snd_nonempty hμ₀ _
-    exact x_nonempty h
-  rw [BookConfig.bigBlueStep_x, nsmul_eq_mul, mul_div_cancel_left₀ _ hcard]
+  rw [BookConfig.bigBlueStep_x, nsmul_eq_mul, mul_div_cancel_left₀]
+  rw [Nat.cast_ne_zero, ← pos_iff_ne_zero, Finset.card_pos]
+  refine' BookConfig.getBook_snd_nonempty hμ₀ _
+  exact x_nonempty h
 
 theorem six_four_blue {μ : ℝ} (hμ₀ : 0 < μ) (hi : i ∈ bigBlueSteps μ k l ini) :
     (algorithm μ k l ini (i - 1)).p -
@@ -359,8 +355,8 @@ theorem six_five_blue_aux : ∀ᶠ x : ℝ in 𝓝 0, 0 < x → (1 + x ^ 2) ^ (-
   specialize hε hε₀
   have : 7 / (4 * x) ≤ ⌊2 * x⁻¹⌋₊ := by
     refine' hε.trans_eq' _
-    field_simp [hε₀.ne']
-    ring
+    rw [← div_div, div_eq_mul_inv, ← mul_assoc, div_eq_mul_inv]
+    norm_num
   have h₃ : 1 < 1 + x ^ 2 := by
     rw [lt_add_iff_pos_right]
     exact pow_pos hε₀ _
@@ -762,26 +758,17 @@ theorem six_two_part_one {f : ℕ → ℝ} {j j' : ℕ} (hj : Odd j) (hj' : Odd 
       exact ⟨i, by omega, by omega, rfl⟩
     rintro ⟨i, hi, hi', rfl⟩
     exact ⟨by omega, by omega, i, rfl⟩
-  change
-    f (2 * j' + 1 + 1) - f (2 * j + 1 + 1) =
-      ∑ i ∈ Finset.Icc (2 * j' + 1 + 2) (2 * j + 1) with Odd i,
-        (f (i - 1) - f (i + 1))
-  have hlen : Order.succ j - (j' + 1) = j - j' := by
-    simp [Order.succ_eq_add_one, Nat.add_sub_add_right]
-  rw [this, Finset.sum_map, ← Finset.Ico_succ_right_eq_Icc, Finset.sum_Ico_eq_sum_range, hlen]
-  change
-    f (2 * j' + 1 + 1) - f (2 * j + 1 + 1) =
-      ∑ x ∈ Finset.range (j - j'),
-        (f (2 * ((j' + 1) + x) + 1 - 1) - f (2 * ((j' + 1) + x) + 1 + 1))
-  have hstep :
+  rw [this, Finset.sum_map, ← Finset.Ico_succ_right_eq_Icc, Finset.sum_Ico_eq_sum_range,
+    Order.succ_eq_add_one, Nat.add_sub_add_right]
+  simp only [Function.Embedding.coeFn_mk]
+  have :
     ∀ k : ℕ,
       f (2 * ((j' + 1) + k) + 1 - 1) - f (2 * ((j' + 1) + k) + 1 + 1) =
         f (2 * ((j' + 1) + k)) - f (2 * ((j' + 1) + (k + 1))) := by
     intro k
-    have h₁ : 2 * ((j' + 1) + k) + 1 - 1 = 2 * ((j' + 1) + k) := by omega
-    have h₂ : 2 * ((j' + 1) + k) + 1 + 1 = 2 * ((j' + 1) + (k + 1)) := by omega
-    rw [h₁, h₂]
-  simp only [hstep]
+    rw [Nat.add_sub_cancel]
+    simp only [Nat.mul_add, Nat.add_assoc, Nat.mul_one]
+  simp only [this]
   rw [Finset.sum_range_sub', add_zero]
   have h₁ : 2 * j' + 1 + 1 = 2 * (j' + 1) := by omega
   have h₂ : 2 * j + 1 + 1 = 2 * (j' + 1 + (j - j')) := by omega
@@ -969,25 +956,22 @@ theorem six_two (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 
     refine' hl k hlk μ hμl hμu n χ hχ ini hini (2 * i + 1) _ _
     · exact hi.trans_le' (Nat.le_succ _)
     rw [degreeSteps, Finset.mem_filter]
-    rintro ⟨-, h_even⟩
-    exact (Nat.not_even_two_mul_add_one i) h_even
+    simp
   exact hl k hlk μ hμl hμu n χ hχ ini hini i hi h
 
 theorem two_approx {x : ℝ} (hx : 0 ≤ x) (hx' : x ≤ 1 / 2) : 2 ^ (-2 * x) ≤ 1 - x := by
   have p : -2 * log 2 ≤ 0 := by simp [log_nonneg one_le_two]
   have hu₀ : x * (-2 * log 2) ≤ 0 := mul_nonpos_of_nonneg_of_nonpos hx p
-  have hu₁ : -log 2 ≤ x * (-2 * log 2) := by nlinarith [log_pos one_lt_two]
-  have hconv := general_convex_thing' hu₀ hu₁ (neg_ne_zero.2 (log_pos one_lt_two).ne')
-  have hright : 1 + (exp (-log 2) - 1) * (x * (-2 * log 2)) / (-log 2) = 1 - x := by
-    rw [Real.exp_neg, exp_log (by norm_num : (0 : ℝ) < 2)]
-    field_simp [(log_pos one_lt_two).ne']
-    ring
-  have hleft : (2 : ℝ) ^ (-2 * x) = exp (x * (-2 * log 2)) := by
-    rw [rpow_def_of_pos zero_lt_two]
-    congr 1
-    ring
-  rw [hleft]
-  exact hconv.trans_eq hright
+  have hu₁ : -log 2 ≤ x * (-2 * log 2) := by nlinarith
+  have h := general_convex_thing' hu₀ hu₁ (neg_ne_zero.2 (log_pos one_lt_two).ne')
+  rw [← mul_assoc, ← mul_assoc, div_neg, mul_div_cancel_right₀ _ (log_pos one_lt_two).ne', ←
+    sub_eq_add_neg, mul_comm, ← rpow_def_of_pos zero_lt_two, mul_comm] at h
+  refine' h.trans_eq _
+  rw [Real.exp_neg, exp_log]
+  · norm_num
+    rw [mul_comm, mul_one_div, mul_div_cancel_left₀]
+    norm_num1
+  norm_num1
 
 theorem six_one_ind (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
     ∀ᶠ l : ℕ in atTop,
