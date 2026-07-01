@@ -796,11 +796,11 @@ theorem asc_div_asc_const_right' {a b c : ℕ} (ha : 0 < a) :
   rw [div_eq_div_iff]
   · exact_mod_cast asc_hMul_asc (a := a.succ) (b := b) (c := c)
   · simpa [Nat.succ_eq_add_one, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using
-      (show ((a + c + 1).ascFactorial b : ℝ) ≠ 0 by
-        exact_mod_cast (Nat.ascFactorial_pos (a + c) b).ne')
+      (by exact_mod_cast (Nat.ascFactorial_pos (a + c) b).ne' :
+        ((a + c + 1).ascFactorial b : ℝ) ≠ 0)
   · simpa [Nat.succ_eq_add_one, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using
-      (show ((a + b + 1).ascFactorial c : ℝ) ≠ 0 by
-        exact_mod_cast (Nat.ascFactorial_pos (a + b) c).ne')
+      (by exact_mod_cast (Nat.ascFactorial_pos (a + b) c).ne' :
+        ((a + b + 1).ascFactorial c : ℝ) ≠ 0)
 
 theorem asc_div_asc_const_right {a b c : ℕ} (ha : 0 < a) :
     ((a + c).ascFactorial b : ℝ) / a.ascFactorial b = (a + b).ascFactorial c / a.ascFactorial c := by
