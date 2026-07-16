@@ -172,6 +172,7 @@ theorem five_five_aux_part_one {X Y : Finset V} :
     linarith only
   rw [mul_right_comm, mul_assoc, colDensity_comm, colDensity_mul_mul]
 
+-- TODO: clean up this proof
 theorem five_five_aux_part_two {X Y : Finset V} :
     ∑ x ∈ X, ∑ y ∈ X, ((red_neighbors χ) x ∩ (red_neighbors χ) y ∩ Y).card =
       ∑ z ∈ Y, ((red_neighbors χ) z ∩ X).card ^ 2 := by
