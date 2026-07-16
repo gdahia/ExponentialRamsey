@@ -484,7 +484,7 @@ theorem five_four_aux (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) (i : ℕ)
       (Nat.add_le_add_left hi'.2.2.le _).trans'
         ((Finset.card_union_le _ _).trans' (Finset.card_le_card _))
     rw [← Finset.filter_or]
-    simp (config := { contextual := true }) only [Finset.subset_iff, Finset.mem_filter, true_and]
+    simp +contextual only [Finset.subset_iff, Finset.mem_filter, true_and]
     intro x hx
     exact le_total _ _
   obtain ⟨nei, Bnei, neicard⟩ := Finset.exists_subset_card_eq this
