@@ -163,7 +163,6 @@ open scoped BigOperators
 -- #check weight
 variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2)}
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 theorem five_five_aux_part_one {X Y : Finset V} :
     ∑ x ∈ X, ∑ _y ∈ X, (red_density χ) X Y * ((red_neighbors χ) x ∩ Y).card =
       (red_density χ) X Y ^ 2 * X.card ^ 2 * Y.card := by
@@ -173,7 +172,6 @@ theorem five_five_aux_part_one {X Y : Finset V} :
     linarith only
   rw [mul_right_comm, mul_assoc, colDensity_comm, colDensity_mul_mul]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 theorem five_five_aux_part_two {X Y : Finset V} :
     ∑ x ∈ X, ∑ y ∈ X, ((red_neighbors χ) x ∩ (red_neighbors χ) y ∩ Y).card =
       ∑ z ∈ Y, ((red_neighbors χ) z ∩ X).card ^ 2 := by
@@ -208,7 +206,6 @@ theorem five_five_aux {X Y : Finset V} :
   · simp
   · positivity
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 -- (13) observation 5.5
 theorem five_five (χ : TopEdgeLabelling V (Fin 2)) (X Y : Finset V) :
     0 ≤ ∑ x ∈ X, ∑ y ∈ X, pairWeight χ X Y x y := by
