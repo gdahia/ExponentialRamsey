@@ -412,7 +412,7 @@ theorem five_six :
   rw [← @Nat.cast_le ℝ, ← pow_add, Nat.cast_pow]
   refine' hl.trans' _
   rw [← log_le_iff_le_exp (pow_pos (hl₀ _ hlk) _), log_pow, Nat.cast_add]
-  norm_num
+  norm_num1
   refine' mul_le_mul_of_nonneg_right _ (hll₀ _ hlk)
   refine' (add_le_add_right hl' _).trans _
   rw [← mul_one_add, ← le_div_iff₀', ← div_mul_eq_mul_div]
