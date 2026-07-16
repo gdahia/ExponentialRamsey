@@ -30,6 +30,7 @@ theorem mul_log_two_le_log_one_add {ε : ℝ} (hε : 0 ≤ ε) (hε' : ε ≤ 1)
     exp_log two_pos] at this
   refine' this.trans_eq _
   ring_nf
+
 namespace SimpleGraph
 
 open scoped ExponentialRamsey
