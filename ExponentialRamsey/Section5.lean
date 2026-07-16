@@ -216,7 +216,7 @@ theorem five_five (χ : TopEdgeLabelling V (Fin 2)) (X Y : Finset V) :
   norm_cast
   exact five_five_aux
 
-theorem tendsto_nat_ceil_atTop {α : Type*} [Semiring α] [LinearOrder α] [IsStrictOrderedRing α] [FloorSemiring α] :
+theorem tendsto_natCeil_atTop {α : Type*} [Semiring α] [LinearOrder α] [IsStrictOrderedRing α] [FloorSemiring α] :
     Tendsto (fun x : α => ⌈x⌉₊) atTop atTop :=
   Nat.ceil_mono.tendsto_atTop_atTop fun n => ⟨n, (Nat.ceil_natCast _).ge⟩
 
@@ -372,7 +372,7 @@ theorem five_six_aux_part_one :
   refine' ⟨1 / 128, by norm_num1, _⟩
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have h34 : (0 : ℝ) < 3 / 4 := by norm_num
-  have := (tendsto_nat_ceil_atTop.comp (tendsto_rpow_atTop h34)).comp t
+  have := (tendsto_natCeil_atTop.comp (tendsto_rpow_atTop h34)).comp t
   filter_upwards [top_adjuster (t.eventually_gt_atTop 0), eventually_ge_atTop 2,
     this.eventually_ge_atTop 2, five_six_aux_left_term, five_six_aux_right_term,
     top_adjuster root_ε_lt_one] with l hl₁ℕ hl₂ℕ hl₃ hf' hf'' hε k hlk
@@ -536,7 +536,7 @@ theorem five_four :
                         weight χ (algorithm μ k l ini i).X (algorithm μ k l ini i).Y (getX hi) := by
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have h23 : (0 : ℝ) < 2 / 3 := by norm_num
-  have := (tendsto_nat_ceil_atTop.comp (tendsto_rpow_atTop h23)).comp t
+  have := (tendsto_natCeil_atTop.comp (tendsto_rpow_atTop h23)).comp t
   filter_upwards [five_six, this.eventually_ge_atTop 1, top_adjuster (eventually_gt_atTop 1),
     top_adjuster (t.eventually five_four_end)] with l hl hl' hl₂ hl₃ k hlk μ n χ ini i hi
   specialize hl₂ k hlk
