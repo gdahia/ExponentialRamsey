@@ -165,8 +165,8 @@ open scoped BigOperators
 variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2)}
 
 theorem five_five_aux_part_one {X Y : Finset V} :
-    ∑ x ∈ X, ∑ _y ∈ X, (red_density χ) X Y * ((red_neighbors χ) x ∩ Y).card =
-      (red_density χ) X Y ^ 2 * X.card ^ 2 * Y.card := by
+    ∑ x ∈ X, ∑ _y ∈ X, (red_density χ X Y * (red_neighbors χ x ∩ Y).card) =
+      red_density χ X Y ^ 2 * X.card ^ 2 * Y.card := by
   simp_rw [Finset.sum_const, nsmul_eq_mul, ← Finset.mul_sum]
   suffices h : (red_density χ) X Y * X.card * Y.card = ∑ x ∈ X, ((red_neighbors χ) x ∩ Y).card by
     rw [← Nat.cast_sum, ← h, sq, sq]

@@ -48,18 +48,18 @@ theorem colDensity_empty_right [DecidableEq V] [DecidableEq K] {χ : TopEdgeLabe
     {X : Finset V} : colDensity χ k X ∅ = 0 := by
   rw [colDensity, edgeDensity_empty_right, Rat.cast_zero]
 
-scoped[ExponentialRamsey] notation "red_density" χ:1024 => SimpleGraph.colDensity χ 0
+scoped[ExponentialRamsey] notation:max "red_density" χ:1024 => SimpleGraph.colDensity χ 0
 
-scoped[ExponentialRamsey] notation "blue_density" χ:1024 => SimpleGraph.colDensity χ 1
+scoped[ExponentialRamsey] notation:max "blue_density" χ:1024 => SimpleGraph.colDensity χ 1
 
 /-- the set of neighbours of x which are connected to it by edges labelled k -/
 def colNeighbors [Fintype V] [DecidableEq V] [DecidableEq K] (χ : TopEdgeLabelling V K) (k : K)
     (x : V) : Finset V :=
   neighborFinset (χ.labelGraph k) x
 
-scoped[ExponentialRamsey] notation "red_neighbors" χ:1024 => SimpleGraph.colNeighbors χ 0
+scoped[ExponentialRamsey] notation:max "red_neighbors" χ:1024 => SimpleGraph.colNeighbors χ 0
 
-scoped[ExponentialRamsey] notation "blue_neighbors" χ:1024 => SimpleGraph.colNeighbors χ 1
+scoped[ExponentialRamsey] notation:max "blue_neighbors" χ:1024 => SimpleGraph.colNeighbors χ 1
 
 open scoped ExponentialRamsey
 
