@@ -168,15 +168,15 @@ theorem five_five_aux_part_one {X Y : Finset V} :
     ∑ x ∈ X, ∑ _y ∈ X, (red_density χ X Y * (red_neighbors χ x ∩ Y).card) =
       red_density χ X Y ^ 2 * X.card ^ 2 * Y.card := by
   simp_rw [Finset.sum_const, nsmul_eq_mul, ← Finset.mul_sum]
-  suffices h : (red_density χ) X Y * X.card * Y.card = ∑ x ∈ X, ((red_neighbors χ) x ∩ Y).card by
+  suffices h : red_density χ X Y * X.card * Y.card = ∑ x ∈ X, (red_neighbors χ x ∩ Y).card by
     rw [← Nat.cast_sum, ← h, sq, sq]
     linarith only
   rw [mul_right_comm, mul_assoc, colDensity_comm, colDensity_mul_mul]
 
 -- TODO: clean up this proof
 theorem five_five_aux_part_two {X Y : Finset V} :
-    ∑ x ∈ X, ∑ y ∈ X, ((red_neighbors χ) x ∩ (red_neighbors χ) y ∩ Y).card =
-      ∑ z ∈ Y, ((red_neighbors χ) z ∩ X).card ^ 2 := by
+    ∑ x ∈ X, ∑ y ∈ X, (red_neighbors χ x ∩ red_neighbors χ y ∩ Y).card =
+      ∑ z ∈ Y, (red_neighbors χ z ∩ X).card ^ 2 := by
   simp_rw [Finset.inter_comm, Finset.card_eq_sum_ones, ← @Finset.filter_mem_eq_inter _ _ Y, ← @Finset.filter_mem_eq_inter _ _ X,
     Finset.sum_filter, sq, Finset.sum_mul, Finset.mul_sum, boole_mul, ← ite_and, Finset.mem_inter, @Finset.sum_comm _ _ _ _ Y]
   refine' Finset.sum_congr rfl fun x hx => _
@@ -189,13 +189,13 @@ theorem five_five_aux_part_two {X Y : Finset V} :
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 -- this proof might be possible without the empty casing from the col_density_sum variants
 theorem five_five_aux {X Y : Finset V} :
-    ∑ x ∈ X, ∑ _y ∈ X, (red_density χ) X Y * ((red_neighbors χ) x ∩ Y).card ≤
-      ∑ x ∈ X, ∑ y ∈ X, ((red_neighbors χ) x ∩ (red_neighbors χ) y ∩ Y).card := by
+    ∑ x ∈ X, ∑ _y ∈ X, red_density χ X Y * (red_neighbors χ x ∩ Y).card ≤
+      ∑ x ∈ X, ∑ y ∈ X, (red_neighbors χ x ∩ red_neighbors χ y ∩ Y).card := by
   rw [five_five_aux_part_one, five_five_aux_part_two]
   push_cast
   have :
-    (∑ z ∈ Y, ((red_neighbors χ) z ∩ X).card : ℝ) ^ 2 ≤
-      (Y.card : ℝ) * ∑ z ∈ Y, (((red_neighbors χ) z ∩ X).card : ℝ) ^ 2 :=
+    (∑ z ∈ Y, (red_neighbors χ z ∩ X).card : ℝ) ^ 2 ≤
+      (Y.card : ℝ) * ∑ z ∈ Y, ((red_neighbors χ z ∩ X).card : ℝ) ^ 2 :=
     sq_sum_le_card_mul_sum_sq
   rcases X.eq_empty_or_nonempty with (rfl | hX)
   · simp
@@ -431,11 +431,11 @@ theorem abs_pairWeight_le_one {X Y : Finset V} {x y : V} : |pairWeight χ X Y x 
   rw [Nat.abs_cast, inv_mul_le_iff₀, mul_one]
   swap
   · rwa [Nat.cast_pos]
-  have hr₀ : 0 ≤ (red_density χ) X Y := colDensity_nonneg
-  have hr₁ : (red_density χ) X Y ≤ 1 := colDensity_le_one
+  have hr₀ : 0 ≤ red_density χ X Y := colDensity_nonneg
+  have hr₁ : red_density χ X Y ≤ 1 := colDensity_le_one
   have :
-    Set.uIcc ((red_density χ) X Y * ((red_neighbors χ) x ∩ Y).card)
-        ((red_neighbors χ) x ∩ (red_neighbors χ) y ∩ Y).card ⊆
+    Set.uIcc (red_density χ X Y * (red_neighbors χ x ∩ Y).card)
+        (red_neighbors χ x ∩ red_neighbors χ y ∩ Y).card ⊆
       Set.uIcc 0 Y.card := by
     rw [Set.uIcc_subset_uIcc_iff_mem, Set.uIcc_of_le, Set.mem_Icc, Set.mem_Icc, and_assoc]
     swap
@@ -645,13 +645,13 @@ theorem five_eight {μ : ℝ} {k l : ℕ} {ini : BookConfig χ} (h : 1 / (k : �
     (hi : i ∈ degreeSteps μ k l ini) (x : V) (hx : x ∈ (algorithm μ k l ini (i + 1)).X) :
     (1 - (k : ℝ) ^ (-1 / 8 : ℝ)) * (algorithm μ k l ini i).p *
         (algorithm μ k l ini (i + 1)).Y.card ≤
-      ((red_neighbors χ) x ∩ (algorithm μ k l ini (i + 1)).Y).card := by
+      (red_neighbors χ x ∩ (algorithm μ k l ini (i + 1)).Y).card := by
   set C := algorithm μ k l ini i
   set ε := (k : ℝ) ^ (-1 / 4 : ℝ)
   rw [degree_regularisation_applied hi, BookConfig.degreeRegularisationStep_Y]
   rw [degree_regularisation_applied hi, BookConfig.degreeRegularisationStep_x, Finset.mem_filter] at hx
   rw [degreeSteps, Finset.mem_filter, Finset.mem_range] at hi
-  change (1 - (k : ℝ) ^ (-1 / 8 : ℝ)) * C.p * C.Y.card ≤ ((red_neighbors χ) x ∩ C.Y).card
+  change (1 - (k : ℝ) ^ (-1 / 8 : ℝ)) * C.p * C.Y.card ≤ (red_neighbors χ x ∩ C.Y).card
   have : 1 / (k : ℝ) < C.p := one_div_k_lt_p_of_lt_finalStep hi.1
   refine' hx.2.trans' (mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _))
   rw [one_sub_mul, sub_le_sub_iff_left]
@@ -683,7 +683,7 @@ theorem five_eight {μ : ℝ} {k l : ℕ} {ini : BookConfig χ} (h : 1 / (k : �
 theorem five_eight_weak {μ : ℝ} {k l : ℕ} {ini : BookConfig χ} (h : 1 / (k : ℝ) ≤ ini.p) {i : ℕ}
     (hi : i ∈ degreeSteps μ k l ini) (x : V) (hx : x ∈ (algorithm μ k l ini (i + 1)).X) :
     (1 - (k : ℝ) ^ (-1 / 8 : ℝ)) * (1 / k) * (algorithm μ k l ini (i + 1)).Y.card ≤
-      ((red_neighbors χ) x ∩ (algorithm μ k l ini (i + 1)).Y).card := by
+      (red_neighbors χ x ∩ (algorithm μ k l ini (i + 1)).Y).card := by
   rcases eq_or_ne k 0 with (rfl | hk)
   · simp
   refine' (five_eight h hi x hx).trans' _
@@ -709,7 +709,7 @@ theorem five_eight_weaker (p₀l : ℝ) (hp₀l : 0 < p₀l) :
                         i ∈ degreeSteps μ k l ini →
                           x ∈ (algorithm μ k l ini (i + 1)).X →
                             (1 : ℝ) / (2 * k) * (algorithm μ k l ini (i + 1)).Y.card ≤
-                              ((red_neighbors χ) x ∩ (algorithm μ k l ini (i + 1)).Y).card := by
+                              (red_neighbors χ x ∩ (algorithm μ k l ini (i + 1)).Y).card := by
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have := tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 8)
   have := this.eventually_le_const (by norm_num : (0 : ℝ) < 1 - 2⁻¹)
@@ -740,7 +740,7 @@ theorem five_eight_weaker' (p₀l : ℝ) (hp₀l : 0 < p₀l) :
                         i ∈ redOrDensitySteps μ k l ini →
                           x ∈ (algorithm μ k l ini i).X →
                             (1 : ℝ) / (2 * k) * (algorithm μ k l ini i).Y.card ≤
-                              ((red_neighbors χ) x ∩ (algorithm μ k l ini i).Y).card := by
+                              (red_neighbors χ x ∩ (algorithm μ k l ini i).Y).card := by
   filter_upwards [five_eight_weaker p₀l hp₀l] with l hl k hlk μ n χ ini hini i x hi hx
   rw [redOrDensitySteps, Finset.mem_filter, Nat.not_even_iff_odd, Finset.mem_range] at hi
   rcases hi.2.1 with ⟨j, rfl⟩
@@ -792,7 +792,7 @@ theorem Y_nonempty {μ : ℝ} (hi : i < finalStep μ k l ini) : (algorithm μ k 
 -- and k and ini both depend on it, with 1 / k ≤ it ≤ ini.p
 theorem red_neighbors_Y_nonempty {μ : ℝ} (h : 1 / (k : ℝ) ≤ ini.p) (hk : 1 < k)
     (hi : i ∈ degreeSteps μ k l ini) (x : V) (hx : x ∈ (algorithm μ k l ini (i + 1)).X) :
-    ((red_neighbors χ) x ∩ (algorithm μ k l ini (i + 1)).Y).Nonempty := by
+    (red_neighbors χ x ∩ (algorithm μ k l ini (i + 1)).Y).Nonempty := by
   rw [← Finset.card_pos, ← @Nat.cast_pos ℝ]
   have : i < finalStep μ k l ini := by
     rw [degreeSteps, Finset.mem_filter, Finset.mem_range] at hi
@@ -809,7 +809,7 @@ theorem red_neighbors_Y_nonempty {μ : ℝ} (h : 1 / (k : ℝ) ≤ ini.p) (hk : 
 
 theorem red_neighbors_Y_nonempty' {μ : ℝ} (h : 1 / (k : ℝ) ≤ ini.p) (hk : 1 < k)
     (hi : i ∈ redOrDensitySteps μ k l ini) (x : V) (hx : x ∈ (algorithm μ k l ini i).X) :
-    ((red_neighbors χ) x ∩ (algorithm μ k l ini i).Y).Nonempty := by
+    (red_neighbors χ x ∩ (algorithm μ k l ini i).Y).Nonempty := by
   rw [redOrDensitySteps, Finset.mem_filter, Nat.not_even_iff_odd, Finset.mem_range] at hi
   rcases hi.2.1 with ⟨j, rfl⟩
   refine' red_neighbors_Y_nonempty h hk _ x hx
@@ -817,7 +817,7 @@ theorem red_neighbors_Y_nonempty' {μ : ℝ} (h : 1 / (k : ℝ) ≤ ini.p) (hk :
   exact ⟨hi.1.trans_le' (Nat.le_succ _), by simp⟩
 
 theorem red_neighbors_eq_blue_compl {x : V} :
-    (red_neighbors χ) x = (insert x ((blue_neighbors χ) x))ᶜ := by
+    red_neighbors χ x = (insert x (blue_neighbors χ x))ᶜ := by
   ext y
   rw [Finset.mem_compl, Finset.mem_insert, mem_colNeighbors, mem_colNeighbors, not_or]
   simp only [Fin.fin_two_eq_zero_iff_ne_one, not_exists]
@@ -828,13 +828,13 @@ theorem red_neighbors_eq_blue_compl {x : V} :
   exact ⟨Ne.symm p, q _⟩
 
 theorem red_neighbors_inter_eq {x : V} {X : Finset V} (hx : x ∈ X) :
-    (red_neighbors χ) x ∩ X = X \ insert x ((blue_neighbors χ) x ∩ X) := by
+    red_neighbors χ x ∩ X = X \ insert x (blue_neighbors χ x ∩ X) := by
   rw [red_neighbors_eq_blue_compl, Finset.sdiff_eq_inter_compl, Finset.inter_comm,
     ← Finset.insert_inter_of_mem hx, Finset.compl_inter, ← Finset.inf_eq_inter,
     ← Finset.inf_eq_inter, ← Finset.sup_eq_union, inf_sup_left, inf_compl_self, sup_bot_eq]
 
 theorem card_red_neighbors_inter {μ : ℝ} (hi : i ∈ redOrDensitySteps μ k l ini) :
-    (((red_neighbors χ) (getX hi) ∩ (algorithm μ k l ini i).X).card : ℝ) =
+    ((red_neighbors χ (getX hi) ∩ (algorithm μ k l ini i).X).card : ℝ) =
       (1 - blueXRatio μ k l ini i) * (algorithm μ k l ini i).X.card - 1 := by
   rw [red_neighbors_inter_eq, Finset.cast_card_sdiff, Finset.card_insert_of_notMem, one_sub_mul,
     Nat.cast_add_one, ← sub_sub, blueXRatio_prop]
@@ -843,7 +843,7 @@ theorem card_red_neighbors_inter {μ : ℝ} (hi : i ∈ redOrDensitySteps μ k l
   · exact BookConfig.getCentralVertex_mem_x _ _ _
 
 theorem blue_neighbors_eq_red_compl {x : V} :
-    (blue_neighbors χ) x = (insert x ((red_neighbors χ) x))ᶜ := by
+    blue_neighbors χ x = (insert x (red_neighbors χ x))ᶜ := by
   ext y
   rw [Finset.mem_compl, Finset.mem_insert, mem_colNeighbors, mem_colNeighbors, not_or]
   simp only [Fin.fin_two_eq_zero_iff_ne_one, not_exists, Classical.not_not]
@@ -855,7 +855,7 @@ theorem blue_neighbors_eq_red_compl {x : V} :
 
 theorem red_neighbors_x_nonempty {μ₁ μ : ℝ} (hμ₁ : μ₁ < 1) (hμu : μ ≤ μ₁) (hk : (1 - μ₁)⁻¹ ≤ k)
     (hl : 1 < l) (hi : i ∈ redOrDensitySteps μ k l ini) :
-    ((red_neighbors χ) (getX hi) ∩ (algorithm μ k l ini i).X).Nonempty := by
+    (red_neighbors χ (getX hi) ∩ (algorithm μ k l ini i).X).Nonempty := by
   set X := (algorithm μ k l ini i).X with ← hx
   have hi' := hi
   rw [redOrDensitySteps, Finset.mem_filter, Finset.mem_range] at hi'
@@ -875,12 +875,12 @@ theorem red_neighbors_x_nonempty {μ₁ μ : ℝ} (hμ₁ : μ₁ < 1) (hμu : �
   simpa [one_div] using
     one_div_le_one_div_of_le (sub_pos_of_lt hμ₁) (sub_le_sub_left hμu 1)
 
-theorem five_one_case_a {α : ℝ} (X Y : Finset V) {x : V} (hxX : ((red_neighbors χ) x ∩ X).Nonempty)
-    (hxY : ((red_neighbors χ) x ∩ Y).Nonempty) :
-    -α * (((red_neighbors χ) x ∩ X).card * ((red_neighbors χ) x ∩ Y).card) / Y.card ≤
-        ∑ y ∈ (red_neighbors χ) x ∩ X, pairWeight χ X Y x y →
-      (red_density χ) X Y - α ≤
-        (red_density χ) ((red_neighbors χ) x ∩ X) ((red_neighbors χ) x ∩ Y) := by
+theorem five_one_case_a {α : ℝ} (X Y : Finset V) {x : V} (hxX : (red_neighbors χ x ∩ X).Nonempty)
+    (hxY : (red_neighbors χ x ∩ Y).Nonempty) :
+    -α * ((red_neighbors χ x ∩ X).card * (red_neighbors χ x ∩ Y).card) / Y.card ≤
+        ∑ y ∈ red_neighbors χ x ∩ X, pairWeight χ X Y x y →
+      red_density χ X Y - α ≤
+        red_density χ (red_neighbors χ x ∩ X) (red_neighbors χ x ∩ Y) := by
   intro h
   conv_rhs => rw [colDensity_eq_sum]
   simp only [pairWeight, ← Finset.mul_sum] at h
@@ -904,7 +904,7 @@ local notation "NR" => red_neighbors χ
 theorem five_one_case_b_aux {α : ℝ} (X Y : Finset V) {x : V} (hx : x ∈ X) (hy : Y.Nonempty)
     (h :
       ∑ y ∈ NR x ∩ X, pairWeight χ X Y x y < -α * ((NR x ∩ X).card * (NR x ∩ Y).card) / Y.card) :
-    (red_density χ) X Y * ((NB x ∩ X).card * (NR x ∩ Y).card) +
+    red_density χ X Y * ((NB x ∩ X).card * (NR x ∩ Y).card) +
           α * ((NR x ∩ X).card * (NR x ∩ Y).card) +
         weight χ X Y x * Y.card ≤
       ∑ y ∈ NB x ∩ X, (NR y ∩ (NR x ∩ Y)).card := by
@@ -957,18 +957,18 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
                     ∀ i : ℕ,
                       ∀ hi : i ∈ redOrDensitySteps μ k l ini,
                         let C := algorithm μ k l ini i
-                        ∑ y ∈ (red_neighbors χ) (getX hi) ∩ C.X, pairWeight χ C.X C.Y (getX hi) y <
+                        ∑ y ∈ red_neighbors χ (getX hi) ∩ C.X, pairWeight χ C.X C.Y (getX hi) y <
                             -αFunction k (height k ini.p C.p) *
-                                (((red_neighbors χ) (getX hi) ∩ C.X).card *
-                                  ((red_neighbors χ) (getX hi) ∩ C.Y).card) /
+                                ((red_neighbors χ (getX hi) ∩ C.X).card *
+                                  (red_neighbors χ (getX hi) ∩ C.Y).card) /
                               C.Y.card →
                           C.p * blueXRatio μ k l ini i *
-                                  (C.X.card * ((red_neighbors χ) (getX hi) ∩ C.Y).card) +
+                                  (C.X.card * (red_neighbors χ (getX hi) ∩ C.Y).card) +
                                 αFunction k (height k ini.p C.p) * (1 - blueXRatio μ k l ini i) *
-                                  (C.X.card * ((red_neighbors χ) (getX hi) ∩ C.Y).card) -
-                              3 / k ^ 4 * (C.X.card * ((red_neighbors χ) (getX hi) ∩ C.Y).card) ≤
-                            ∑ y ∈ (blue_neighbors χ) (getX hi) ∩ C.X,
-                              ((red_neighbors χ) y ∩ ((red_neighbors χ) (getX hi) ∩ C.Y)).card := by
+                                  (C.X.card * (red_neighbors χ (getX hi) ∩ C.Y).card) -
+                              3 / k ^ 4 * (C.X.card * (red_neighbors χ (getX hi) ∩ C.Y).card) ≤
+                            ∑ y ∈ blue_neighbors χ (getX hi) ∩ C.X,
+                              (red_neighbors χ y ∩ (red_neighbors χ (getX hi) ∩ C.Y)).card := by
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   filter_upwards [top_adjuster (t.eventually_ge_atTop p₀l⁻¹),
     top_adjuster (t.eventually_gt_atTop (0 : ℝ)), five_eight_weaker' p₀l hp₀l, five_four,
@@ -992,8 +992,8 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
       hx (Y_nonempty hi'.1) h).trans' _
   change
     _ ≤
-      C.p * (((blue_neighbors χ) x ∩ C.X).card * ((red_neighbors χ) x ∩ C.Y).card) +
-          α * (((red_neighbors χ) x ∩ C.X).card * ((red_neighbors χ) x ∩ C.Y).card) +
+      C.p * ((blue_neighbors χ x ∩ C.X).card * (red_neighbors χ x ∩ C.Y).card) +
+          α * ((red_neighbors χ x ∩ C.X).card * (red_neighbors χ x ∩ C.Y).card) +
         weight χ C.X C.Y x * C.Y.card
   rw [← hβ, hβ', mul_assoc, mul_assoc, sub_one_mul, mul_sub, sub_eq_add_neg (_ * _),
     sub_eq_add_neg _ (_ / _ * _)]
@@ -1003,13 +1003,13 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
     refine' hini.trans' _
     rw [one_div]
     exact inv_le_of_inv_le₀ hp₀l hl
-  have : (C.Y.card : ℝ) ≤ k * (2 * ((red_neighbors χ) x ∩ C.Y).card) := by
+  have : (C.Y.card : ℝ) ≤ k * (2 * (red_neighbors χ x ∩ C.Y).card) := by
     rw [mul_left_comm, ← mul_assoc, ← div_le_iff₀', div_eq_mul_one_div, mul_comm]
     · exact h₅₈
     refine' mul_pos _ (hk₀ k hlk)
     exact two_pos
   have :
-    -((2 : ℝ) / k ^ 4) * (C.X.card * ((red_neighbors χ) x ∩ C.Y).card) ≤
+    -((2 : ℝ) / k ^ 4) * (C.X.card * (red_neighbors χ x ∩ C.Y).card) ≤
       weight χ C.X C.Y x * C.Y.card := by
     have h₅₄' : -(C.X.card : ℝ) / (k : ℝ) ^ 5 ≤ weight χ C.X C.Y x := h₅₄ k hlk μ n χ ini i hi
     refine' (mul_le_mul_of_nonneg_right h₅₄' (Nat.cast_nonneg _)).trans' _
@@ -1021,7 +1021,7 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
     rw [div_mul_eq_mul_div, div_mul_eq_mul_div, mul_left_comm, pow_succ]
     field_simp
   refine'
-    (add_le_add_right this (-(α * (((red_neighbors χ) x ∩ C.Y).card : ℝ)))).trans' _
+    (add_le_add_right this (-(α * ((red_neighbors χ x ∩ C.Y).card : ℝ)))).trans' _
   rw [neg_mul, ← neg_add, neg_le_neg_iff, ← mul_assoc, ← add_mul]
   refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)
   rw [← le_sub_iff_add_le, ← sub_mul, div_sub_div_same]
@@ -1055,20 +1055,20 @@ theorem five_one_case_b_later (μ₁ : ℝ) (p₀l : ℝ) (hμ₁ : μ₁ < 1) (
                       ∀ i : ℕ,
                         ∀ hi : i ∈ redOrDensitySteps μ k l ini,
                           let C := algorithm μ k l ini i
-                          ∑ y ∈ (red_neighbors χ) (getX hi) ∩ C.X,
+                          ∑ y ∈ red_neighbors χ (getX hi) ∩ C.X,
                                 pairWeight χ C.X C.Y (getX hi) y <
                               -αFunction k (height k ini.p C.p) *
-                                  (((red_neighbors χ) (getX hi) ∩ C.X).card *
-                                    ((red_neighbors χ) (getX hi) ∩ C.Y).card) /
+                                  ((red_neighbors χ (getX hi) ∩ C.X).card *
+                                    (red_neighbors χ (getX hi) ∩ C.Y).card) /
                                 C.Y.card →
                             C.p * blueXRatio μ k l ini i *
-                                  (C.X.card * ((red_neighbors χ) (getX hi) ∩ C.Y).card) +
+                                  (C.X.card * (red_neighbors χ (getX hi) ∩ C.Y).card) +
                                 αFunction k (height k ini.p C.p) * (1 - blueXRatio μ k l ini i) *
                                     (1 - k ^ (-1 / 4 : ℝ)) *
-                                  (C.X.card * ((red_neighbors χ) (getX hi) ∩ C.Y).card) ≤
-                              ∑ y ∈ (blue_neighbors χ) (getX hi) ∩ C.X,
-                                ((red_neighbors χ) y ∩
-                                  ((red_neighbors χ) (getX hi) ∩ C.Y)).card := by
+                                  (C.X.card * (red_neighbors χ (getX hi) ∩ C.Y).card) ≤
+                              ∑ y ∈ blue_neighbors χ (getX hi) ∩ C.X,
+                                (red_neighbors χ y ∩
+                                  (red_neighbors χ (getX hi) ∩ C.Y)).card := by
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have h4 : (0 : ℝ) < -1 / 4 + (-1 / 4 - 1) + 4 := by norm_num
   have := ((tendsto_rpow_atTop h4).comp t).eventually_ge_atTop (3 / (1 - μ₁))
@@ -1125,13 +1125,13 @@ theorem five_one_case_b_condition (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp�
                       ∀ i : ℕ,
                         ∀ hi : i ∈ redOrDensitySteps μ k l ini,
                           let C := algorithm μ k l ini i
-                          ∑ y ∈ (red_neighbors χ) (getX hi) ∩ C.X,
+                          ∑ y ∈ red_neighbors χ (getX hi) ∩ C.X,
                                 pairWeight χ C.X C.Y (getX hi) y <
                               -αFunction k (height k ini.p C.p) *
-                                  (((red_neighbors χ) (getX hi) ∩ C.X).card *
-                                    ((red_neighbors χ) (getX hi) ∩ C.Y).card) /
+                                  ((red_neighbors χ (getX hi) ∩ C.X).card *
+                                    (red_neighbors χ (getX hi) ∩ C.Y).card) /
                                 C.Y.card →
-                            ((blue_neighbors χ) (getX hi) ∩ C.X).Nonempty := by
+                            (blue_neighbors χ (getX hi) ∩ C.X).Nonempty := by
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   filter_upwards [five_one_case_b_later μ₁ p₀l hμ₁ hp₀l,
     top_adjuster (t.eventually_ge_atTop p₀l⁻¹), eventually_gt_atTop 1,
@@ -1179,15 +1179,15 @@ theorem five_one (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp₀l : 0 < p₀l) :
                         ∀ hi : i ∈ redOrDensitySteps μ k l ini,
                           let C := algorithm μ k l ini i
                           C.p - αFunction k (height k ini.p C.p) ≤
-                              (red_density χ) ((red_neighbors χ) (getX hi) ∩ C.X)
-                                ((red_neighbors χ) (getX hi) ∩ C.Y) ∨
+                              red_density χ (red_neighbors χ (getX hi) ∩ C.X)
+                                (red_neighbors χ (getX hi) ∩ C.Y) ∨
                             0 < blueXRatio μ k l ini i ∧
                               (algorithm μ k l ini i).p +
                                   (1 - k ^ (-1 / 4 : ℝ)) *
                                       ((1 - blueXRatio μ k l ini i) / blueXRatio μ k l ini i) *
                                     αFunction k (height k ini.p C.p) ≤
-                                (red_density χ) ((blue_neighbors χ) (getX hi) ∩ C.X)
-                                  ((red_neighbors χ) (getX hi) ∩ C.Y) := by
+                                red_density χ (blue_neighbors χ (getX hi) ∩ C.X)
+                                  (red_neighbors χ (getX hi) ∩ C.Y) := by
   have t : Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   filter_upwards [top_adjuster (t.eventually_ge_atTop p₀l⁻¹),
     top_adjuster (t.eventually_ge_atTop (1 - μ₁)⁻¹), eventually_gt_atTop 1,
@@ -1198,10 +1198,10 @@ theorem five_one (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp₀l : 0 < p₀l) :
   let x := getX hi
   let β := blueXRatio μ k l ini i
   let ε : ℝ := k ^ (-1 / 4 : ℝ)
-  let Yr := (red_neighbors χ) x ∩ C.Y
+  let Yr := red_neighbors χ x ∩ C.Y
   change
-    C.p - α ≤ (red_density χ) ((red_neighbors χ) x ∩ C.X) Yr ∨
-      0 < β ∧ C.p + (1 - ε) * ((1 - β) / β) * α ≤ (red_density χ) ((blue_neighbors χ) x ∩ C.X) Yr
+    C.p - α ≤ red_density χ (red_neighbors χ x ∩ C.X) Yr ∨
+      0 < β ∧ C.p + (1 - ε) * ((1 - β) / β) * α ≤ red_density χ (blue_neighbors χ x ∩ C.X) Yr
   have hp₀ : (1 : ℝ) / k ≤ ini.p := by
     refine' hini.trans' _
     rw [one_div]
@@ -1214,15 +1214,15 @@ theorem five_one (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp₀l : 0 < p₀l) :
     rw [redOrDensitySteps, Finset.mem_filter, Finset.mem_range] at hi
     exact hi.1
   cases'
-    le_or_gt (-α * (((red_neighbors χ) x ∩ C.X).card * Yr.card) / C.Y.card)
-      (∑ y ∈ (red_neighbors χ) x ∩ C.X, pairWeight χ C.X C.Y x y) with
+    le_or_gt (-α * ((red_neighbors χ x ∩ C.X).card * Yr.card) / C.Y.card)
+      (∑ y ∈ red_neighbors χ x ∩ C.X, pairWeight χ C.X C.Y x y) with
     hα hα
   · exact Or.inl (five_one_case_a _ _ (red_neighbors_x_nonempty hμ₁ hμu (hkμ k hlk) hl₁ hi) hYr hα)
   replace h₁ :
     C.p * β * (C.X.card * Yr.card) + α * (1 - β) * (1 - ε) * (C.X.card * Yr.card) ≤
-      ∑ y ∈ (blue_neighbors χ) x ∩ C.X, ((red_neighbors χ) y ∩ Yr).card :=
+      ∑ y ∈ blue_neighbors χ x ∩ C.X, (red_neighbors χ y ∩ Yr).card :=
     h₁ k hlk μ hμu n χ ini hini i hi hα
-  replace h₂ : ((blue_neighbors χ) x ∩ C.X).Nonempty := h₂ k hlk μ hμu n χ ini hini i hi hα
+  replace h₂ : (blue_neighbors χ x ∩ C.X).Nonempty := h₂ k hlk μ hμu n χ ini hini i hi hα
   right
   have hβ : 0 < β := by
     change 0 < blueXRatio _ _ _ _ _
