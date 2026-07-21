@@ -352,8 +352,8 @@ theorem four_one_part_one [Fintype V] (μ : ℝ) (l k : ℕ) (C : BookConfig χ)
     ∃ U : Finset V,
       χ.MonochromaticOf U 1 ∧
         U.card = ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊ ∧
-          U ⊆ C.X ∧ ∀ x ∈ U, μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card := by
-  let W := C.X.filter fun x => μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card
+          U ⊆ C.X ∧ ∀ x ∈ U, μ * C.X.card ≤ (blue_neighbors χ x ∩ C.X).card := by
+  let W := C.X.filter fun x => μ * C.X.card ≤ (blue_neighbors χ x ∩ C.X).card
   have : ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ W.card := hC
   rw [← Fintype.card_coe W, ramseyNumber_le_iff, isRamseyValid_iff_eq] at this
   obtain ⟨U, hU⟩ := this (χ.pullback (Function.Embedding.subtype _))
@@ -396,15 +396,15 @@ theorem colDensity_hMul_hMul [Fintype V] {k : Fin 2} {A B : Finset V} :
 -- (10)
 theorem four_one_part_two [Fintype V] (μ : ℝ) {l : ℕ} {C : BookConfig χ} {U : Finset V} (hl : l ≠ 0)
     (hU : U.card = ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊) (hU' : U ⊆ C.X)
-    (hU'' : ∀ x ∈ U, μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card) :
-    (μ * C.X.card - U.card) / (C.X.card - U.card) ≤ (blue_density χ) U (C.X \ U) := by
+    (hU'' : ∀ x ∈ U, μ * C.X.card ≤ (blue_neighbors χ x ∩ C.X).card) :
+    (μ * C.X.card - U.card) / (C.X.card - U.card) ≤ blue_density χ U (C.X \ U) := by
   rw [colDensity_eq_sum, Finset.card_sdiff_of_subset hU',
     ← Nat.cast_sub (Finset.card_le_card hU'), ← div_div]
   refine' div_le_div_of_nonneg_right _ (Nat.cast_nonneg _)
   rw [le_div_iff₀]
   have :
       U.card • (μ * C.X.card - U.card) ≤
-        ∑ x ∈ U, (((blue_neighbors χ) x ∩ (C.X \ U)).card : ℝ) := by
+        ∑ x ∈ U, ((blue_neighbors χ x ∩ (C.X \ U)).card : ℝ) := by
     rw [← Finset.sum_const]
     refine' sum_le_sum _
     intro x hx
@@ -534,7 +534,7 @@ theorem four_one_part_four (hμ₀ : 0 < μ₀) :
 
 /-- the set of vertices which are connected to S by only blue edges -/
 def commonBlues (χ : TopEdgeLabelling V (Fin 2)) (S : Finset V) : Finset V :=
-  univ.filter fun i => ∀ j ∈ S, i ∈ (blue_neighbors χ) j
+  univ.filter fun i => ∀ j ∈ S, i ∈ blue_neighbors χ j
 
 theorem monochromaticBetween_commonBlues {S : Finset V} :
     χ.MonochromaticBetween S (commonBlues χ S) 1 := by
@@ -547,7 +547,7 @@ theorem monochromaticBetween_commonBlues {S : Finset V} :
 
 theorem four_one_part_five (χ : TopEdgeLabelling V (Fin 2)) {b : ℕ} {X U : Finset V} :
     ∑ S ∈ powersetCard b U, ((commonBlues χ S ∩ (X \ U)).card : ℝ) =
-      ∑ v ∈ X \ U, ((blue_neighbors χ) v ∩ U).card.choose b := by
+      ∑ v ∈ X \ U, (blue_neighbors χ v ∩ U).card.choose b := by
   have :
     ∀ S,
       ((commonBlues χ S ∩ (X \ U)).card : ℝ) =
@@ -561,7 +561,7 @@ theorem four_one_part_five (χ : TopEdgeLabelling V (Fin 2)) {b : ℕ} {X U : Fi
     Nat.cast_sum]
   change (∑ v ∈ X \ U, (∑ S ∈ powersetCard b U,
       (if v ∈ commonBlues χ S then (1 : ℝ) else 0))) =
-    ∑ v ∈ X \ U, (((blue_neighbors χ) v ∩ U).card.choose b : ℝ)
+    ∑ v ∈ X \ U, ((blue_neighbors χ v ∩ U).card.choose b : ℝ)
   refine' Finset.sum_congr rfl (fun v hv => ?_)
   rw [Finset.sum_boole (R := ℝ) (fun S => v ∈ commonBlues χ S) (powersetCard b U),
     ← Finset.card_powersetCard]
@@ -576,9 +576,9 @@ theorem four_one_part_five (χ : TopEdgeLabelling V (Fin 2)) {b : ℕ} {X U : Fi
     exact ⟨fun x hx => (h hx).1, fun x hx => (h hx).2⟩
 
 theorem four_one_part_six (χ : TopEdgeLabelling V (Fin 2)) {m b : ℕ} {X U : Finset V} (σ : ℝ)
-    (hU : U.card = m) (hb : b ≠ 0) (hσ' : σ = (blue_density χ) U (X \ U)) :
+    (hU : U.card = m) (hb : b ≠ 0) (hσ' : σ = blue_density χ U (X \ U)) :
     myGeneralizedBinomial (σ * ↑m) b * (X \ U).card ≤
-      ∑ v ∈ X \ U, ((blue_neighbors χ) v ∩ U).card.choose b := by
+      ∑ v ∈ X \ U, (blue_neighbors χ v ∩ U).card.choose b := by
   refine' (my_thing _ _ hb).trans' _
   rw [← colDensity_hMul, ← hσ', hU]
 
@@ -749,7 +749,7 @@ theorem four_one (hμ₀ : 0 < μ₀) :
   set m := ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊
   have hm : 3 ≤ m := by rwa [Nat.add_one_le_ceil_iff, Nat.cast_two]
   have hC' : ramseyNumber ![k, m] ≤ C.X.card := hC.trans (Finset.card_le_card (filter_subset _ _))
-  let σ := (blue_density χ) U (C.X \ U)
+  let σ := blue_density χ U (C.X \ U)
   have hμ' : 0 < μ := hμ₀.trans_le hμ
   have h11 : μ - 2 / k ≤ σ :=
     (four_one_part_three μ hμ'.le (hl.trans hlk) (hl.trans' (by norm_num1)) Usize hC').trans
