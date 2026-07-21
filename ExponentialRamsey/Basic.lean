@@ -254,12 +254,11 @@ def redStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookConfig χ wh
     intro a ha
     exact C.red_XYA (Or.inl (by exact_mod_cast hx)) ha _
   red_XYA := by
-    rw [Finset.coe_insert, ← Set.singleton_union, EdgeLabelling.monochromaticBetween_union_right]
-    refine ⟨EdgeLabelling.monochromaticBetween_singleton_right.mpr fun a ha _ =>
-      (mem_colNeighbors'.mp
-        (ha.elim (fun h => (Finset.mem_inter.mp (Finset.mem_coe.mp h)).1)
-          fun h => (Finset.mem_inter.mp (Finset.mem_coe.mp h)).1)).choose_spec, ?_⟩
-    exact C.red_XYA.subset_left (by grind)
+    rw [← Finset.coe_union, ← Finset.inter_union_distrib_left, Finset.coe_insert,
+      ← Set.singleton_union, EdgeLabelling.monochromaticBetween_union_right,
+      EdgeLabelling.monochromaticBetween_singleton_right]
+    refine ⟨?_, C.red_XYA.subset_left (mod_cast inter_subset_right)⟩
+    simp +contextual [mem_colNeighbors']
   blue_b := C.blue_b
   blue_XB := C.blue_XB.subset_left (Finset.coe_subset.2 inter_subset_right)
 
