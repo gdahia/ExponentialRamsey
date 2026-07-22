@@ -254,15 +254,11 @@ def redStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookConfig χ wh
     intro a ha
     exact C.red_XYA (Or.inl (by exact_mod_cast hx)) ha _
   red_XYA := by
-    -- TODO: find a cleaner proof closer to the original
-    intro a ha b hb h
-    push_cast at ha hb
-    obtain ha_left | ha_right := Finset.mem_union.mp (by exact_mod_cast ha) <;>
-      obtain rfl | hb_in := Finset.mem_insert.mp (by exact_mod_cast hb)
-    · exact (mem_colNeighbors'.mp (Finset.mem_inter.mp ha_left).1).choose_spec ▸ rfl
-    · exact C.red_XYA (Or.inl (Finset.mem_inter.mp ha_left).2) hb_in h
-    · exact (mem_colNeighbors'.mp (Finset.mem_inter.mp ha_right).1).choose_spec ▸ rfl
-    · exact C.red_XYA (Or.inr (Finset.mem_inter.mp ha_right).2) hb_in h
+    rw [← Finset.coe_union, ← Finset.inter_union_distrib_left, Finset.coe_insert,
+      ← Set.singleton_union, EdgeLabelling.monochromaticBetween_union_right,
+      EdgeLabelling.monochromaticBetween_singleton_right]
+    refine ⟨?_, C.red_XYA.subset_left (mod_cast inter_subset_right)⟩
+    simp +contextual [mem_colNeighbors']
   blue_b := C.blue_b
   blue_XB := C.blue_XB.subset_left (Finset.coe_subset.2 inter_subset_right)
 
@@ -347,20 +343,20 @@ def densityBoostStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookCon
     simp +contextual [mem_colNeighbors']
 
 theorem densityBoostStepBasic_x {C : BookConfig χ} {x : V} (hx : x ∈ C.X) :
-    (densityBoostStepBasic C x hx).X = blue_neighbors χ x ∩ C.X :=
-  by simp [densityBoostStepBasic]
+    (densityBoostStepBasic C x hx).X = blue_neighbors χ x ∩ C.X := by
+  simp [densityBoostStepBasic]
 
 theorem densityBoostStepBasic_Y {C : BookConfig χ} {x : V} (hx : x ∈ C.X) :
-    (densityBoostStepBasic C x hx).Y = red_neighbors χ x ∩ C.Y :=
-  by simp [densityBoostStepBasic]
+    (densityBoostStepBasic C x hx).Y = red_neighbors χ x ∩ C.Y := by
+  simp [densityBoostStepBasic]
 
 theorem densityBoostStepBasic_a {C : BookConfig χ} {x : V} (hx : x ∈ C.X) :
-    (densityBoostStepBasic C x hx).A = C.A :=
-  by simp [densityBoostStepBasic]
+    (densityBoostStepBasic C x hx).A = C.A := by
+  simp [densityBoostStepBasic]
 
 theorem densityBoostStepBasic_b {C : BookConfig χ} {x : V} (hx : x ∈ C.X) :
-    (densityBoostStepBasic C x hx).B = insert x C.B :=
-  by simp [densityBoostStepBasic]
+    (densityBoostStepBasic C x hx).B = insert x C.B := by
+  simp [densityBoostStepBasic]
 
 end
 
@@ -436,15 +432,9 @@ theorem mem_usefulBlueBooks {μ : ℝ} {X : Finset V} {ST : Finset V × Finset V
         ST.2 ⊆ X ∧
           Disjoint ST.1 ST.2 ∧
             χ.MonochromaticOf ST.1 1 ∧
-              χ.MonochromaticBetween ST.1 ST.2 1 ∧ μ ^ ST.1.card * X.card / 2 ≤ ST.2.card :=
-  -- TODO: revisit this proof
-  by
-  rw [usefulBlueBooks, mem_filter]
-  constructor
-  · simp [Finset.mem_product, mem_powerset]
-    tauto
-  · simp [Finset.mem_product, mem_powerset]
-    tauto
+              χ.MonochromaticBetween ST.1 ST.2 1 ∧ μ ^ ST.1.card * X.card / 2 ≤ ST.2.card := by
+  simp [usefulBlueBooks, mem_filter, Finset.mem_product, mem_powerset]
+  tauto
 
 theorem mem_usefulBlueBooks' {μ : ℝ} {X S T : Finset V} :
     (S, T) ∈ usefulBlueBooks χ μ X ↔
@@ -563,18 +553,18 @@ noncomputable def bigBlueStep (μ : ℝ) (C : BookConfig χ) : BookConfig χ :=
   bigBlueStepBasic C (getBook χ μ C.X).1 (getBook χ μ C.X).2 getBook_fst_subset getBook_snd_subset
     getBook_blue_fst getBook_disjoints getBook_blue_fst_snd
 
-theorem bigBlueStep_x {μ : ℝ} {C : BookConfig χ} : (bigBlueStep μ C).X = (getBook χ μ C.X).2 :=
-  by simp [bigBlueStep, bigBlueStepBasic]
+theorem bigBlueStep_x {μ : ℝ} {C : BookConfig χ} : (bigBlueStep μ C).X = (getBook χ μ C.X).2 := by
+  simp [bigBlueStep, bigBlueStepBasic]
 
-theorem bigBlueStep_Y {μ : ℝ} {C : BookConfig χ} : (bigBlueStep μ C).Y = C.Y :=
-  by simp [bigBlueStep, bigBlueStepBasic]
+theorem bigBlueStep_Y {μ : ℝ} {C : BookConfig χ} : (bigBlueStep μ C).Y = C.Y := by
+  simp [bigBlueStep, bigBlueStepBasic]
 
-theorem bigBlueStep_a {μ : ℝ} {C : BookConfig χ} : (bigBlueStep μ C).A = C.A :=
-  by simp [bigBlueStep, bigBlueStepBasic]
+theorem bigBlueStep_a {μ : ℝ} {C : BookConfig χ} : (bigBlueStep μ C).A = C.A := by
+  simp [bigBlueStep, bigBlueStepBasic]
 
 theorem bigBlueStep_b {μ : ℝ} {C : BookConfig χ} :
-    (bigBlueStep μ C).B = C.B ∪ (getBook χ μ C.X).1 :=
-  by simp [bigBlueStep, bigBlueStepBasic]
+    (bigBlueStep μ C).B = C.B ∪ (getBook χ μ C.X).1 := by
+  simp [bigBlueStep, bigBlueStepBasic]
 
 section
 
@@ -756,8 +746,8 @@ theorem finalStep_is_none (hk : k ≠ 0) (hl : l ≠ 0) :
     exact ⟨i, hi⟩
   csInf_mem this
 
-theorem algorithm_zero : algorithm μ k l ini 0 = ini :=
-  by simp [algorithm, algorithmOption]
+theorem algorithm_zero : algorithm μ k l ini 0 = ini := by
+  simp [algorithm, algorithmOption]
 
 theorem some_algorithm_of_finalStep_le (hi : i ≤ finalStep μ k l ini) :
     some (algorithm μ k l ini i) = algorithmOption μ k l ini i := by
@@ -994,8 +984,8 @@ theorem union_partial_steps :
 
 theorem union_steps :
     redSteps μ k l ini ∪ bigBlueSteps μ k l ini ∪ densitySteps μ k l ini ∪ degreeSteps μ k l ini =
-      range (finalStep μ k l ini) :=
-  by rw [union_right_comm (redSteps _ _ _ _), redSteps_union_densitySteps, union_partial_steps]
+      range (finalStep μ k l ini) := by
+  rw [union_right_comm (redSteps _ _ _ _), redSteps_union_densitySteps, union_partial_steps]
 
 theorem filter_even_thing {n : ℕ} :
     ((range n).filter Even).card ≤ ((range n).filter fun i => ¬Even i).card + 1 := by
@@ -1030,8 +1020,8 @@ theorem num_degreeSteps_le_add :
 
 theorem cases_of_lt_finalStep {i : ℕ} (hi : i < finalStep μ k l ini) :
     i ∈ redSteps μ k l ini ∨
-      i ∈ bigBlueSteps μ k l ini ∨ i ∈ densitySteps μ k l ini ∨ i ∈ degreeSteps μ k l ini :=
-  by rwa [← mem_range, ← union_steps, mem_union, mem_union, mem_union, or_assoc, or_assoc] at hi
+      i ∈ bigBlueSteps μ k l ini ∨ i ∈ densitySteps μ k l ini ∨ i ∈ degreeSteps μ k l ini := by
+  rwa [← mem_range, ← union_steps, mem_union, mem_union, mem_union, or_assoc, or_assoc] at hi
 
 -- (7)
 theorem x_subset {i : ℕ} (hi : i < finalStep μ k l ini) :
