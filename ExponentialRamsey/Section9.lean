@@ -643,7 +643,7 @@ theorem ConcaveOn.hMul {f g : ℝ → ℝ} {s : Set ℝ} (hf : ConcaveOn ℝ s f
     (hg'' : ∀ x ∈ s, 0 ≤ g x) : ConcaveOn ℝ s fun x => f x * g x := by
   simpa only [Pi.mul_apply] using
     hf.mul hg hf'' hg'' fun x hx y hy h =>
-      hf' hy hx (le_of_not_gt fun hxy => not_lt_of_ge (hg' hx hy hxy.le) h)
+      hf' hy hx (le_of_not_gt fun hxy => (hg' hx hy hxy.le).not_gt h)
 
 -- lemma convex_on_sub_const {s : set ℝ} {c : ℝ} (hs : convex ℝ s) : concave_on ℝ s (λ x, x - c) :=
 -- (convex_on_id hs).sub (concave_on_const _ hs)
