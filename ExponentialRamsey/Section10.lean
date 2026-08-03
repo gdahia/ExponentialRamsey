@@ -628,7 +628,7 @@ theorem ten_one_a_end {k l m n : ℕ} {γ δ : ℝ} (hγ : γ ≤ 1 / 5) (hδ : 
   rw [← Nat.cast_add, add_comm l, add_tsub_assoc_of_le hml.le, Nat.choose_symm_add] at this
   replace h₁₀₂ :=
     (mul_lt_mul_of_pos_right hm (uLowerBoundRatio_pos (by norm_num1) hml.le)).trans_le h₁₀₂
-  refine' (not_le_of_gt h₁₀₂) _
+  refine' h₁₀₂.not_ge _
   rw [uLowerBoundRatio, add_zero, one_pow, one_mul, ← Nat.cast_add, ← this, Nat.choose_symm_add,
     mul_assoc, mul_div_cancel₀]
   swap
