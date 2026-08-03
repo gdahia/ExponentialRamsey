@@ -14,7 +14,7 @@ namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey Nat Real
 
-open Filter Finset Nat Real Asymptotics
+open Filter _root_.Finset Nat Real Asymptotics
 
 theorem large_gamma_part_one_aux {γ η : ℝ} (h : γ ≤ 1 / 5) (hη : η ≤ 1 / 800 * γ) :
     (3199 / 4000) ^ (5 / 4 : ℝ) ≤ (1 - γ - η) ^ (1 / (1 - γ)) :=
@@ -168,7 +168,7 @@ theorem ten_two_exp_approx {η γ : ℝ} (hγu : γ ≤ 1 / 5) (hγl : 0 ≤ η)
     · exact this.trans_eq (by norm_num1)
     · norm_num1
   refine' le_of_pow_le_pow_left₀ (n := 5) (by norm_num1) (by norm_num1) _
-  rw [← Real.exp_nat_mul,
+  rw [← exp_nat_mul,
     (by norm_num : ((↑(5 : ℕ) : ℝ) * (-1 / 5)) = -1), Real.exp_neg]
   rw [(by norm_num [inv_pow] : (5 / 6 : ℝ) ^ 5 = ((6 / 5 : ℝ) ^ 5)⁻¹)]
   exact inv_anti₀ (by positivity) (exp_one_gt_d9.le.trans' (by norm_num1))
