@@ -1388,10 +1388,10 @@ theorem seven_eleven_red_termwise :
   rw [← lt_tsub_iff_right] at h
   have h₁ : qStar k ini.p ≤ p_ (i + 1) := by
     by_contra! h'
-    exact (not_le_of_gt (Nat.lt_of_succ_le (h.trans_le this))) (height_mono (h₀ k hlk) h'.le)
+    exact (Nat.lt_of_succ_le (h.trans_le this)).not_ge (height_mono (h₀ k hlk) h'.le)
   have h₂ : qStar k ini.p ≤ p_ i := by
     by_contra! h'
-    exact (not_le_of_gt (Nat.lt_of_succ_le (h.trans_le (Nat.sub_le _ _))))
+    exact (Nat.lt_of_succ_le (h.trans_le (Nat.sub_le _ _))).not_ge
       (height_mono (h₀ k hlk) h'.le)
   rw [min_eq_right h₁, min_eq_right h₂, sub_self, Right.neg_nonpos_iff]
   exact α_nonneg _ _
@@ -1522,12 +1522,12 @@ theorem seven_eleven_blue_termwise (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
     nlinarith [hnat_real, hfloor]
   have h₁ : qStar k ini.p ≤ p_ (i + 1) := by
     by_contra! h'
-    refine' (not_le_of_gt (h.trans_le this)) _
+    refine' (h.trans_le this).not_ge _
     rw [Nat.cast_le]
     exact height_mono (h₀ k hlk).ne' h'.le
   have h₂ : qStar k ini.p ≤ p_ (i - 1) := by
     by_contra! h'
-    refine' (not_le_of_gt (h.trans_le (sub_le_self _ _))) _
+    refine' (h.trans_le (sub_le_self _ _)).not_ge _
     · positivity
     rw [Nat.cast_le]
     exact height_mono (h₀ k hlk).ne' h'.le
@@ -1828,7 +1828,7 @@ theorem seven_twelve (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
     intro hi₁ hi₂ hi₃
     have hi₁' := redOrDensitySteps_sub_one_mem_degree hi₁
     by_contra!
-    refine' (not_lt_of_ge (h9 (i - 1) hi₁'.2 hi₃.le _)) _
+    refine' (h9 (i - 1) hi₁'.2 hi₃.le _).not_gt _
     · rw [Nat.sub_add_cancel hi₁'.1]
       exact this.le
     rw [Nat.sub_add_cancel hi₁'.1]
@@ -2140,7 +2140,7 @@ theorem seven_one (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
     rw [nonempty_iff_ne_empty]
     intro h'
     rw [BookConfig.p, h', colDensity_empty_left] at hini
-    exact not_le_of_gt hp₀ hini
+    exact hp₀.not_ge hini
   rw [← le_div_iff₀]
   swap
   · rwa [Nat.cast_pos, card_pos]
