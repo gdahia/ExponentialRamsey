@@ -621,7 +621,7 @@ theorem q_height_lt_p {k : ℕ} {p₀ p : ℝ} (h : 1 < height k p₀ p) :
     simp at h
   by_contra! z
   have := height_min this (Nat.sub_ne_zero_of_lt h) z
-  exact (not_lt_of_ge this) (Nat.sub_lt one_le_height zero_lt_one)
+  exact this.not_gt (Nat.sub_lt one_le_height zero_lt_one)
 
 theorem five_seven_right {k : ℕ} {p₀ p : ℝ} (h : qFunction k p₀ 0 ≤ p) :
     αFunction k (height k p₀ p) ≤ (k : ℝ) ^ (-1 / 4 : ℝ) * (p - qFunction k p₀ 0 + 1 / k) := by
