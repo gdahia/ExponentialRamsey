@@ -99,7 +99,7 @@ theorem increase_average {α : Type*} {s : Finset α} {f : α → ℝ} {k : ℝ}
     intro h
     simp only [not_le] at h
     rw [le_div_iff₀' hs'] at hk
-    refine' (not_le_of_gt (sum_lt_sum_of_nonempty hs h)) _
+    refine' (sum_lt_sum_of_nonempty hs h).not_ge _
     rwa [sum_const, nsmul_eq_mul]
   have hs'' : (0 : ℝ) < (s.filter fun j => k ≤ f j).card := by rwa [Nat.cast_pos, card_pos]
   rw [div_le_div_iff₀ hs' hs'', ← sum_filter_add_sum_filter_not s fun j : α => k ≤ f j,
@@ -296,7 +296,7 @@ theorem six_five_red :
     swap
     · exact hh.trans' (Nat.le_succ _)
     have := (q_increasing ht').trans_lt ht
-    exact not_le_of_gt this (height_spec hk')
+    exact this.not_ge (height_spec hk')
   refine' (six_four_red hi).trans_lt' _
   have : qFunction k ini.p (h - 1) < p := q_height_lt_p (hh.trans_lt' (by norm_num))
   refine' (sub_lt_sub_right this _).trans_le' _
@@ -420,7 +420,7 @@ theorem six_five_blue (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
   · by_contra! ht'
     rw [Nat.lt_iff_add_one_le, ← le_tsub_iff_right z] at ht'
     have := (q_increasing ht').trans_lt ht
-    exact not_le_of_gt this (height_spec hk₀.ne')
+    exact this.not_ge (height_spec hk₀.ne')
   refine' (six_four_blue (hμ₀.trans_le hμl) hi).trans_lt' _
   refine' (sub_lt_sub_right this _).trans_le' _
   rw [αFunction, qFunction, qFunction, add_sub_assoc, add_le_add_iff_left, mul_div_assoc', ←
@@ -899,7 +899,7 @@ theorem six_two_main (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
       rw [mem_filter, mem_range_succ_iff]
       exact ⟨hi₂, hi₃, hi₄.le⟩
     rw [Nat.succ_le_iff] at hi₁
-    exact not_lt_of_ge (Finset.le_max' _ _ this) hi₁
+    exact (Finset.le_max' _ _ this).not_gt hi₁
   have p_first : p_ (j' + 1) - 2 * ε ≤ p_ (j + 1) := by
     rw [sub_le_comm,
       six_two_part_one (f := fun i => (algorithm μ k l ini i).p) hj₂ hj'.2.1 hj'.1]
