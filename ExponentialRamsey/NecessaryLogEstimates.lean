@@ -11,7 +11,6 @@ import ExponentialRamsey.LogSmall
 # Numerical calculations and appendix A
 -/
 
-
 open Set Real SimpleGraph
 
 section Interval
@@ -59,8 +58,7 @@ end Interval
 section SimpleValues
 
 theorem one_div_log_two_interval :
-    1 / log 2 ∈ Icc (1.442695040888963407 : ℝ) 1.442695040888963408 :=
-  by
+    1 / log 2 ∈ Icc (1.442695040888963407 : ℝ) 1.442695040888963408 := by
   rw [mem_Icc, le_one_div _ (log_pos one_lt_two), one_div_le (log_pos one_lt_two)]
   · exact ⟨log_two_lt_d20.le.trans (by norm_num), log_two_gt_d20.le.trans' (by norm_num)⟩
   · norm_num1
@@ -70,8 +68,7 @@ theorem log_three_interval : log 3 ∈ Icc (1.0986122886681096 : ℝ) 1.09861228
   ⟨log_three_gt_d20.le, log_three_lt_d20.le⟩
 
 -- 1.5849625007211561814537389439478165087598144076924810604557526545...
-theorem logb_two_three_interval : logb 2 3 ∈ Icc (1.58496250072115 : ℝ) 1.58496250072116 :=
-  by
+theorem logb_two_three_interval : logb 2 3 ∈ Icc (1.58496250072115 : ℝ) 1.58496250072116 := by
   rw [logb, div_eq_mul_one_div]
   refine' interval_end (hMul_interval log_three_interval one_div_log_two_interval _ _) _ _ <;>
     norm_num
@@ -80,8 +77,7 @@ theorem log_five_interval : log 5 ∈ Icc (1.609437912434100374 : ℝ) 1.6094379
   ⟨log_five_gt_d20.le, log_five_lt_d20.le⟩
 
 -- 2.3219280948873623478703194294893901758648313930245806120547563958...
-theorem logb_two_five_interval : logb 2 5 ∈ Icc (2.32192809488736234 : ℝ) 2.32192809488736235 :=
-  by
+theorem logb_two_five_interval : logb 2 5 ∈ Icc (2.32192809488736234 : ℝ) 2.32192809488736235 := by
   rw [logb, div_eq_mul_one_div]
   refine' interval_end (hMul_interval log_five_interval one_div_log_two_interval _ _) _ _ <;>
     norm_num
@@ -94,8 +90,7 @@ theorem log_of_neg {x : ℝ} : log (-x) = log x := by rw [← log_abs, abs_neg, 
 
 theorem logb_of_neg {b x : ℝ} : logb b (-x) = logb b x := by rw [logb, log_of_neg, logb]
 
-theorem hMul_binEnt_inv {x : ℝ} : x * binEnt 2 (1 / x) = -binEnt 2 x :=
-  by
+theorem hMul_binEnt_inv {x : ℝ} : x * binEnt 2 (1 / x) = -binEnt 2 x := by
   rcases eq_or_ne x 0 with (rfl | hx₀)
   · simp
   rcases eq_or_ne x 1 with (rfl | hx₁)
@@ -107,8 +102,7 @@ theorem hMul_binEnt_inv {x : ℝ} : x * binEnt 2 (1 / x) = -binEnt 2 x :=
   · rwa [Ne.eq_def, inv_eq_zero]
   · rwa [sub_ne_zero, ne_comm]
 
-theorem binEnt_one_half : binEnt 2 (1 / 2) = 1 :=
-  by
+theorem binEnt_one_half : binEnt 2 (1 / 2) = 1 := by
   rw [binEnt]
   norm_num
   rw [one_div, logb_inv, logb_base two_pos one_lt_two.ne']
@@ -134,8 +128,7 @@ theorem binEnt_one_half : binEnt 2 (1 / 2) = 1 :=
 --   { norm_num },
 --   exact pow_pos (by norm_num) _,
 -- end
-theorem binEnt_one_third : binEnt 2 (1 / 3) = logb 2 3 - 2 / 3 :=
-  by
+theorem binEnt_one_third : binEnt 2 (1 / 3) = logb 2 3 - 2 / 3 := by
   rw [binEnt]
   norm_num
   rw [one_div, logb_inv, logb_div, logb_base two_pos one_lt_two.ne']
@@ -143,8 +136,7 @@ theorem binEnt_one_third : binEnt 2 (1 / 3) = logb 2 3 - 2 / 3 :=
   · norm_num
   · norm_num
 
-theorem binEnt_one_third_lower : 0.91 ≤ binEnt 2 (1 / 3) :=
-  by
+theorem binEnt_one_third_lower : 0.91 ≤ binEnt 2 (1 / 3) := by
   rw [binEnt_one_third, le_sub_iff_add_le]
   norm_num
   rw [div_le_iff₀, mul_comm]
@@ -155,8 +147,7 @@ theorem binEnt_one_third_lower : 0.91 ≤ binEnt 2 (1 / 3) :=
   · norm_num
   exact pow_pos (by norm_num) _
 
-theorem binEnt_one_third_upper : binEnt 2 (1 / 3) ≤ 0.92 :=
-  by
+theorem binEnt_one_third_upper : binEnt 2 (1 / 3) ≤ 0.92 := by
   rw [binEnt_one_third, sub_le_iff_le_add]
   norm_num
   rw [le_div_iff₀, mul_comm]
@@ -167,15 +158,13 @@ theorem binEnt_one_third_upper : binEnt 2 (1 / 3) ≤ 0.92 :=
   · norm_num
   exact pow_pos (by norm_num) _
 
-theorem log_le_div_exp_of_pos {y : ℝ} (hy : 0 ≤ y) : log y ≤ y / exp 1 :=
-  by
+theorem log_le_div_exp_of_pos {y : ℝ} (hy : 0 ≤ y) : log y ≤ y / exp 1 := by
   rcases eq_or_lt_of_le hy with (rfl | hy')
   · simp
   have := log_le_sub_one_of_pos (div_pos hy' (exp_pos 1))
   rwa [log_div hy'.ne' (exp_pos _).ne', log_exp, sub_le_sub_iff_right] at this 
 
-theorem neg_log_le_rpow {x : ℝ} (hx : 0 < x) : -log x ≤ x ^ (-1 / exp 1) :=
-  by
+theorem neg_log_le_rpow {x : ℝ} (hx : 0 < x) : -log x ≤ x ^ (-1 / exp 1) := by
   have : 0 ≤ x ^ (-1 / exp 1) := by refine' (rpow_pos_of_pos hx _).le
   have := log_le_div_exp_of_pos this
   rwa [log_rpow hx, div_mul_eq_mul_div, neg_one_mul, div_le_iff₀ (exp_pos _),
@@ -183,8 +172,7 @@ theorem neg_log_le_rpow {x : ℝ} (hx : 0 < x) : -log x ≤ x ^ (-1 / exp 1) :=
 
 open Filter
 
-theorem log_hMul_continuous : Continuous fun x => x * log x :=
-  by
+theorem log_hMul_continuous : Continuous fun x => x * log x := by
   rw [continuous_iff_continuousAt]
   intro x
   rcases ne_or_eq x 0 with (hx | rfl)
@@ -194,21 +182,18 @@ theorem log_hMul_continuous : Continuous fun x => x * log x :=
     refine' sub_pos_of_lt _
     rw [div_lt_iff₀ (exp_pos _), one_mul]
     exact exp_one_gt_d9.trans_le' (by norm_num)
-  have : ∀ x : ℝ, 0 < x → x < 1 → |x * log x| ≤ x ^ (1 - 1 / exp 1) :=
-    by
+  have : ∀ x : ℝ, 0 < x → x < 1 → |x * log x| ≤ x ^ (1 - 1 / exp 1) := by
     intro x hx₀ hx₁
     rw [abs_mul, abs_of_pos hx₀, abs_of_neg (log_neg hx₀ hx₁), sub_eq_add_neg, rpow_add hx₀,
       rpow_one, ← neg_div]
     exact mul_le_mul_of_nonneg_left (neg_log_le_rpow hx₀) hx₀.le
-  have : ∀ x : ℝ, 0 ≤ x → x < 1 → |x * log x| ≤ x ^ (1 - 1 / exp 1) :=
-    by
+  have : ∀ x : ℝ, 0 ≤ x → x < 1 → |x * log x| ≤ x ^ (1 - 1 / exp 1) := by
     intro x hx
     rcases lt_or_eq_of_le hx with (hx' | rfl)
     · exact this _ hx'
     intro
     rw [MulZeroClass.zero_mul, abs_zero, zero_rpow h1e.ne']
-  have : ∀ᶠ x : ℝ in nhds 0, |x * log x| ≤ |x| ^ (1 - 1 / exp 1) :=
-    by
+  have : ∀ᶠ x : ℝ in nhds 0, |x * log x| ≤ |x| ^ (1 - 1 / exp 1) := by
     -- might be useful
     filter_upwards [eventually_abs_sub_lt 0 (zero_lt_one' ℝ)] with x hx
     rw [sub_zero] at hx 
@@ -225,44 +210,39 @@ theorem log_hMul_continuous : Continuous fun x => x * log x :=
 theorem continuous_logb {b : ℝ} : ContinuousOn (logb b) ({0}ᶜ) :=
   continuousOn_log.div_const _
 
-theorem binEnt_continuous {b : ℝ} : Continuous fun x => binEnt b x :=
-  by
+theorem binEnt_continuous {b : ℝ} : Continuous fun x => binEnt b x := by
   simp only [binEnt_eq]
   exact
     (log_hMul_continuous.neg.add
           (log_hMul_continuous.comp (continuous_const.sub continuous_id')).neg).div_const
       _
 
-theorem logb_hMul_continuous {b : ℝ} : Continuous fun x => x * logb b x :=
-  by
+theorem logb_hMul_continuous {b : ℝ} : Continuous fun x => x * logb b x := by
   simp only [logb, mul_div_assoc']
   refine' log_hMul_continuous.div_const _
 
-theorem self_lt_binEnt {x : ℝ} (hx : 0 < x) (hx' : x ≤ 1 / 2) : x < binEnt 2 x :=
-  by
+theorem self_lt_binEnt {x : ℝ} (hx : 0 < x) (hx' : x ≤ 1 / 2) : x < binEnt 2 x := by
   cases' le_or_gt (1 / 3) x with h h
   · refine' hx'.trans_lt _
     have hthird : (1 / 3 : ℝ) ∈ Icc 0 (1 / 2) := ⟨by norm_num1, by norm_num1⟩
-    refine' ((strictMonoOn_binEnt_zero_half one_lt_two).monotoneOn hthird ⟨hx.le, hx'⟩ h).trans_lt' _
+    refine'
+      ((strictMonoOn_binEnt_zero_half one_lt_two).monotoneOn hthird ⟨hx.le, hx'⟩ h).trans_lt' _
     refine' binEnt_one_third_lower.trans_lt' _
     norm_num
   rw [← sub_pos]
   let f : ℝ → ℝ := fun x => binEnt 2 x - x
   have hf0 : f 0 = 0 := by simp [f]
-  have h₁ : ∀ x ∈ Ioo (0 : ℝ) (1 / 3), HasDerivAt f (logb 2 (1 - x) - logb 2 x - 1) x :=
-    by
+  have h₁ : ∀ x ∈ Ioo (0 : ℝ) (1 / 3), HasDerivAt f (logb 2 (1 - x) - logb 2 x - 1) x := by
     intro x hx
     refine' (binEnt_deriv 2 x hx.1.ne' _).sub (hasDerivAt_id' x)
     linarith only [hx.2]
-  have h₂ : ∀ x : ℝ, x ∈ Ioo (0 : ℝ) (1 / 3) → 0 < logb 2 (1 - x) - logb 2 x - 1 :=
-    by
+  have h₂ : ∀ x : ℝ, x ∈ Ioo (0 : ℝ) (1 / 3) → 0 < logb 2 (1 - x) - logb 2 x - 1 := by
     rintro y ⟨hy₀, hy₁⟩
     rw [sub_pos, ← logb_div _ hy₀.ne', lt_logb_iff_rpow_lt one_lt_two, rpow_one, lt_div_iff₀ hy₀]
     · linarith only [hy₁]
     · refine' div_pos (by linarith only [hy₁]) hy₀
     linarith only [hy₁]
-  have : StrictMonoOn f (Icc (0 : ℝ) (1 / 3)) :=
-    by
+  have : StrictMonoOn f (Icc (0 : ℝ) (1 / 3)) := by
     refine' strictMonoOn_of_deriv_pos (convex_Icc _ _) _ _
     · exact (binEnt_continuous.sub continuous_id').continuousOn
     rw [interior_Icc]
@@ -272,14 +252,12 @@ theorem self_lt_binEnt {x : ℝ} (hx : 0 < x) (hx' : x ≤ 1 / 2) : x < binEnt 2
   specialize this ⟨le_rfl, by norm_num⟩ ⟨hx.le, h.le⟩ hx
   rwa [hf0] at this 
 
-theorem self_le_binEnt {x : ℝ} (hx : 0 ≤ x) (hx' : x ≤ 1 / 2) : x ≤ binEnt 2 x :=
-  by
+theorem self_le_binEnt {x : ℝ} (hx : 0 ≤ x) (hx' : x ≤ 1 / 2) : x ≤ binEnt 2 x := by
   rcases lt_or_eq_of_le hx with (hx₀ | rfl)
   · exact (self_lt_binEnt hx₀ hx').le
   simp
 
-theorem continuous_on_hMul_binEnt_inv : Continuous fun x => x * binEnt 2 (1 / x) :=
-  by
+theorem continuous_on_hMul_binEnt_inv : Continuous fun x => x * binEnt 2 (1 / x) := by
   simp only [hMul_binEnt_inv]
   exact binEnt_continuous.neg
 
@@ -294,8 +272,7 @@ theorem f_deriv_aux {x : ℝ} (hx : x ≠ 2) :
   simpa using ((hasDerivAt_id' x).const_sub 2).inv (sub_ne_zero_of_ne hx.symm)
 
 theorem f_deriv_aux2 {x : ℝ} (hx₁ : x ≠ 1) :
-    HasDerivAt (fun x : ℝ => x * binEnt 2 x) (2 * binEnt 2 x + logb 2 (1 - x)) x :=
-  by
+    HasDerivAt (fun x : ℝ => x * binEnt 2 x) (2 * binEnt 2 x + logb 2 (1 - x)) x := by
   rcases ne_or_eq x 0 with (hx₀ | rfl)
   · have : HasDerivAt (fun x : ℝ => x * binEnt 2 x) _ x :=
       HasDerivAt.mul (hasDerivAt_id' _) (binEnt_deriv _ _ hx₀ hx₁)
@@ -308,8 +285,7 @@ theorem f_deriv_aux2 {x : ℝ} (hx₁ : x ≠ 1) :
   swap
   · rintro x rfl
     simp
-  have : ∀ x, x * binEnt 2 x / x = binEnt 2 x :=
-    by
+  have : ∀ x, x * binEnt 2 x / x = binEnt 2 x := by
     intro x
     rcases eq_or_ne x 0 with (rfl | hx)
     · simp
@@ -320,8 +296,7 @@ theorem f_deriv_aux2 {x : ℝ} (hx₁ : x ≠ 1) :
 
 -- nicely defined when 1 < x
 theorem f_deriv_aux3 {x : ℝ} (hx₀ : x ≠ 0) (hx₁ : x ≠ 1) :
-    HasDerivAt (fun x : ℝ => x * binEnt 2 (1 / x)) (logb 2 x - logb 2 (x - 1)) x :=
-  by
+    HasDerivAt (fun x : ℝ => x * binEnt 2 (1 / x)) (logb 2 x - logb 2 (x - 1)) x := by
   simp only [hMul_binEnt_inv]
   convert (binEnt_deriv _ _ hx₀ hx₁).neg using 1
   rw [neg_sub, ← neg_sub x, logb_of_neg]
@@ -329,14 +304,13 @@ theorem f_deriv_aux3 {x : ℝ} (hx₀ : x ≠ 0) (hx₁ : x ≠ 1) :
 theorem important_rewrite {x : ℝ} (hx : x ≠ 2) : 1 - 1 / (2 - x) = (1 - x) / (2 - x) := by
   rw [one_sub_div (sub_ne_zero_of_ne hx.symm)]; ring_nf
 
-theorem important_rewrite' {x : ℝ} : logb 2 (1 - 1 / (2 - x)) = logb 2 ((1 - x) / (2 - x)) :=
-  by
+theorem important_rewrite' {x : ℝ} : logb 2 (1 - 1 / (2 - x)) = logb 2 ((1 - x) / (2 - x)) := by
   rcases eq_or_ne x 2 with (rfl | hx₂)
   · norm_num
   rw [important_rewrite hx₂]
 
-theorem important_rewrite2 {x : ℝ} : logb 2 ((1 - x) / (2 - x)) = logb 2 (1 - x) - logb 2 (2 - x) :=
-  by
+theorem important_rewrite2 {x : ℝ} :
+    logb 2 ((1 - x) / (2 - x)) = logb 2 (1 - x) - logb 2 (2 - x) := by
   rcases eq_or_ne x 1 with (rfl | hx₁)
   · norm_num
   rcases eq_or_ne x 2 with (rfl | hx₂)
@@ -344,12 +318,10 @@ theorem important_rewrite2 {x : ℝ} : logb 2 ((1 - x) / (2 - x)) = logb 2 (1 - 
   rw [logb_div (sub_ne_zero_of_ne hx₁.symm) (sub_ne_zero_of_ne hx₂.symm)]
 
 theorem f1_deriv_helper {x : ℝ} (hx₁ : x ≠ 1) (hx₂ : x ≠ 2) :
-    HasDerivAt (fun x => (2 - x) * binEnt 2 (1 / (2 - x))) (logb 2 ((1 - x) / (2 - x))) x :=
-  by
+    HasDerivAt (fun x => (2 - x) * binEnt 2 (1 / (2 - x))) (logb 2 ((1 - x) / (2 - x))) x := by
   have :
     HasDerivAt (fun x => (2 - x) * binEnt 2 (1 / (2 - x)))
-      ((logb 2 (2 - x) - logb 2 (2 - x - 1)) * -1) x :=
-    by
+      ((logb 2 (2 - x) - logb 2 (2 - x - 1)) * -1) x := by
     refine' (f_deriv_aux3 _ _).comp _ (HasDerivAt.const_sub 2 (hasDerivAt_id' x))
     · exact sub_ne_zero_of_ne hx₂.symm
     contrapose! hx₁
@@ -362,13 +334,11 @@ theorem f1_deriv {x y : ℝ} (hx₁ : x ≠ 1) (hx₂ : x ≠ 2) :
     HasDerivAt (fun x' => f1 x' y) (1 + logb 2 ((1 - x) / (2 - x))) x :=
   ((hasDerivAt_id' _).add_const _).add (f1_deriv_helper hx₁ hx₂)
 
-theorem continuous_on_f1 {y : ℝ} : Continuous fun x => f1 x y :=
-  by
+theorem continuous_on_f1 {y : ℝ} : Continuous fun x => f1 x y := by
   refine' (continuous_id'.add continuous_const).add _
   exact continuous_on_hMul_binEnt_inv.comp (continuous_const.sub continuous_id')
 
-theorem strictAntiOn_f1 {y : ℝ} : StrictAntiOn (fun x => f1 x y) (Icc (0 : ℝ) 1) :=
-  by
+theorem strictAntiOn_f1 {y : ℝ} : StrictAntiOn (fun x => f1 x y) (Icc (0 : ℝ) 1) := by
   refine' strictAntiOn_of_deriv_neg (convex_Icc _ _) _ _
   · exact continuous_on_f1.continuousOn
   rw [interior_Icc]
@@ -380,14 +350,12 @@ theorem strictAntiOn_f1 {y : ℝ} : StrictAntiOn (fun x => f1 x y) (Icc (0 : ℝ
   linarith [hx.1]
 
 theorem eqOn_f2 {y : ℝ} :
-    EqOn (fun x => f2 x y) (fun x => f1 x y - 1 / (log 2 * 40) * (1 - 1 / (2 - x))) ({2}ᶜ) :=
-  by
+    EqOn (fun x => f2 x y) (fun x => f1 x y - 1 / (log 2 * 40) * (1 - 1 / (2 - x))) ({2}ᶜ) := by
   rintro x hx
   dsimp
   rw [f2, f1, important_rewrite hx]
 
-theorem continuousOn_f2 {y : ℝ} : ContinuousOn (fun x => f2 x y) ({2}ᶜ) :=
-  by
+theorem continuousOn_f2 {y : ℝ} : ContinuousOn (fun x => f2 x y) ({2}ᶜ) := by
   refine' (continuous_on_f1.continuousOn.sub (continuousOn_const.mul _)).congr eqOn_f2
   refine' continuousOn_const.sub _
   simp only [one_div]
@@ -398,8 +366,7 @@ theorem continuousOn_f2 {y : ℝ} : ContinuousOn (fun x => f2 x y) ({2}ᶜ) :=
 
 theorem f2_hasDerivAt {x y : ℝ} (hx₁ : x ≠ 1) (hx₂ : x ≠ 2) :
     HasDerivAt (fun x => f2 x y)
-      (1 + logb 2 ((1 - x) / (2 - x)) + 1 / (log 2 * 40) * (1 / (2 - x) ^ 2)) x :=
-  by
+      (1 + logb 2 ((1 - x) / (2 - x)) + 1 / (log 2 * 40) * (1 / (2 - x) ^ 2)) x := by
   refine' HasDerivAt.congr_of_eventuallyEq _ (Set.EqOn.eventuallyEq_of_mem eqOn_f2 _)
   swap
   · simp only [compl_singleton_mem_nhds_iff]
@@ -410,8 +377,7 @@ theorem f2_hasDerivAt {x y : ℝ} (hx₁ : x ≠ 1) (hx₂ : x ≠ 2) :
   refine' HasDerivAt.sub_const _ _
   exact f_deriv_aux hx₂
 
-theorem strictAntiOn_f2 {y : ℝ} : StrictAntiOn (fun x => f2 x y) (Icc (1 / 2 : ℝ) 1) :=
-  by
+theorem strictAntiOn_f2 {y : ℝ} : StrictAntiOn (fun x => f2 x y) (Icc (1 / 2 : ℝ) 1) := by
   refine' strictAntiOn_of_deriv_neg (convex_Icc _ _) (continuousOn_f2.mono _) _
   · norm_num
   rw [interior_Icc]
@@ -419,8 +385,7 @@ theorem strictAntiOn_f2 {y : ℝ} : StrictAntiOn (fun x => f2 x y) (Icc (1 / 2 :
   have h2x : x < 2 := by linarith only [hx₂]
   rw [(f2_hasDerivAt hx₂.ne h2x.ne).deriv]
   have : 0 < log 2 := log_pos one_lt_two
-  have h₁ : logb 2 ((1 - x) / (2 - x)) ≤ logb 2 (1 / 3) :=
-    by
+  have h₁ : logb 2 ((1 - x) / (2 - x)) ≤ logb 2 (1 / 3) := by
     refine' _root_.logb_le_logb_of_le one_le_two (div_pos (sub_pos_of_lt hx₂) (sub_pos_of_lt h2x)) _
     rw [div_le_iff₀ (sub_pos_of_lt h2x)]
     linarith only [hx₁]
@@ -430,8 +395,7 @@ theorem strictAntiOn_f2 {y : ℝ} : StrictAntiOn (fun x => f2 x y) (Icc (1 / 2 :
     rw [neg_lt_neg_iff]
     refine' logb_two_three_interval.1.trans_lt' _
     norm_num
-  have h₂ : 1 / (log 2 * 40) * (1 / (2 - x) ^ 2) ≤ 1 / (log 2 * 40) :=
-    by
+  have h₂ : 1 / (log 2 * 40) * (1 / (2 - x) ^ 2) ≤ 1 / (log 2 * 40) := by
     refine' mul_le_of_le_one_right _ _
     · positivity
     rw [div_le_one₀ (sq_pos_of_pos (by linarith only [hx₂]))]
@@ -452,71 +416,75 @@ open Real
 noncomputable def xValue : ℝ :=
   (0.4339 + 2727 / 8000) / 0.4339
 
+/-- A Lean 4 stand-in for the Lean 3 `weaken` tactic: relax the bounds of the current
+`LogBase2Goal` to `x₃` and `x₄`, discharging the three numeric side conditions with `norm_num`. -/
+local macro "weaken " x₃:term:max ppSpace x₄:term:max : tactic =>
+  `(tactic| refine' log_base2_weaken $x₃ $x₄ _ (by norm_num) (by norm_num) (by norm_num))
+
 theorem xValue_eq : xValue = 30991 / 17356 := by norm_num [xValue]
 
-theorem logb_xValue : 0.8364148 < logb 2 xValue ∧ logb 2 xValue < 0.8364149 :=
-  by
+theorem logb_xValue : 0.8364148 < logb 2 xValue ∧ logb 2 xValue < 0.8364149 := by
   rw [xValue_eq]
   refine' log_base2_start (by norm_num) le_rfl _
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (398549171/250000000 : ℝ) (3985491711/2500000000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (398549171/250000000 : ℝ) (3985491711/2500000000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (1270731533/1000000000 : ℝ) (254146307/200000000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1270731533/1000000000 : ℝ) (254146307/200000000 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (403689657/250000000 : ℝ) (20184483/12500000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
-  refine' log_base2_square _
-  refine' log_base2_half _
-  refine' log_base2_weaken (130372271/100000000 : ℝ) (3259307/2500000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
-  refine' log_base2_square _
-  refine' log_base2_weaken (16996929/10000000 : ℝ) (4249233/2500000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (403689657/250000000 : ℝ) (20184483/12500000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (144447797/100000000 : ℝ) (2888957/2000000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (130372271/100000000 : ℝ) (3259307/2500000 : ℝ)
+  refine' log_base2_square _
+  weaken (16996929/10000000 : ℝ) (4249233/2500000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (10432583/10000000 : ℝ) (10432591/10000000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (144447797/100000000 : ℝ) (2888957/2000000 : ℝ)
+  refine' log_base2_square _
+  refine' log_base2_half _
+  weaken (10432583/10000000 : ℝ) (10432591/10000000 : ℝ)
   norm_num
   refine' log_base2_square _
   refine' log_base2_square _
-  refine' log_base2_weaken (11845881/10000000 : ℝ) (1480741/1250000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (11845881/10000000 : ℝ) (1480741/1250000 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (14032489/10000000 : ℝ) (1403261/1000000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (14032489/10000000 : ℝ) (1403261/1000000 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (1969107/1000000 : ℝ) (984571/500000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
-  refine' log_base2_square _
-  refine' log_base2_half _
-  refine' log_base2_weaken (1938691/1000000 : ℝ) (1938761/1000000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1969107/1000000 : ℝ) (984571/500000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (1879261/1000000 : ℝ) (939699/500000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1938691/1000000 : ℝ) (1938761/1000000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (176581/100000 : ℝ) (176607/100000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1879261/1000000 : ℝ) (939699/500000 : ℝ)
+  refine' log_base2_square _
+  refine' log_base2_half _
+  weaken (176581/100000 : ℝ) (176607/100000 : ℝ)
   norm_num
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (4872/3125 : ℝ) (155951/100000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (4872/3125 : ℝ) (155951/100000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (12153/10000 : ℝ) (12161/10000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (12153/10000 : ℝ) (12161/10000 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (14769/10000 : ℝ) (14789/10000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
-  refine' log_base2_square _
-  refine' log_base2_half _
-  refine' log_base2_weaken (5453/5000 : ℝ) (1367/1250 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
-  refine' log_base2_square _
-  refine' log_base2_weaken (5947/5000 : ℝ) (299/250 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
-  refine' log_base2_square _
-  refine' log_base2_weaken (7073/5000 : ℝ) (2861/2000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (14769/10000 : ℝ) (14789/10000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (2001/2000 : ℝ) (1279/1250 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (5453/5000 : ℝ) (1367/1250 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (1001/1000 : ℝ) (1047/1000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (5947/5000 : ℝ) (299/250 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (501/500 : ℝ) (1097/1000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (7073/5000 : ℝ) (2861/2000 : ℝ)
+  refine' log_base2_square _
+  refine' log_base2_half _
+  weaken (2001/2000 : ℝ) (1279/1250 : ℝ)
+  refine' log_base2_square _
+  weaken (1001/1000 : ℝ) (1047/1000 : ℝ)
+  refine' log_base2_square _
+  weaken (501/500 : ℝ) (1097/1000 : ℝ)
   refine' log_base2_square _
   exact log_base2_end (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
@@ -535,8 +503,7 @@ noncomputable def xValue3 : ℝ :=
 
 theorem xValue3_eq : xValue3 = 183 / 1183 := by norm_num [xValue3]
 
-theorem logb_approx_second : -0.24246 < logb 2 xValue2 ∧ logb 2 xValue2 < -0.242435 :=
-  by
+theorem logb_approx_second : -0.24246 < logb 2 xValue2 ∧ logb 2 xValue2 < -0.242435 := by
   rw [xValue2_eq]
   refine' log_base2_start (by norm_num) le_rfl _
   refine' log_base2_scale 1 _
@@ -544,53 +511,52 @@ theorem logb_approx_second : -0.24246 < logb 2 xValue2 ∧ logb 2 xValue2 < -0.2
   norm_num
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (1429093/1000000 : ℝ) (714547/500000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1429093/1000000 : ℝ) (714547/500000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (1021153/1000000 : ℝ) (204231/200000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1021153/1000000 : ℝ) (204231/200000 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (1042753/1000000 : ℝ) (521379/500000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1042753/1000000 : ℝ) (521379/500000 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (1087333/1000000 : ℝ) (217469/200000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1087333/1000000 : ℝ) (217469/200000 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (1182293/1000000 : ℝ) (14779/12500 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1182293/1000000 : ℝ) (14779/12500 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (174727/125000 : ℝ) (139789/100000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (174727/125000 : ℝ) (139789/100000 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (48847/25000 : ℝ) (19541/10000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
-  refine' log_base2_square _
-  refine' log_base2_half _
-  refine' log_base2_weaken (95441/50000 : ℝ) (95463/50000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (48847/25000 : ℝ) (19541/10000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (182179/100000 : ℝ) (22783/12500 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (95441/50000 : ℝ) (95463/50000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (33189/20000 : ℝ) (166101/100000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (182179/100000 : ℝ) (22783/12500 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (17211/12500 : ℝ) (34487/25000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
-  refine' log_base2_square _
-  refine' log_base2_weaken (18957/10000 : ℝ) (190297/100000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (33189/20000 : ℝ) (166101/100000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (1123/625 : ℝ) (18107/10000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (17211/12500 : ℝ) (34487/25000 : ℝ)
+  refine' log_base2_square _
+  weaken (18957/10000 : ℝ) (190297/100000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (807/500 : ℝ) (41/25 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1123/625 : ℝ) (18107/10000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (13/10 : ℝ) (27/20 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (807/500 : ℝ) (41/25 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (3/2 : ℝ) (19/10 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  refine' log_base2_half _
+  weaken (13/10 : ℝ) (27/20 : ℝ)
+  refine' log_base2_square _
+  weaken (3/2 : ℝ) (19/10 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
   norm_num
   exact log_base2_end (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
 ---2.692534520055745970309653458812168292098504470773201890789775983...
-theorem logb_approx_third : -2.69257 < logb 2 xValue3 ∧ logb 2 xValue3 < -2.69251 :=
-  by
+theorem logb_approx_third : -2.69257 < logb 2 xValue3 ∧ logb 2 xValue3 < -2.69251 := by
   rw [xValue3_eq]
   refine' log_base2_start (by norm_num) le_rfl _
   refine' log_base2_scale 3 _
@@ -598,41 +564,41 @@ theorem logb_approx_third : -2.69257 < logb 2 xValue3 ∧ logb 2 xValue3 < -2.69
   refine' log_base2_square _
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (5863613513/5000000000 : ℝ) (11727227027/10000000000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (5863613513/5000000000 : ℝ) (11727227027/10000000000 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (1375278537/1000000000 : ℝ) (687639269/500000000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1375278537/1000000000 : ℝ) (687639269/500000000 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (945695527/500000000 : ℝ) (945695529/500000000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
-  refine' log_base2_square _
-  refine' log_base2_half _
-  refine' log_base2_weaken (35773601/20000000 : ℝ) (178868007/100000000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (945695527/500000000 : ℝ) (945695529/500000000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (9998051/6250000 : ℝ) (7998441/5000000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (35773601/20000000 : ℝ) (178868007/100000000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (12795011/10000000 : ℝ) (3198753/2500000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
-  refine' log_base2_square _
-  refine' log_base2_weaken (1637123/1000000 : ℝ) (409281/250000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (9998051/6250000 : ℝ) (7998441/5000000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (268017/200000 : ℝ) (167511/125000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (12795011/10000000 : ℝ) (3198753/2500000 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (1795827/1000000 : ℝ) (448959/250000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
-  refine' log_base2_square _
-  refine' log_base2_half _
-  refine' log_base2_weaken (1612497/1000000 : ℝ) (806257/500000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1637123/1000000 : ℝ) (409281/250000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (130007/100000 : ℝ) (130011/100000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (268017/200000 : ℝ) (167511/125000 : ℝ)
   refine' log_base2_square _
-  refine' log_base2_weaken (16901/10000 : ℝ) (16903/10000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
-  refine' log_base2_square _
-  refine' log_base2_half _
-  refine' log_base2_weaken (7141/5000 : ℝ) (7143/5000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1795827/1000000 : ℝ) (448959/250000 : ℝ)
   refine' log_base2_square _
   refine' log_base2_half _
-  refine' log_base2_weaken (509/500 : ℝ) (1021/1000 : ℝ) _ (by norm_num) (by norm_num) (by norm_num)
+  weaken (1612497/1000000 : ℝ) (806257/500000 : ℝ)
+  refine' log_base2_square _
+  refine' log_base2_half _
+  weaken (130007/100000 : ℝ) (130011/100000 : ℝ)
+  refine' log_base2_square _
+  weaken (16901/10000 : ℝ) (16903/10000 : ℝ)
+  refine' log_base2_square _
+  refine' log_base2_half _
+  weaken (7141/5000 : ℝ) (7143/5000 : ℝ)
+  refine' log_base2_square _
+  refine' log_base2_half _
+  weaken (509/500 : ℝ) (1021/1000 : ℝ)
   refine' log_base2_square _
   norm_num
   exact log_base2_end (by norm_num) (by norm_num) (by norm_num) (by norm_num)
@@ -645,8 +611,7 @@ theorem logb_two_xValue3_interval : logb 2 xValue3 ∈ Icc (-2.69257 : ℝ) (-2.
 
 -- 0.6214571360946745562130177514792899408284023668639053254437869822...
 -- 0.6214572992392223161453930684699915469146238377007607776838546069...
-theorem binEnt_calc : binEnt 2 (1 / (2 - 0.817)) ∈ Icc (0.6214 : ℝ) 0.6214711 :=
-  by
+theorem binEnt_calc : binEnt 2 (1 / (2 - 0.817)) ∈ Icc (0.6214 : ℝ) 0.6214711 := by
   rw [binEnt]
   refine
     interval_end
@@ -667,8 +632,7 @@ noncomputable def g' (y : ℝ) :=
   logb 2 (5 / 2) + (3 / 5 * y + 0.5454) * logb 2 (5 / 3) +
     y * logb 2 ((y + 2727 / 8000) / (25 / 16 * y))
 
-theorem g_line {x y : ℝ} (h : x = 3 / 5 * y + 0.5454) : g x y = g' y :=
-  by
+theorem g_line {x y : ℝ} (h : x = 3 / 5 * y + 0.5454) : g x y = g' y := by
   subst x
   rw [g_eq, g']
   rcases eq_or_ne y 0 with (rfl | hy)
@@ -683,8 +647,7 @@ theorem g'_eq1 {y : ℝ} (hy : 0 ≤ y) :
       (1.5454 - 7 / 5 * y) * logb 2 5 - (0.5454 + 3 / 5 * y) * logb 2 3 +
             y * logb 2 ((y + 2727 / 8000) / y) +
           4 * y -
-        1 :=
-  by
+        1 := by
   rw [g', mul_comm (25 / 16) y, ← div_div, logb_div, logb_div, logb_base two_pos one_lt_two.ne']
   rotate_left
   · norm_num
@@ -693,8 +656,7 @@ theorem g'_eq1 {y : ℝ} (hy : 0 ≤ y) :
   · norm_num
   rcases eq_or_lt_of_le hy with (rfl | hy₀)
   · ring_nf
-  have : logb 2 (25 / 16) = 2 * logb 2 5 - 4 :=
-    by
+  have : logb 2 (25 / 16) = 2 * logb 2 5 - 4 := by
     have : (25 / 16 : ℝ) = 5 ^ 2 / 2 ^ 4 := by norm_num
     rw [this, logb_div, Real.logb_pow, Real.logb_pow, logb_base]
     all_goals norm_num
@@ -707,8 +669,7 @@ theorem g'_eq1 {y : ℝ} (hy : 0 ≤ y) :
 theorem g'_eq2 {y : ℝ} (hy : 0 ≤ y) :
     g' y =
       1.5454 * logb 2 5 - 0.5454 * logb 2 3 - 1 + y * (4 - 7 / 5 * logb 2 5 - 3 / 5 * logb 2 3) +
-        y * (logb 2 (y + 2727 / 8000) - logb 2 y) :=
-  by
+        y * (logb 2 (y + 2727 / 8000) - logb 2 y) := by
   rw [g'_eq1 hy]
   rcases eq_or_lt_of_le hy with (rfl | hy₀)
   · simp
@@ -716,8 +677,7 @@ theorem g'_eq2 {y : ℝ} (hy : 0 ≤ y) :
   rw [logb_div this hy₀.ne']
   ring_nf
 
-theorem continuous_g' : ContinuousOn g' (Set.Ici 0) :=
-  by
+theorem continuous_g' : ContinuousOn g' (Set.Ici 0) := by
   refine' ContinuousOn.congr _ fun y => g'_eq2
   refine' ContinuousOn.add (Continuous.continuousOn (by continuity)) _
   simp only [mul_sub]
@@ -741,8 +701,7 @@ noncomputable def g'DerivAlt (y : ℝ) : ℝ :=
     (logb 2 ((y + 2727 / 8000) / y) - 2727 / 8000 / (y + 2727 / 8000) * (1 / log 2))
 
 -- for diff
-theorem hasDerivAt_g' {y : ℝ} (hy : 0 < y) : HasDerivAt g' (g'Deriv y) y :=
-  by
+theorem hasDerivAt_g' {y : ℝ} (hy : 0 < y) : HasDerivAt g' (g'Deriv y) y := by
   have hy5 : y + 2727 / 8000 ≠ 0 := by linarith
   have h₁ :
     HasDerivAt
@@ -752,8 +711,7 @@ theorem hasDerivAt_g' {y : ℝ} (hy : 0 < y) : HasDerivAt g' (g'Deriv y) y :=
       (4 - 7 / 5 * logb 2 5 - 3 / 5 * logb 2 3 +
         (1 * (logb 2 (y + 2727 / 8000) - logb 2 y) +
           y * (1 / ((y + 2727 / 8000) * log 2) - 1 / (y * log 2))))
-      y :=
-    by
+      y := by
     refine' ((hasDerivAt_mul_const _).const_add _).add ((hasDerivAt_id' y).mul _)
     refine' (((hasDerivAt_id' y).add_const _).logb _).sub (hasDerivAt_logb hy.ne')
     linarith
@@ -761,8 +719,7 @@ theorem hasDerivAt_g' {y : ℝ} (hy : 0 < y) : HasDerivAt g' (g'Deriv y) y :=
     4 - 7 / 5 * logb 2 5 - 3 / 5 * logb 2 3 +
         (1 * (logb 2 (y + 2727 / 8000) - logb 2 y) +
           y * (1 / ((y + 2727 / 8000) * log 2) - 1 / (y * log 2))) =
-      g'Deriv y :=
-    by
+      g'Deriv y := by
     rw [one_mul, mul_sub, mul_one_div, mul_one_div, ← div_div y y, div_self hy.ne', ← div_div, ←
       sub_div, div_sub' hy5, mul_one, ← sub_sub, sub_self, zero_sub, div_div,
       mul_comm _ (log 2), neg_div, ← sub_eq_add_neg, ← div_div, g'Deriv]
@@ -771,16 +728,14 @@ theorem hasDerivAt_g' {y : ℝ} (hy : 0 < y) : HasDerivAt g' (g'Deriv y) y :=
   refine' h₁.congr_of_eventuallyEq (Set.EqOn.eventuallyEq_of_mem this _)
   exact Ici_mem_nhds hy
 
-theorem g'DerivAlt_eq {y : ℝ} (hy : 0 < y) : g'DerivAlt y = g'Deriv y :=
-  by
+theorem g'DerivAlt_eq {y : ℝ} (hy : 0 < y) : g'DerivAlt y = g'Deriv y := by
   have hy5 : y + 2727 / 8000 ≠ 0 := by linarith
   rw [g'DerivAlt, g'Deriv, logb_div hy5 hy.ne']
   congr 2
   rw [div_mul_div_comm, div_div, mul_one, mul_comm]
 
 theorem hasDerivAt_g'Deriv {y : ℝ} (hy : 0 < y) :
-    HasDerivAt g'Deriv (-(1 / log 2) * (7436529 / 64000000) / (y * (y + 2727 / 8000) ^ 2)) y :=
-  by
+    HasDerivAt g'Deriv (-(1 / log 2) * (7436529 / 64000000) / (y * (y + 2727 / 8000) ^ 2)) y := by
   have hy5 : y + 2727 / 8000 ≠ 0 := by linarith
   have :
     HasDerivAt g'Deriv
@@ -795,8 +750,7 @@ theorem hasDerivAt_g'Deriv {y : ℝ} (hy : 0 < y) :
   field_simp [hy6, hy.ne', (log_pos one_lt_two).ne']
   ring
 
-theorem strictAntiOn_g'Deriv : StrictAntiOn g'Deriv (Set.Ioi 0) :=
-  by
+theorem strictAntiOn_g'Deriv : StrictAntiOn g'Deriv (Set.Ioi 0) := by
   refine' Convex.strictAntiOn_of_hasDerivAt_neg (convex_Ioi 0) (fun y => hasDerivAt_g'Deriv) _
   rw [interior_Ioi]
   rintro x (hx : 0 < x)
@@ -807,8 +761,7 @@ theorem strictAntiOn_g'Deriv : StrictAntiOn g'Deriv (Set.Ioi 0) :=
 
 -- lemma (1.5454 - 7 / 5 * y) * logb 2 5 - (0.5454 + 3 / 5 * y) * logb 2 3 +
 --     y * logb 2 ((y + 2727 / 8000) / y) + 4 * y - 1
-theorem g'_eval_max : g' 0.4339 ∈ Icc (1.99928 : ℝ) 1.99929 :=
-  by
+theorem g'_eval_max : g' 0.4339 ∈ Icc (1.99928 : ℝ) 1.99929 := by
   rw [g'_eq1]
   swap
   · norm_num
@@ -824,8 +777,7 @@ theorem g'_eval_max : g' 0.4339 ∈ Icc (1.99928 : ℝ) 1.99929 :=
         const_interval)
       (by norm_num) (by norm_num)
 
-theorem g_deriv_eval_max : g'Deriv 0.4339 ∈ Icc (0. : ℝ) 1e-6 :=
-  by
+theorem g_deriv_eval_max : g'Deriv 0.4339 ∈ Icc (0. : ℝ) 1e-6 := by
   rw [← g'DerivAlt_eq]
   swap; · norm_num
   rw [g'DerivAlt]
@@ -840,16 +792,13 @@ theorem g_deriv_eval_max : g'Deriv 0.4339 ∈ Icc (0. : ℝ) 1e-6 :=
           (hMul_interval const_interval one_div_log_two_interval (by norm_num) (by norm_num))))
       (by norm_num) (by norm_num)
 
-theorem claim_a2_aux {y : ℝ} (hy : y ∈ Icc (0 : ℝ) 0.75) : g' y < 1.9993 :=
-  by
+theorem claim_a2_aux {y : ℝ} (hy : y ∈ Icc (0 : ℝ) 0.75) : g' y < 1.9993 := by
   cases' le_total y 0.4339 with h h
-  · have hdif : DifferentiableOn ℝ g' (interior (Icc 0 0.4339)) :=
-      by
+  · have hdif : DifferentiableOn ℝ g' (interior (Icc 0 0.4339)) := by
       rw [interior_Icc]
       intro x hx
       exact (hasDerivAt_g' hx.1).differentiableAt.differentiableWithinAt
-    have hder : ∀ x ∈ interior (Icc (0 : ℝ) 0.4339), 0. ≤ deriv g' x :=
-      by
+    have hder : ∀ x ∈ interior (Icc (0 : ℝ) 0.4339), 0. ≤ deriv g' x := by
       rw [interior_Icc]
       rintro x ⟨hx₀, hx₁⟩
       rw [(hasDerivAt_g' hx₀).deriv]
@@ -862,18 +811,15 @@ theorem claim_a2_aux {y : ℝ} (hy : y ∈ Icc (0 : ℝ) 0.75) : g' y < 1.9993 :
     replace this := this.trans g'_eval_max.2
     linarith only [this, h]
   · have h₁ : Icc (0.4339 : ℝ) 0.75 ⊆ Ici 0 := by rw [Icc_subset_Ici_iff] <;> norm_num
-    have h₂ : Ioo (0.4339 : ℝ) 0.75 ⊆ Ioi 0 :=
-      by
+    have h₂ : Ioo (0.4339 : ℝ) 0.75 ⊆ Ioi 0 := by
       rintro x ⟨hx, _⟩
       rw [mem_Ioi]
       linarith only [hx]
-    have hdif : DifferentiableOn ℝ g' (interior (Icc 0.4339 0.75)) :=
-      by
+    have hdif : DifferentiableOn ℝ g' (interior (Icc 0.4339 0.75)) := by
       intro x hx
       rw [interior_Icc] at hx 
       exact (hasDerivAt_g' (h₂ hx)).differentiableAt.differentiableWithinAt
-    have hder : ∀ x ∈ interior (Icc (0.4339 : ℝ) 0.75), deriv g' x ≤ 1e-6 :=
-      by
+    have hder : ∀ x ∈ interior (Icc (0.4339 : ℝ) 0.75), deriv g' x ≤ 1e-6 := by
       rintro x hx
       rw [interior_Icc] at hx 
       rw [(hasDerivAt_g' (h₂ hx)).deriv]
@@ -896,27 +842,23 @@ theorem claim_a2 {x y : ℝ} (hy : y ∈ Icc (0 : ℝ) 0.75) (h : x = 3 / 5 * y 
 noncomputable def f' (x : ℝ) : ℝ :=
   8 / 3 * x - 0.909 + (2 - x) * binEnt 2 (1 / (2 - x))
 
-theorem continuous_f' : Continuous f' :=
-  by
+theorem continuous_f' : Continuous f' := by
   refine' Continuous.add (by continuity) _
   exact continuous_on_hMul_binEnt_inv.comp (continuous_const.sub continuous_id')
 
 theorem hasDerivAt_f' {x : ℝ} (hx₁ : x ≠ 1) (hx₂ : x ≠ 2) :
-    HasDerivAt f' (8 / 3 + logb 2 ((1 - x) / (2 - x))) x :=
-  by
+    HasDerivAt f' (8 / 3 + logb 2 ((1 - x) / (2 - x))) x := by
   have : HasDerivAt f' (_ + logb 2 ((1 - x) / (2 - x))) x :=
     (((hasDerivAt_id' x).const_mul _).sub_const _).add (f1_deriv_helper hx₁ hx₂)
   rwa [mul_one] at this 
 
 theorem f_inner_eq {x y : ℝ} (h : x = 3 / 5 * y + 0.5454) :
-    x + y + (2 - x) * binEnt 2 (1 / (2 - x)) = f' x :=
-  by
+    x + y + (2 - x) * binEnt 2 (1 / (2 - x)) = f' x := by
   have : y = 5 / 3 * x - 0.909 := by linarith only [h]
   rw [this, f', add_left_inj]
   ring_nf
 
-theorem strictMonoOn_f' : StrictMonoOn f' (Icc 0 0.75) :=
-  by
+theorem strictMonoOn_f' : StrictMonoOn f' (Icc 0 0.75) := by
   refine' strictMonoOn_of_deriv_pos (convex_Icc _ _) _ _
   · exact continuous_f'.continuousOn
   rw [interior_Icc]
@@ -930,18 +872,15 @@ theorem strictMonoOn_f' : StrictMonoOn f' (Icc 0 0.75) :=
   have : (1 / 5 : ℝ) ≤ (1 - x) / (2 - x) := by
     rw [le_div_iff₀ h₂]
     linarith only [hx₁]
-  have : -logb 2 5 ≤ logb 2 ((1 - x) / (2 - x)) :=
-    by
+  have : -logb 2 5 ≤ logb 2 ((1 - x) / (2 - x)) := by
     rw [← logb_inv, ← one_div]
     exact _root_.logb_le_logb_of_le (by norm_num) (by norm_num) this
   replace this := this.trans' (neg_le_neg logb_two_five_interval.2)
   refine' (add_le_add_right this _).trans_lt' _
   norm_num
 
-theorem f'_max : f' 0.75 < 1.994 :=
-  by
-  have : logb 2 (4 / 5) = 2 - logb 2 5 :=
-    by
+theorem f'_max : f' 0.75 < 1.994 := by
+  have : logb 2 (4 / 5) = 2 - logb 2 5 := by
     rw [logb_div, (by norm_num : (4 : ℝ) = 2 ^ 2), Real.logb_pow, logb_base]
     · rw [Nat.cast_two, mul_one]
     · norm_num
@@ -972,8 +911,7 @@ theorem f2'_eq {x : ℝ} : f2' x = f' x - 1 / log 2 * (1 / 40 * (1 - 1 / (2 - x)
 noncomputable def f2'Deriv (x : ℝ) : ℝ :=
   8 / 3 + logb 2 ((1 - x) / (2 - x)) + 1 / (log 2 * 40) * (1 / (2 - x) ^ 2)
 
-theorem hasDerivAt_f2' {x : ℝ} (hx : x < 1) : HasDerivAt f2' (f2'Deriv x) x :=
-  by
+theorem hasDerivAt_f2' {x : ℝ} (hx : x < 1) : HasDerivAt f2' (f2'Deriv x) x := by
   have hx2 : x < 2 := by linarith only [hx]
   have : HasDerivAt f2' (8 / 3 + logb 2 ((1 - x) / (2 - x)) - _) x :=
     (hasDerivAt_f' hx.ne hx2.ne).sub (((hasDerivAt_const _ _).sub (f_deriv_aux hx2.ne)).const_mul _)
@@ -996,8 +934,7 @@ theorem f2_deriv'_eq2 {x : ℝ} :
 -- (1 - y) - 20 (2 - y) ^ 2
 theorem hasDerivAt_f2'Deriv {y : ℝ} (hy : y < 1) :
     HasDerivAt (fun x => f2'Deriv x)
-      ((1 - y - 20 * (2 - y) ^ 2) / (20 * (2 - y) ^ 3 * (1 - y) * log 2)) y :=
-  by
+      ((1 - y - 20 * (2 - y) ^ 2) / (20 * (2 - y) ^ 3 * (1 - y) * log 2)) y := by
   simp only [f2_deriv'_eq]
   have hy2 : y < 2 := hy.trans_le one_le_two
   have :
@@ -1005,8 +942,7 @@ theorem hasDerivAt_f2'Deriv {y : ℝ} (hy : y < 1) :
       (fun x => 8 / 3 + logb 2 (1 - x) - logb 2 (2 - x) + 1 / (log 2 * 40) * ((2 - x) ^ 2)⁻¹)
       ((0 - 1) / ((1 - y) * log 2) - (0 - 1) / ((2 - y) * log 2) +
         1 / (log 2 * 40) * (-(↑2 * (2 - y) ^ (2 - 1) * -1) / ((2 - y) ^ 2) ^ 2))
-      y :=
-    by
+      y := by
     refine'
       (((((hasDerivAt_const _ _).sub (hasDerivAt_id' _)).logb _).const_add _).sub
             (((hasDerivAt_const _ _).sub (hasDerivAt_id' _)).logb _)).add
@@ -1020,8 +956,7 @@ theorem hasDerivAt_f2'Deriv {y : ℝ} (hy : y < 1) :
   field_simp [(log_pos one_lt_two).ne', (sub_pos_of_lt hy).ne', (sub_pos_of_lt hy2).ne']
   ring_nf
 
-theorem strictAntiOn_f2'Deriv : StrictAntiOn f2'Deriv (Set.Ioo 0 1) :=
-  by
+theorem strictAntiOn_f2'Deriv : StrictAntiOn f2'Deriv (Set.Ioo 0 1) := by
   refine'
     Convex.strictAntiOn_of_hasDerivAt_neg (convex_Ioo 0 1) (fun y hy => hasDerivAt_f2'Deriv hy.2) _
   rw [interior_Ioo]
@@ -1038,8 +973,7 @@ theorem strictAntiOn_f2'Deriv : StrictAntiOn f2'Deriv (Set.Ioo 0 1) :=
 -- deriv = -0.0000960352
 -- 1.9992712424
 -- lower bound here doesn't matter
-theorem f2'_eval_max : f2' 0.817 ∈ Icc (0 : ℝ) 1.9992877 :=
-  by
+theorem f2'_eval_max : f2' 0.817 ∈ Icc (0 : ℝ) 1.9992877 := by
   rw [f2'_eq, f']
   refine
     interval_end
@@ -1050,8 +984,7 @@ theorem f2'_eval_max : f2' 0.817 ∈ Icc (0 : ℝ) 1.9992877 :=
       (by norm_num) (by norm_num)
 
 -- Porting note: this numerical bound is still checked directly by interval arithmetic.
-theorem f2'Deriv_eval_max : f2'Deriv 0.817 ∈ Icc (-15e-5 : ℝ) 5e-5 :=
-  by
+theorem f2'Deriv_eval_max : f2'Deriv 0.817 ∈ Icc (-15e-5 : ℝ) 5e-5 := by
   rw [f2_deriv'_eq2]
   refine
     interval_end
@@ -1059,16 +992,13 @@ theorem f2'Deriv_eval_max : f2'Deriv 0.817 ∈ Icc (-15e-5 : ℝ) 5e-5 :=
         (hMul_interval one_div_log_two_interval const_interval (by norm_num) (by norm_num)))
       (by norm_num) (by norm_num)
 
-theorem claim_a4_aux {x : ℝ} (hx : x ∈ Ico (0.75 : ℝ) 1) : f2' x < 1.9993 :=
-  by
+theorem claim_a4_aux {x : ℝ} (hx : x ∈ Ico (0.75 : ℝ) 1) : f2' x < 1.9993 := by
   cases' le_total x 0.817 with h h
-  · have hdif : DifferentiableOn ℝ f2' (Icc 0.75 0.817) :=
-      by
+  · have hdif : DifferentiableOn ℝ f2' (Icc 0.75 0.817) := by
       intro x hx
       refine' (hasDerivAt_f2' _).differentiableAt.differentiableWithinAt
       exact hx.2.trans_lt (by norm_num)
-    have hder : ∀ x ∈ interior (Icc (0.75 : ℝ) 0.817), -15e-5 ≤ deriv f2' x :=
-      by
+    have hder : ∀ x ∈ interior (Icc (0.75 : ℝ) 0.817), -15e-5 ≤ deriv f2' x := by
       rw [interior_Icc]
       rintro x ⟨hx₀, hx₁⟩
       rw [(hasDerivAt_f2' (hx₁.trans_le (by norm_num))).deriv]
@@ -1080,12 +1010,10 @@ theorem claim_a4_aux {x : ℝ} (hx : x ∈ Ico (0.75 : ℝ) 1) : f2' x < 1.9993 
     rw [le_sub_iff_add_le] at this 
     replace this := this.trans f2'_eval_max.2
     linarith only [this, hx.1]
-  · have hdif : DifferentiableOn ℝ f2' (Ico 0.817 1) :=
-      by
+  · have hdif : DifferentiableOn ℝ f2' (Ico 0.817 1) := by
       intro x hx
       exact (hasDerivAt_f2' hx.2).differentiableAt.differentiableWithinAt
-    have hder : ∀ x ∈ interior (Ico (0.817 : ℝ) 1), deriv f2' x ≤ 5e-5 :=
-      by
+    have hder : ∀ x ∈ interior (Ico (0.817 : ℝ) 1), deriv f2' x ≤ 5e-5 := by
       rintro x hx
       rw [interior_Ico] at hx 
       rw [(hasDerivAt_f2' hx.2).deriv]
@@ -1099,8 +1027,7 @@ theorem claim_a4_aux {x : ℝ} (hx : x ∈ Ico (0.75 : ℝ) 1) : f2' x < 1.9993 
     linarith only [this, hx.2]
 
 theorem claim_a4 {x y : ℝ} (hx : x ∈ Icc (0.75 : ℝ) 1) (hy : y ∈ Icc (0 : ℝ) 0.75)
-    (h : x = 3 / 5 * y + 0.5454) : f2 x y < 1.9993 :=
-  by
+    (h : x = 3 / 5 * y + 0.5454) : f2 x y < 1.9993 := by
   have hx09 : x ≤ 0.9954 := by linarith only [h, hy.2]
   have hx1 : x < 1 := hx09.trans_lt (by norm_num)
   have hx2 : x ≠ 2 := by linarith only [hx1]
