@@ -1203,8 +1203,7 @@ theorem sum_powersetCard_erase {α β : Type*} [Fintype α] [DecidableEq α] [Ad
       ∑ y, ∑ U ∈ powersetCard n (s.erase y), f U y := by
   have : (∑ U ∈ powersetCard n s, ∑ y ∈ Uᶜ, f U y) =
       ∑ U ∈ powersetCard n s, ∑ y, if y ∈ Uᶜ then f U y else 0 := by
-    refine sum_congr rfl ?_
-    intro U hU
+    refine' sum_congr rfl fun U _ => _
     exact sum_ite_fintype Uᶜ (f U)
   rw [this]
   rw [sum_comm]
