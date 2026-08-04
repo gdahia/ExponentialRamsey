@@ -141,8 +141,7 @@ theorem six_four_degree {μ : ℝ} (hi : i ∈ degreeSteps μ k l ini) : p_ i �
     refine' Y_nonempty _
     rw [degreeSteps, mem_filter, mem_range] at hi
     exact hi.1
-  rw [this]
-  rw [colDensity_eq_average]
+  rw [this, colDensity_eq_average]
   refine' increase_average _
   rw [← colDensity_eq_average, BookConfig.p, sub_le_self_iff]
   exact mul_nonneg (rpow_nonneg (Nat.cast_nonneg _) _) (α_nonneg _ _)
@@ -840,8 +839,7 @@ theorem six_two_part_three (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁
     mem_union_of_odd hj₁ hj
   refine' (hl k hlk μ hμl hμu n χ ini hini j this hj₂).trans' _
   have hj₄ : qFunction k ini.p 0 ≤ (algorithm μ k l ini (j - 1)).p := by
-    rw [qFunction_zero]
-    exact hj₃
+    rwa [qFunction_zero]
   rw [le_sub_comm]
   refine'
     (mul_le_mul_of_nonneg_left (five_seven_right hj₄)
@@ -1150,8 +1148,7 @@ theorem six_one_error (p₀ : ℝ) (hp₀ : 0 < p₀) :
   refine' pow_le_pow_left₀ (rpow_nonneg two_pos.le _) _ _
   have h₁ : (2 : ℝ) ^ (-2 * (k : ℝ) ^ (-1 / 8 : ℝ)) ≤ 1 - (k : ℝ) ^ (-1 / 8 : ℝ) := by
     refine' two_approx (rpow_nonneg (Nat.cast_nonneg _) _) _
-    rw [neg_div]
-    exact hk₈
+    rwa [neg_div]
   have h₂ :
     (2 : ℝ) ^ (-2 * (3 * (k : ℝ) ^ (-1 / 4 : ℝ) / p₀)) ≤ 1 - 3 * (k : ℝ) ^ (-1 / 4 : ℝ) / p := by
     refine' (two_approx (by positivity) _).trans _
@@ -1237,7 +1234,6 @@ theorem six_one (p₀ : ℝ) (hp₀ : 0 < p₀) :
     rw [inter_eq_left]
     exact densitySteps_subset_redOrDensitySteps.trans (filter_subset _ _)
   specialize hl k hlk μ hμl hμu n χ hχ ini hini _ le_rfl
-  rw [h₁, h₂] at hl
-  exact hl
+  rwa [h₁, h₂] at hl
 
 end SimpleGraph
