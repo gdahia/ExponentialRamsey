@@ -878,10 +878,9 @@ theorem d_two {l k t : ℕ} {γ : ℝ} (ht : 0 < k) (h : t ≤ k) (hγ : γ = l 
   swap
   · rw [Nat.cast_pos]
     exact Nat.choose_pos (Nat.le_add_left _ _)
-  rw [mul_comm, hγ, one_sub_div]
+  rw [mul_comm, hγ, one_sub_div, add_sub_cancel_right]
   swap
   · positivity
-  rw [(by ring : (↑k + ↑l - ↑l : ℝ) = k)]
   refine' mul_le_mul_of_nonneg_right ((fact_d_two_part_two h).trans _) (by positivity)
   rw [exp_le_exp, ← div_div _ (2 : ℝ), mul_div_assoc, ← div_mul_eq_mul_div, neg_div, neg_div,
     div_div, neg_mul, neg_mul, mul_comm (k : ℝ), neg_le_neg_iff, sum_range_id,
