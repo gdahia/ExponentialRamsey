@@ -13,7 +13,6 @@ given fully in other files. The purpose of this file is to show the form in whic
 and theorem look.
 -/
 
-
 namespace MainResults
 
 open SimpleGraph
