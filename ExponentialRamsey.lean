@@ -1,8 +1,8 @@
 import ExponentialRamsey.Basic
 import ExponentialRamsey.Log2Estimates
 import ExponentialRamsey.LogSmall
--- import ExponentialRamsey.MainResults
--- import ExponentialRamsey.NecessaryLogEstimates
+import ExponentialRamsey.MainResults
+import ExponentialRamsey.NecessaryLogEstimates
 import ExponentialRamsey.Prereq.Constructive
 import ExponentialRamsey.Prereq.GraphProbability
 import ExponentialRamsey.Prereq.Mathlib.Algebra.BigOperators.Ring
@@ -30,6 +30,6 @@ import ExponentialRamsey.Section6
 import ExponentialRamsey.Section7
 import ExponentialRamsey.Section8
 import ExponentialRamsey.Section9
--- import ExponentialRamsey.Section10
--- import ExponentialRamsey.Section11
--- import ExponentialRamsey.Section12
+import ExponentialRamsey.Section10
+import ExponentialRamsey.Section11
+import ExponentialRamsey.Section12
