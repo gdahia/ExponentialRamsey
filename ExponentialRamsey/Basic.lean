@@ -48,18 +48,18 @@ theorem colDensity_empty_right [DecidableEq V] [DecidableEq K] {χ : TopEdgeLabe
     {X : Finset V} : colDensity χ k X ∅ = 0 := by
   rw [colDensity, edgeDensity_empty_right, Rat.cast_zero]
 
-scoped[ExponentialRamsey] notation "red_density" χ:1024 => SimpleGraph.colDensity χ 0
+scoped[ExponentialRamsey] notation:max "red_density" χ:1024 => SimpleGraph.colDensity χ 0
 
-scoped[ExponentialRamsey] notation "blue_density" χ:1024 => SimpleGraph.colDensity χ 1
+scoped[ExponentialRamsey] notation:max "blue_density" χ:1024 => SimpleGraph.colDensity χ 1
 
 /-- the set of neighbours of x which are connected to it by edges labelled k -/
 def colNeighbors [Fintype V] [DecidableEq V] [DecidableEq K] (χ : TopEdgeLabelling V K) (k : K)
     (x : V) : Finset V :=
   neighborFinset (χ.labelGraph k) x
 
-scoped[ExponentialRamsey] notation "red_neighbors" χ:1024 => SimpleGraph.colNeighbors χ 0
+scoped[ExponentialRamsey] notation:max "red_neighbors" χ:1024 => SimpleGraph.colNeighbors χ 0
 
-scoped[ExponentialRamsey] notation "blue_neighbors" χ:1024 => SimpleGraph.colNeighbors χ 1
+scoped[ExponentialRamsey] notation:max "blue_neighbors" χ:1024 => SimpleGraph.colNeighbors χ 1
 
 open scoped ExponentialRamsey
 
@@ -121,8 +121,8 @@ variable [Fintype V]
 noncomputable def pairWeight [DecidableEq (Fin 2)] (χ : TopEdgeLabelling V (Fin 2))
     (X Y : Finset V) (x y : V) : ℝ :=
   (Y.card : ℝ)⁻¹ *
-    (((red_neighbors χ) x ∩ (red_neighbors χ) y ∩ Y).card -
-      (red_density χ) X Y * ((red_neighbors χ) x ∩ Y).card)
+    ((red_neighbors χ x ∩ red_neighbors χ y ∩ Y).card -
+      red_density χ X Y * (red_neighbors χ x ∩ Y).card)
 
 /-- Define the weight of a vertex for the book algorithm.
 `pair_weight χ X Y x` corresponds to `ω(x)` in the paper, see equation (4).
@@ -213,7 +213,7 @@ namespace BookConfig
 
 /-- Define `p` from the paper at a given configuration. -/
 def p (C : BookConfig χ) : ℝ :=
-  (red_density χ) C.X C.Y
+  red_density χ C.X C.Y
 
 section
 
@@ -230,8 +230,8 @@ instance : Inhabited (BookConfig χ) :=
 
 /-- Take a red step for the book algorithm, given `x ∈ X`. -/
 def redStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookConfig χ where
-  X := (red_neighbors χ) x ∩ C.X
-  Y := (red_neighbors χ) x ∩ C.Y
+  X := red_neighbors χ x ∩ C.X
+  Y := red_neighbors χ x ∩ C.Y
   A := insert x C.A
   B := C.B
   hXY := disjoint_of_subset_left inter_subset_right (C.hXY.inf_right' _)
@@ -254,24 +254,20 @@ def redStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookConfig χ wh
     intro a ha
     exact C.red_XYA (Or.inl (by exact_mod_cast hx)) ha _
   red_XYA := by
-    -- TODO: find a cleaner proof closer to the original
-    intro a ha b hb h
-    push_cast at ha hb
-    obtain ha_left | ha_right := Finset.mem_union.mp (by exact_mod_cast ha) <;>
-      obtain rfl | hb_in := Finset.mem_insert.mp (by exact_mod_cast hb)
-    · exact (mem_colNeighbors'.mp (Finset.mem_inter.mp ha_left).1).choose_spec ▸ rfl
-    · exact C.red_XYA (Or.inl (Finset.mem_inter.mp ha_left).2) hb_in h
-    · exact (mem_colNeighbors'.mp (Finset.mem_inter.mp ha_right).1).choose_spec ▸ rfl
-    · exact C.red_XYA (Or.inr (Finset.mem_inter.mp ha_right).2) hb_in h
+    rw [← Finset.coe_union, ← Finset.inter_union_distrib_left, Finset.coe_insert,
+      ← Set.singleton_union, EdgeLabelling.monochromaticBetween_union_right,
+      EdgeLabelling.monochromaticBetween_singleton_right]
+    refine ⟨?_, C.red_XYA.subset_left (mod_cast inter_subset_right)⟩
+    simp +contextual [mem_colNeighbors']
   blue_b := C.blue_b
   blue_XB := C.blue_XB.subset_left (Finset.coe_subset.2 inter_subset_right)
 
 theorem redStepBasic_x {C : BookConfig χ} {x : V} (hx : x ∈ C.X) :
-    (redStepBasic C x hx).X = (red_neighbors χ) x ∩ C.X :=
+    (redStepBasic C x hx).X = red_neighbors χ x ∩ C.X :=
   rfl
 
 theorem redStepBasic_Y {C : BookConfig χ} {x : V} (hx : x ∈ C.X) :
-    (redStepBasic C x hx).Y = (red_neighbors χ) x ∩ C.Y :=
+    (redStepBasic C x hx).Y = red_neighbors χ x ∩ C.Y :=
   rfl
 
 theorem redStepBasic_a {C : BookConfig χ} {x : V} (hx : x ∈ C.X) :
@@ -312,8 +308,8 @@ variable [Fintype V]
 
 /-- Take a density boost step for the book algorithm, given `x ∈ X`. -/
 def densityBoostStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookConfig χ where
-  X := (blue_neighbors χ) x ∩ C.X
-  Y := (red_neighbors χ) x ∩ C.Y
+  X := blue_neighbors χ x ∩ C.X
+  Y := red_neighbors χ x ∩ C.Y
   A := C.A
   B := insert x C.B
   hXY := (C.hXY.inf_left' _).inf_right' _
@@ -347,20 +343,20 @@ def densityBoostStepBasic (C : BookConfig χ) (x : V) (hx : x ∈ C.X) : BookCon
     simp +contextual [mem_colNeighbors']
 
 theorem densityBoostStepBasic_x {C : BookConfig χ} {x : V} (hx : x ∈ C.X) :
-    (densityBoostStepBasic C x hx).X = (blue_neighbors χ) x ∩ C.X :=
-  by simp [densityBoostStepBasic]
+    (densityBoostStepBasic C x hx).X = blue_neighbors χ x ∩ C.X := by
+  simp [densityBoostStepBasic]
 
 theorem densityBoostStepBasic_Y {C : BookConfig χ} {x : V} (hx : x ∈ C.X) :
-    (densityBoostStepBasic C x hx).Y = (red_neighbors χ) x ∩ C.Y :=
-  by simp [densityBoostStepBasic]
+    (densityBoostStepBasic C x hx).Y = red_neighbors χ x ∩ C.Y := by
+  simp [densityBoostStepBasic]
 
 theorem densityBoostStepBasic_a {C : BookConfig χ} {x : V} (hx : x ∈ C.X) :
-    (densityBoostStepBasic C x hx).A = C.A :=
-  by simp [densityBoostStepBasic]
+    (densityBoostStepBasic C x hx).A = C.A := by
+  simp [densityBoostStepBasic]
 
 theorem densityBoostStepBasic_b {C : BookConfig χ} {x : V} (hx : x ∈ C.X) :
-    (densityBoostStepBasic C x hx).B = insert x C.B :=
-  by simp [densityBoostStepBasic]
+    (densityBoostStepBasic C x hx).B = insert x C.B := by
+  simp [densityBoostStepBasic]
 
 end
 
@@ -392,14 +388,14 @@ noncomputable def degreeRegularisationStep (k : ℕ) (p₀ : ℝ) (C : BookConfi
   degreeRegularisationStepBasic C
     (C.X.filter fun x =>
       (C.p - k ^ (1 / 8 : ℝ) * αFunction k (height k p₀ C.p)) * C.Y.card ≤
-        ((red_neighbors χ) x ∩ C.Y).card)
+        (red_neighbors χ x ∩ C.Y).card)
     (filter_subset _ _)
 
 theorem degreeRegularisationStep_x {k : ℕ} {p₀ : ℝ} {C : BookConfig χ} :
     (degreeRegularisationStep k p₀ C).X =
       C.X.filter fun x =>
         (C.p - k ^ (1 / 8 : ℝ) * αFunction k (height k p₀ C.p)) * C.Y.card ≤
-          ((red_neighbors χ) x ∩ C.Y).card :=
+          (red_neighbors χ x ∩ C.Y).card :=
   rfl
 
 theorem degreeRegularisationStep_Y {k : ℕ} {p₀ : ℝ} {C : BookConfig χ} :
@@ -436,15 +432,9 @@ theorem mem_usefulBlueBooks {μ : ℝ} {X : Finset V} {ST : Finset V × Finset V
         ST.2 ⊆ X ∧
           Disjoint ST.1 ST.2 ∧
             χ.MonochromaticOf ST.1 1 ∧
-              χ.MonochromaticBetween ST.1 ST.2 1 ∧ μ ^ ST.1.card * X.card / 2 ≤ ST.2.card :=
-  -- TODO: revisit this proof
-  by
-  rw [usefulBlueBooks, mem_filter]
-  constructor
-  · simp [Finset.mem_product, mem_powerset]
-    tauto
-  · simp [Finset.mem_product, mem_powerset]
-    tauto
+              χ.MonochromaticBetween ST.1 ST.2 1 ∧ μ ^ ST.1.card * X.card / 2 ≤ ST.2.card := by
+  simp [usefulBlueBooks, mem_filter, Finset.mem_product, mem_powerset]
+  tauto
 
 theorem mem_usefulBlueBooks' {μ : ℝ} {X S T : Finset V} :
     (S, T) ∈ usefulBlueBooks χ μ X ↔
@@ -464,7 +454,7 @@ theorem exists_useful_blue_book (μ : ℝ) (X : Finset V) : (usefulBlueBooks χ 
   exact half_le_self (Nat.cast_nonneg _)
 
 theorem exists_blue_book_one_le_S [Fintype V] (μ : ℝ) (X : Finset V)
-    (hX : ∃ x ∈ X, μ * X.card ≤ ((blue_neighbors χ) x ∩ X).card) :
+    (hX : ∃ x ∈ X, μ * X.card ≤ (blue_neighbors χ x ∩ X).card) :
     ∃ ST : Finset V × Finset V, ST ∈ usefulBlueBooks χ μ X ∧ 1 ≤ ST.1.card := by
   obtain ⟨x, hx, hx'⟩ := hX
   rcases lt_or_ge μ 0 with h | h
@@ -478,7 +468,7 @@ theorem exists_blue_book_one_le_S [Fintype V] (μ : ℝ) (X : Finset V)
     · exact div_nonpos_of_nonpos_of_nonneg
         (mul_nonpos_of_nonpos_of_nonneg (le_of_lt h) (Nat.cast_nonneg _))
         (by norm_num : (0 : ℝ) ≤ 2)
-  refine' ⟨⟨{x}, (blue_neighbors χ) x ∩ X⟩, _, by simp⟩
+  refine' ⟨⟨{x}, blue_neighbors χ x ∩ X⟩, _, by simp⟩
   rw [mem_usefulBlueBooks']
   simp (config := { contextual := true }) only [hx, singleton_subset_iff, disjoint_singleton_left,
     mem_inter, and_true, coe_singleton, EdgeLabelling.monochromaticOf_singleton, card_singleton,
@@ -532,12 +522,12 @@ section
 variable [Fintype V]
 
 theorem one_le_card_getBook_fst {μ : ℝ} {X : Finset V}
-    (hX : ∃ x ∈ X, μ * X.card ≤ ((blue_neighbors χ) x ∩ X).card) : 1 ≤ (getBook χ μ X).1.card := by
+    (hX : ∃ x ∈ X, μ * X.card ≤ (blue_neighbors χ x ∩ X).card) : 1 ≤ (getBook χ μ X).1.card := by
   obtain ⟨⟨S, T⟩, hST, hS⟩ := exists_blue_book_one_le_S _ _ hX
   exact hS.trans (getBook_max _ _ hST)
 
 theorem getBook_snd_card_le_X {μ : ℝ} {X : Finset V}
-    (hX : ∃ x ∈ X, μ * X.card ≤ ((blue_neighbors χ) x ∩ X).card) :
+    (hX : ∃ x ∈ X, μ * X.card ≤ (blue_neighbors χ x ∩ X).card) :
     (getBook χ μ X).2.card + 1 ≤ X.card := by
   refine' (add_le_add_right (one_le_card_getBook_fst hX) _).trans _
   rw [add_comm, ← card_union_of_disjoint getBook_disjoints]
@@ -545,11 +535,11 @@ theorem getBook_snd_card_le_X {μ : ℝ} {X : Finset V}
 
 /-- The number of vertices with a large blue neighbourhood. -/
 noncomputable def numBigBlues (μ : ℝ) (C : BookConfig χ) : ℕ :=
-  (C.X.filter fun x => μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card).card
+  (C.X.filter fun x => μ * C.X.card ≤ (blue_neighbors χ x ∩ C.X).card).card
 
 theorem get_book_condition {μ : ℝ} {k l : ℕ} {C : BookConfig χ} (hk : k ≠ 0) (hl : l ≠ 0)
     (hX : ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ numBigBlues μ C) :
-    ∃ x ∈ C.X, μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card := by
+    ∃ x ∈ C.X, μ * C.X.card ≤ (blue_neighbors χ x ∩ C.X).card := by
   rw [← filter_nonempty_iff, ← card_pos]
   refine' hX.trans_lt' _
   rw [ramseyNumber_pos, Fin.forall_fin_two]
@@ -563,18 +553,18 @@ noncomputable def bigBlueStep (μ : ℝ) (C : BookConfig χ) : BookConfig χ :=
   bigBlueStepBasic C (getBook χ μ C.X).1 (getBook χ μ C.X).2 getBook_fst_subset getBook_snd_subset
     getBook_blue_fst getBook_disjoints getBook_blue_fst_snd
 
-theorem bigBlueStep_x {μ : ℝ} {C : BookConfig χ} : (bigBlueStep μ C).X = (getBook χ μ C.X).2 :=
-  by simp [bigBlueStep, bigBlueStepBasic]
+theorem bigBlueStep_x {μ : ℝ} {C : BookConfig χ} : (bigBlueStep μ C).X = (getBook χ μ C.X).2 := by
+  simp [bigBlueStep, bigBlueStepBasic]
 
-theorem bigBlueStep_Y {μ : ℝ} {C : BookConfig χ} : (bigBlueStep μ C).Y = C.Y :=
-  by simp [bigBlueStep, bigBlueStepBasic]
+theorem bigBlueStep_Y {μ : ℝ} {C : BookConfig χ} : (bigBlueStep μ C).Y = C.Y := by
+  simp [bigBlueStep, bigBlueStepBasic]
 
-theorem bigBlueStep_a {μ : ℝ} {C : BookConfig χ} : (bigBlueStep μ C).A = C.A :=
-  by simp [bigBlueStep, bigBlueStepBasic]
+theorem bigBlueStep_a {μ : ℝ} {C : BookConfig χ} : (bigBlueStep μ C).A = C.A := by
+  simp [bigBlueStep, bigBlueStepBasic]
 
 theorem bigBlueStep_b {μ : ℝ} {C : BookConfig χ} :
-    (bigBlueStep μ C).B = C.B ∪ (getBook χ μ C.X).1 :=
-  by simp [bigBlueStep, bigBlueStepBasic]
+    (bigBlueStep μ C).B = C.B ∪ (getBook χ μ C.X).1 := by
+  simp [bigBlueStep, bigBlueStepBasic]
 
 section
 
@@ -582,30 +572,30 @@ variable [Fintype V]
 
 /-- The set of viable central vertices. -/
 noncomputable def centralVertices (μ : ℝ) (C : BookConfig χ) : Finset V :=
-  C.X.filter fun x => ↑((blue_neighbors χ) x ∩ C.X).card ≤ μ * C.X.card
+  C.X.filter fun x => ↑(blue_neighbors χ x ∩ C.X).card ≤ μ * C.X.card
 
 theorem exists_central_vertex (μ : ℝ) (C : BookConfig χ)
-    (hX : ∃ x ∈ C.X, ↑((blue_neighbors χ) x ∩ C.X).card ≤ μ * C.X.card) :
+    (hX : ∃ x ∈ C.X, ↑(blue_neighbors χ x ∩ C.X).card ≤ μ * C.X.card) :
     ∃ x ∈ centralVertices μ C, ∀ y ∈ centralVertices μ C, weight χ C.X C.Y y ≤ weight χ C.X C.Y x :=
   exists_max_image _ _ (by rwa [centralVertices, filter_nonempty_iff])
 
 /-- Get the central vertex as in step 3. -/
 noncomputable def getCentralVertex (μ : ℝ) (C : BookConfig χ)
-    (hX : ∃ x ∈ C.X, ↑((blue_neighbors χ) x ∩ C.X).card ≤ μ * C.X.card) : V :=
+    (hX : ∃ x ∈ C.X, ↑(blue_neighbors χ x ∩ C.X).card ≤ μ * C.X.card) : V :=
   (exists_central_vertex μ C hX).choose
 
 theorem getCentralVertex_mem (μ : ℝ) (C : BookConfig χ)
-    (hX : ∃ x ∈ C.X, ↑((blue_neighbors χ) x ∩ C.X).card ≤ μ * C.X.card) :
+    (hX : ∃ x ∈ C.X, ↑(blue_neighbors χ x ∩ C.X).card ≤ μ * C.X.card) :
     getCentralVertex μ C hX ∈ centralVertices μ C :=
   (exists_central_vertex μ C hX).choose_spec.1
 
 theorem getCentralVertex_mem_x (μ : ℝ) (C : BookConfig χ)
-    (hX : ∃ x ∈ C.X, ↑((blue_neighbors χ) x ∩ C.X).card ≤ μ * C.X.card) :
+    (hX : ∃ x ∈ C.X, ↑(blue_neighbors χ x ∩ C.X).card ≤ μ * C.X.card) :
     getCentralVertex μ C hX ∈ C.X :=
   mem_of_mem_filter _ (getCentralVertex_mem _ _ _)
 
 theorem getCentralVertex_max (μ : ℝ) (C : BookConfig χ)
-    (hX : ∃ x ∈ C.X, ↑((blue_neighbors χ) x ∩ C.X).card ≤ μ * C.X.card) (y : V)
+    (hX : ∃ x ∈ C.X, ↑(blue_neighbors χ x ∩ C.X).card ≤ μ * C.X.card) (y : V)
     (hy : y ∈ centralVertices μ C) :
     weight χ C.X C.Y y ≤ weight χ C.X C.Y (getCentralVertex μ C hX) :=
   (exists_central_vertex μ C hX).choose_spec.2 _ hy
@@ -613,7 +603,7 @@ theorem getCentralVertex_max (μ : ℝ) (C : BookConfig χ)
 theorem getCentralVertex_condition {μ : ℝ} {k l : ℕ} (C : BookConfig χ)
     (h : ¬(C.X.card ≤ ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] ∨ C.p ≤ 1 / k))
     (h' : ¬ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] ≤ numBigBlues μ C) :
-    ∃ x ∈ C.X, ↑((blue_neighbors χ) x ∩ C.X).card ≤ μ * C.X.card := by
+    ∃ x ∈ C.X, ↑(blue_neighbors χ x ∩ C.X).card ≤ μ * C.X.card := by
   have h₁ : ramseyNumber ![k, ⌈(l : ℝ) ^ (3 / 4 : ℝ)⌉₊] < C.X.card :=
     not_le.mp (not_or.mp h).1
   have h₂ : numBigBlues μ C < ramseyNumber ![k, ⌈(l : ℝ) ^ (2 / 3 : ℝ)⌉₊] :=
@@ -629,7 +619,7 @@ theorem getCentralVertex_condition {μ : ℝ} {k l : ℕ} (C : BookConfig χ)
   have hle : numBigBlues μ C < C.X.card :=
     h₂.trans_le ((ramseyNumber.mono_two le_rfl hceil).trans h₁.le)
   by_contra! hall
-  have key : (C.X.filter fun x => μ * C.X.card ≤ ((blue_neighbors χ) x ∩ C.X).card) = C.X :=
+  have key : (C.X.filter fun x => μ * C.X.card ≤ (blue_neighbors χ x ∩ C.X).card) = C.X :=
     Finset.filter_true_of_mem (fun x hx => le_of_lt (hall x hx))
   have : C.X.card ≤ numBigBlues μ C := by rw [numBigBlues, key]
   omega
@@ -658,7 +648,7 @@ noncomputable def algorithmOption (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) :
               let x := C.getCentralVertex μ (C.getCentralVertex_condition h h')
               if
                   C.p - αFunction k (height k ini.p C.p) ≤
-                    (red_density χ) ((red_neighbors χ) x ∩ C.X) ((red_neighbors χ) x ∩ C.Y) then
+                    red_density χ (red_neighbors χ x ∩ C.X) (red_neighbors χ x ∩ C.Y) then
                 C.redStepBasic x (C.getCentralVertex_mem_x _ _)
               else C.densityBoostStepBasic x (C.getCentralVertex_mem_x _ _)
 
@@ -702,7 +692,7 @@ theorem algorithmOption_x_weak_bound {i : ℕ} (C : BookConfig χ) (hk : k ≠ 0
     · injection hC with hC; subst C
       let x := C'.getCentralVertex μ (C'.getCentralVertex_condition hstop hbig)
       have hx : x ∈ C'.X := BookConfig.getCentralVertex_mem_x _ _ _
-      have : ((red_neighbors χ) x ∩ C'.X).card < C'.X.card := by
+      have : (red_neighbors χ x ∩ C'.X).card < C'.X.card := by
         refine card_lt_card ?_
         exact (ssubset_iff_of_subset inter_subset_right).2
           ⟨_, hx, by simp [not_mem_colNeighbors]⟩
@@ -712,7 +702,7 @@ theorem algorithmOption_x_weak_bound {i : ℕ} (C : BookConfig χ) (hk : k ≠ 0
     · injection hC with hC; subst C
       let x := C'.getCentralVertex μ (C'.getCentralVertex_condition hstop hbig)
       have hx : x ∈ C'.X := BookConfig.getCentralVertex_mem_x _ _ _
-      have : ((blue_neighbors χ) x ∩ C'.X).card < C'.X.card := by
+      have : (blue_neighbors χ x ∩ C'.X).card < C'.X.card := by
         refine card_lt_card ?_
         exact (ssubset_iff_of_subset inter_subset_right).2
           ⟨_, hx, by simp [not_mem_colNeighbors]⟩
@@ -756,8 +746,8 @@ theorem finalStep_is_none (hk : k ≠ 0) (hl : l ≠ 0) :
     exact ⟨i, hi⟩
   csInf_mem this
 
-theorem algorithm_zero : algorithm μ k l ini 0 = ini :=
-  by simp [algorithm, algorithmOption]
+theorem algorithm_zero : algorithm μ k l ini 0 = ini := by
+  simp [algorithm, algorithmOption]
 
 theorem some_algorithm_of_finalStep_le (hi : i ≤ finalStep μ k l ini) :
     some (algorithm μ k l ini i) = algorithmOption μ k l ini i := by
@@ -827,7 +817,7 @@ theorem algorithm_succ (hi : i < finalStep μ k l ini) :
             C.getCentralVertex μ (C.getCentralVertex_condition (succeed_of_finalStep_le' hi) h')
           if
               C.p - αFunction k (height k ini.p C.p) ≤
-                (red_density χ) ((red_neighbors χ) x ∩ C.X) ((red_neighbors χ) x ∩ C.Y) then
+                red_density χ (red_neighbors χ x ∩ C.X) (red_neighbors χ x ∩ C.Y) then
             C.redStepBasic x (C.getCentralVertex_mem_x _ _)
           else C.densityBoostStepBasic x (C.getCentralVertex_mem_x _ _) := by
   apply Option.some.inj
@@ -895,7 +885,7 @@ noncomputable def redSteps (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) : Finset
       let x := getX i.2
       let C := algorithm μ k l ini i
       C.p - αFunction k (height k ini.p C.p) ≤
-        (red_density χ) ((red_neighbors χ) x ∩ C.X) ((red_neighbors χ) x ∩ C.Y)
+        red_density χ (red_neighbors χ x ∩ C.X) (red_neighbors χ x ∩ C.Y)
 
 /-- The set of density boost steps. -/
 noncomputable def densitySteps (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) : Finset ℕ :=
@@ -903,7 +893,7 @@ noncomputable def densitySteps (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) : Fi
     (redOrDensitySteps μ k l ini).attach.filter fun i =>
       let x := getX i.2
       let C := algorithm μ k l ini i
-      (red_density χ) ((red_neighbors χ) x ∩ C.X) ((red_neighbors χ) x ∩ C.Y) <
+      red_density χ (red_neighbors χ x ∩ C.X) (red_neighbors χ x ∩ C.Y) <
         C.p - αFunction k (height k ini.p C.p)
 
 theorem redSteps_subset_redOrDensitySteps : redSteps μ k l ini ⊆ redOrDensitySteps μ k l ini := by
@@ -994,8 +984,8 @@ theorem union_partial_steps :
 
 theorem union_steps :
     redSteps μ k l ini ∪ bigBlueSteps μ k l ini ∪ densitySteps μ k l ini ∪ degreeSteps μ k l ini =
-      range (finalStep μ k l ini) :=
-  by rw [union_right_comm (redSteps _ _ _ _), redSteps_union_densitySteps, union_partial_steps]
+      range (finalStep μ k l ini) := by
+  rw [union_right_comm (redSteps _ _ _ _), redSteps_union_densitySteps, union_partial_steps]
 
 theorem filter_even_thing {n : ℕ} :
     ((range n).filter Even).card ≤ ((range n).filter fun i => ¬Even i).card + 1 := by
@@ -1030,8 +1020,8 @@ theorem num_degreeSteps_le_add :
 
 theorem cases_of_lt_finalStep {i : ℕ} (hi : i < finalStep μ k l ini) :
     i ∈ redSteps μ k l ini ∨
-      i ∈ bigBlueSteps μ k l ini ∨ i ∈ densitySteps μ k l ini ∨ i ∈ degreeSteps μ k l ini :=
-  by rwa [← mem_range, ← union_steps, mem_union, mem_union, mem_union, or_assoc, or_assoc] at hi
+      i ∈ bigBlueSteps μ k l ini ∨ i ∈ densitySteps μ k l ini ∨ i ∈ degreeSteps μ k l ini := by
+  rwa [← mem_range, ← union_steps, mem_union, mem_union, mem_union, or_assoc, or_assoc] at hi
 
 -- (7)
 theorem x_subset {i : ℕ} (hi : i < finalStep μ k l ini) :
@@ -1079,19 +1069,19 @@ theorem b_subset {i : ℕ} (hi : i < finalStep μ k l ini) :
 /-- Define `β` from the paper. -/
 noncomputable def blueXRatio (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) (i : ℕ) : ℝ :=
   if h : i ∈ redOrDensitySteps μ k l ini then
-    ((blue_neighbors χ) (getX h) ∩ (algorithm μ k l ini i).X).card / (algorithm μ k l ini i).X.card
+    (blue_neighbors χ (getX h) ∩ (algorithm μ k l ini i).X).card / (algorithm μ k l ini i).X.card
   else 0
 
 theorem blueXRatio_eq (hi : i ∈ redOrDensitySteps μ k l ini) :
     blueXRatio μ k l ini i =
-      ((blue_neighbors χ) (getX hi) ∩ (algorithm μ k l ini i).X).card /
+      (blue_neighbors χ (getX hi) ∩ (algorithm μ k l ini i).X).card /
         (algorithm μ k l ini i).X.card :=
   dif_pos hi
 
 -- (8)
 theorem blueXRatio_prop (hi : i ∈ redOrDensitySteps μ k l ini) :
     blueXRatio μ k l ini i * (algorithm μ k l ini i).X.card =
-      ((blue_neighbors χ) (getX hi) ∩ (algorithm μ k l ini i).X).card := by
+      (blue_neighbors χ (getX hi) ∩ (algorithm μ k l ini i).X).card := by
   cases' Finset.eq_empty_or_nonempty (algorithm μ k l ini i).X with hX hX
   · rw [hX, inter_empty, card_empty, Nat.cast_zero, MulZeroClass.mul_zero]
   rw [blueXRatio, dif_pos hi, div_mul_cancel₀]
