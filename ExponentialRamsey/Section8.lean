@@ -224,8 +224,7 @@ theorem prop_33 :
                 ∀ ini : BookConfig χ,
                   ∀ i, ∑ h ∈ Ico 1 (maxHeight k), Δ' μ k l ini i h = Δ μ k l ini i := by
   filter_upwards [p_le_q, maxHeight_large] with l hl hl' k hlk μ n χ ini i
-  rw [maxHeight, Ico_add_one_right_eq_Icc]
-  rw [prop33_aux, Δ, min_eq_right, min_eq_right]
+  rw [maxHeight, Ico_add_one_right_eq_Icc, prop33_aux, Δ, min_eq_right, min_eq_right]
   · refine' (hl k hlk _ _ _ _ _ _ le_rfl).trans _
     exact q_increasing le_rfl
   · refine' (hl k hlk _ _ _ _ _ _ le_rfl).trans _
@@ -441,7 +440,6 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
   rw [← neg_div, ← neg_div, ← le_log_iff_exp_le]
   swap
   · exact add_pos_of_pos_of_nonneg zero_lt_one (by positivity)
-  have := quick_calculation
   have : (k : ℝ) ^ (-1 / 8 : ℝ) ≤ 2 / 3 := by rw [neg_div]; exact h₁₈ k hlk
   refine' (log_inequality (by positivity) this).trans' _
   refine' (mul_le_mul_of_nonneg_left quick_calculation (by positivity)).trans' _
@@ -766,8 +764,8 @@ theorem polynomial_ineq :
   have := this.eventually polynomial_ineq_aux
   filter_upwards [this, eventually_gt_atTop 0] with k hk₂ hk₀ hk
   have hk' : (0 : ℝ) < k := by rwa [Nat.cast_pos]
-  rw [div_le_iff₀ hk]
-  rw [add_sq, mul_one_sub, one_add_mul, one_pow, ← add_sub, add_assoc, add_le_add_iff_left, mul_one,
+  rw [div_le_iff₀ hk, add_sq, mul_one_sub, one_add_mul, one_pow, ← add_sub, add_assoc,
+    add_le_add_iff_left, mul_one,
     ← rpow_natCast, ← rpow_mul (Nat.cast_nonneg k), le_sub_iff_add_le, mul_assoc, ← add_assoc]
   refine' le_of_mul_le_mul_right _ (rpow_pos_of_pos hk' (1 / 2))
   simp only [add_mul, mul_assoc, ← rpow_add hk']

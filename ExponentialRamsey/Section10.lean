@@ -393,7 +393,6 @@ theorem big_U' {U : ℕ} (hU : (801 : ℝ) ≤ U) : (U : ℝ) / (U - 1) * (1 + 0
   -- have : (801 : ℝ) ≤ U, { exact (nat.cast_le.2 hU).trans_eq' (by norm_num1) },
   rw [div_mul_eq_mul_div, div_le_iff₀] <;> linarith
 
-/- ./././Mathport/Syntax/Translate/Basic.lean:641:2: warning: expanding binder collection (i «expr ∉ » x) -/
 theorem exists_good_clique (n k l : ℕ) (χ : TopEdgeLabelling (Fin n) (Fin 2)) :
     ∃ x : Finset (Fin n),
       IsGoodClique 0 k l χ x ∧
@@ -592,7 +591,6 @@ theorem ten_one_a_end {k l m n : ℕ} {γ δ : ℝ} (hγ : γ ≤ 1 / 5) (hδ : 
   refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)
   linarith only [hγ, hδ]
 
-/- ./././Mathport/Syntax/Translate/Basic.lean:641:2: warning: expanding binder collection (i «expr ∉ » x) -/
 theorem ten_one_a (n k l : ℕ) (γ δ : ℝ) (hl₀ : 0 < l) (hk₈ : 200 ≤ l)
     (h₁₀₂ :
       ∀ l' : ℕ,

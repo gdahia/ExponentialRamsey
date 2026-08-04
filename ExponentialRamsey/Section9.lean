@@ -1112,8 +1112,7 @@ theorem edgeFinset_eq_filter' [Fintype V] [DecidableEq V] (G : SimpleGraph V)
 theorem sum_sym2 {α β : Type*} [DecidableEq α] [AddCommMonoid β] {s : Finset α} {f : Sym2 α → β} :
     2 • ∑ x ∈ s.offDiag.image Sym2.mk.uncurry, f x =
       ∑ x ∈ s.offDiag, f (Sym2.mk.uncurry x) := by
-  rw [smul_sum]
-  rw [← sum_fiberwise_of_maps_to' (fun _ => mem_image_of_mem Sym2.mk.uncurry)]
+  rw [smul_sum, ← sum_fiberwise_of_maps_to' (fun _ => mem_image_of_mem Sym2.mk.uncurry)]
   refine' sum_congr rfl _
   rintro z hz
   rw [mem_image] at hz
@@ -1205,8 +1204,7 @@ theorem sum_powersetCard_erase {α β : Type*} [Fintype α] [DecidableEq α] [Ad
       ∑ U ∈ powersetCard n s, ∑ y, if y ∈ Uᶜ then f U y else 0 := by
     refine' sum_congr rfl fun U _ => _
     exact sum_ite_fintype Uᶜ (f U)
-  rw [this]
-  rw [sum_comm]
+  rw [this, sum_comm]
   refine' sum_congr rfl fun y hy => _
   rw [← sum_filter]
   refine' sum_congr _ fun _ _ => rfl
@@ -1264,8 +1262,7 @@ theorem sum_pair_subset {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
       ∑ U ∈ powersetCard (n + 1) s, ∑ y ∈ Uᶜ, ∑ x ∈ U, f U x y := by
     refine' sum_congr rfl fun U hU => _
     exact sum_comm
-  rw [this]
-  rw [sum_powersetCard_erase]
+  rw [this, sum_powersetCard_erase]
   simp only [sum_powersetCard_insert]
   rw [Finset.sum_sigma' univ, Finset.sum_sigma' s]
   refine' sum_bij (fun x hx => ⟨x.2, x.1⟩) _ _ _ _
@@ -1348,9 +1345,8 @@ theorem density_eq_average_partition [DecidableEq V] (G : SimpleGraph V) [Decida
     refine' sum_congr rfl fun U hU => _
     simp [mem_powersetCard, subset_sdiff, disjoint_insert_right,
       disjoint_singleton_right] at hU
-    rw [card_compl, card_insert_of_notMem hU.1.1, hU.2, Nat.cast_sub hn.le,
-      Nat.cast_add_one]
-    rw [Nat.cast_mul, Nat.cast_sub hn.le, Nat.cast_add_one]
+    rw [card_compl, card_insert_of_notMem hU.1.1, hU.2, Nat.cast_sub hn.le, Nat.cast_add_one,
+      Nat.cast_mul, Nat.cast_sub hn.le, Nat.cast_add_one]
   rw [this, sum_const, card_powersetCard, card_sdiff_of_subset (subset_univ _),
     card_univ, card_pair (mem_erase.mp hy).1.symm, mul_one, nsmul_eq_mul]
   rw [choose_helper hn, Nat.cast_mul, Nat.cast_sub (by omega : 1 ≤ card V), Nat.cast_one]
