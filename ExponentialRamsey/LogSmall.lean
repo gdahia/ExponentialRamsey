@@ -44,9 +44,11 @@ theorem artanh_partial_series_upper_bound {x : ℝ} (h : |x| < 1) (n : ℕ) :
 theorem newbound {x : ℝ} (h : |x| < 1) (n : ℕ) :
     |2 * ∑ i ∈ range n, x ^ (2 * i + 1) / (2 * i + 1) - log ((1 + x) / (1 - x))| ≤
       2 * |x| ^ (2 * n + 1) / (1 - x ^ 2) := by
-  rw [show 2 * ∑ i ∈ range n, x ^ (2 * i + 1) / (2 * i + 1) - log ((1 + x) / (1 - x)) =
-        2 * (∑ i ∈ range n, x ^ (2 * i + 1) / (2 * i + 1) - 1 / 2 * log ((1 + x) / (1 - x))) by
-      ring, abs_mul, abs_two, mul_div_assoc]
+  have hx :
+      2 * ∑ i ∈ range n, x ^ (2 * i + 1) / (2 * i + 1) - log ((1 + x) / (1 - x)) =
+        2 * (∑ i ∈ range n, x ^ (2 * i + 1) / (2 * i + 1) - 1 / 2 * log ((1 + x) / (1 - x))) := by
+    ring
+  rw [hx, abs_mul, abs_two, mul_div_assoc]
   exact mul_le_mul_of_nonneg_left (artanh_partial_series_upper_bound h n) zero_le_two
 
 theorem abs_sub_lt_of_approx {a b c ε δ : ℝ} (h₁ : |a - b| ≤ δ) (h₂ : |b - c| < ε - δ) :
