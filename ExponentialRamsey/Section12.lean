@@ -10,7 +10,6 @@ import Mathlib.Analysis.SpecialFunctions.Log.Monotone
 # Section 12
 -/
 
-
 namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey Nat Real
