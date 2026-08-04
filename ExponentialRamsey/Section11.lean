@@ -18,7 +18,8 @@ open scoped BigOperators ExponentialRamsey Nat Real
 
 open Filter _root_.Finset Nat Real Asymptotics
 
-theorem large_X (n m : ℕ) (hn'' : 2 ≤ n) (hn' : ⌊(n / 2 : ℝ)⌋₊ ≤ m) : (2 : ℝ) ^ (-2 : ℝ) * n ≤ m := by
+theorem large_X (n m : ℕ) (hn'' : 2 ≤ n) (hn' : ⌊(n / 2 : ℝ)⌋₊ ≤ m) :
+    (2 : ℝ) ^ (-2 : ℝ) * n ≤ m := by
   refine' (Nat.cast_le.2 hn').trans' ((ge_floor _).trans_eq' _)
   · rw [one_le_div (zero_lt_two' ℝ)]
     exact_mod_cast hn''
@@ -124,7 +125,8 @@ theorem eleven_two_aux_error_one (μ : ℝ) (hμ₀ : 0 < μ) :
     have : (fun x : ℝ => x ^ (31 / 32 : ℝ)) =O[atTop] fun x : ℝ => x ^ (31 / 32 : ℝ) :=
       isBigO_refl _ _
     refine'
-      (IsBigO.mul_isLittleO this (isLittleO_logb_rpow_atTop (show (0 : ℝ) < 1 / 32 by norm_num1))).congr'
+      (IsBigO.mul_isLittleO this
+          (isLittleO_logb_rpow_atTop (show (0 : ℝ) < 1 / 32 by norm_num1))).congr'
         EventuallyEq.rfl _
     filter_upwards [eventually_gt_atTop (0 : ℝ)] with k hk
     rw [← rpow_add hk]
@@ -140,9 +142,7 @@ theorem eleven_two_aux_error_one (μ : ℝ) (hμ₀ : 0 < μ) :
     refine' hs.trans _
     rcases k.eq_zero_or_pos with (rfl | hk)
     · norm_num
-    have : 1 ≤ (k : ℝ) := by
-      rw [Nat.one_le_cast]
-      exact hk
+    have : 1 ≤ (k : ℝ) := by rwa [Nat.one_le_cast]
     exact (rpow_le_rpow_of_exponent_le this (by norm_num1)).trans_eq (rpow_one _)
   have : 0 < k := hs₀.trans_le hsk
   cases' le_or_gt (logb 2 (μ * (s + t) / s)) 0 with h h
@@ -204,9 +204,7 @@ theorem eleven_two_aux_error_one' (μ : ℝ) (hμ₀ : 0 < μ) :
     refine' hsk.trans _
     rcases k.eq_zero_or_pos with (rfl | hk)
     · norm_num
-    have : 1 ≤ (k : ℝ) := by
-      rw [Nat.one_le_cast]
-      exact hk
+    have : 1 ≤ (k : ℝ) := by rwa [Nat.one_le_cast]
     exact (rpow_le_rpow_of_exponent_le this (by norm_num1)).trans_eq (rpow_one _)
   rw [abs_mul, Nat.abs_cast, logb_div, logb_mul hμ₀.ne', add_sub_assoc, add_assoc]
   rotate_left
@@ -234,7 +232,8 @@ theorem eleven_two_aux_error_one_other (μ : ℝ) (hμ₀ : 0 < μ) :
         ∀ k s : ℕ,
           ∀ β : ℝ,
             0 < β →
-              (1 : ℝ) / k ^ 2 ≤ β → (s : ℝ) ≤ k ^ (31 / 32 : ℝ) → (s : ℝ) * logb 2 (μ / β) ≤ f k := by
+              (1 : ℝ) / k ^ 2 ≤ β →
+                (s : ℝ) ≤ k ^ (31 / 32 : ℝ) → (s : ℝ) * logb 2 (μ / β) ≤ f k := by
   refine'
     ⟨fun k => ‖logb 2 μ * (k : ℝ) ^ (31 / 32 : ℝ) + 2 * ((k : ℝ) ^ (31 / 32 : ℝ) * logb 2 k)‖, _, _⟩
   · rw [isLittleO_norm_left]
@@ -523,8 +522,7 @@ theorem some_large_density {V : Type*} [Fintype V] [DecidableEq V] (hV : 2 ≤ F
 theorem eleven_one_one {m : ℕ} (hm : 2 ≤ m) : ⌈(m : ℝ) / 2⌉₊ < m := by
   refine' Nat.cast_lt.1 ((ceil_lt_two_mul _).trans_le _)
   · refine' div_lt_div_of_pos_right _ two_pos
-    rw [Nat.one_lt_cast]
-    exact hm
+    rwa [Nat.one_lt_cast]
   rw [mul_div_cancel₀]
   norm_num1
 
@@ -733,8 +731,7 @@ theorem strictAntiOn_binEnt_half_one {b : ℝ} (hb : 1 < b) :
   have :=
     strictMonoOn_binEnt_zero_half hb ⟨sub_nonneg_of_le hy₂, by linarith⟩
       ⟨sub_nonneg_of_le hx₂, by linarith⟩ (sub_lt_sub_left h _)
-  rw [binEnt_symm, binEnt_symm] at this
-  exact this
+  rwa [binEnt_symm, binEnt_symm] at this
 
 theorem strictMonoOn_Icc_iff {f : ℝ → ℝ} {a b : ℝ} :
     StrictMonoOn f (Set.Icc a b) ↔ ∀ x y, a ≤ x → x < y → y ≤ b → f x < f y := by
@@ -985,7 +982,9 @@ theorem eleven_one_special (η : ℝ) (hη : 0 < η) :
         0.75 ≤ x →
           x ≤ 0.99 →
             logb 2 (ramseyNumber ![k, k - t]) ≤
-              k * ((2 - x) * binEnt 2 (1 / (2 - x)) - 1 / (log 2 * 40) * ((1 - x) / (2 - x)) + η) := by
+              k *
+                ((2 - x) * binEnt 2 (1 / (2 - x)) - 1 / (log 2 * 40) * ((1 - x) / (2 - x)) +
+                  η) := by
   have hγ₀ : (0 : ℝ) < 1 / 101 := by norm_num1
   have q :=
     (tendsto_nat_ceil_atTop.comp
@@ -1078,7 +1077,8 @@ theorem eleven_one (η : ℝ) (hη : 0 < η) :
   obtain ⟨f₁, hf₁, hf₁'⟩ := eleven_two_improve _ hμ₀ hμ₁
   obtain ⟨f₂, hf₂, hf₂'⟩ := eleven_three_special _ hμ₀ hμ₁
   filter_upwards [hf₁', hf₂', (hf₁.add (@isLittleO_const_thing 1)).bound hη,
-    (hf₂.add (@isLittleO_const_thing 1)).bound (half_pos hη), eventually_ge_atTop 4, y_le_3_4, x_le_1,
+    (hf₂.add (@isLittleO_const_thing 1)).bound (half_pos hη), eventually_ge_atTop 4, y_le_3_4,
+    x_le_1,
     eleven_one_special (η / 2) (half_pos hη)] with k hf₁ hf₂ hη₁ hη₂ hk₆ hy₃₄ hx₁ h₁₁
   set t := (redSteps (2 / 5) k k (getIni k)).card
   set s := (densitySteps (2 / 5) k k (getIni k)).card
@@ -1112,8 +1112,7 @@ theorem eleven_one (η : ℝ) (hη : 0 < η) :
   · refine' le_max_of_le_left _
     rw [sub_le_iff_le_add, div_le_iff₀' hk₀']
     refine' hf₁.trans _
-    rw [mul_add, add_assoc, add_le_add_iff_left]
-    exact h₁
+    rwa [mul_add, add_assoc, add_le_add_iff_left]
   -- f₁ k + 1 ≤ k * η
   rw [sub_le_iff_le_add]
   refine' (div_le_div_of_nonneg_right hf₂ hk₀'.le).trans _

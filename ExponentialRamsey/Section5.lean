@@ -67,8 +67,8 @@ theorem isLittleO_rpow_rpow {r s : ℝ} (hrs : r < s) :
   have : 0 < s - r := sub_pos_of_lt hrs
   filter_upwards [eventually_gt_atTop (0 : ℝ),
     (tendsto_rpow_atTop this).eventually_ge_atTop (1 / ε)] with x hx hx'
-  rwa [norm_rpow_of_nonneg hx.le, norm_rpow_of_nonneg hx.le, norm_of_nonneg hx.le, ← div_le_iff₀' hε,
-    div_eq_mul_one_div, ← le_div_iff₀' (rpow_pos_of_pos hx _), ← rpow_sub hx]
+  rwa [norm_rpow_of_nonneg hx.le, norm_rpow_of_nonneg hx.le, norm_of_nonneg hx.le,
+    ← div_le_iff₀' hε, div_eq_mul_one_div, ← le_div_iff₀' (rpow_pos_of_pos hx _), ← rpow_sub hx]
 
 theorem isLittleO_id_rpow {s : ℝ} (hrs : 1 < s) : (fun x : ℝ => x) =o[atTop] fun x => x ^ s := by
   simpa only [rpow_one] using isLittleO_rpow_rpow hrs
@@ -137,7 +137,8 @@ theorem one_lt_qFunction :
 theorem height_upper_bound :
     ∀ᶠ k : ℕ in atTop,
       ∀ p₀ : ℝ,
-        0 ≤ p₀ → ∀ p : ℝ, p ≤ 1 → (height k p₀ p : ℝ) ≤ 2 / (k : ℝ) ^ (-1 / 4 : ℝ) * Real.log k := by
+        0 ≤ p₀ →
+          ∀ p : ℝ, p ≤ 1 → (height k p₀ p : ℝ) ≤ 2 / (k : ℝ) ^ (-1 / 4 : ℝ) * Real.log k := by
   have : Tendsto (fun k : ℝ => ⌊2 / (k : ℝ) ^ (-1 / 4 : ℝ) * Real.log k⌋₊) atTop atTop := by
     refine' tendsto_nat_floor_atTop.comp _
     rw [neg_div]
@@ -185,8 +186,6 @@ theorem five_five_aux_part_two {X Y : Finset V} :
   refine' if_congr _ rfl rfl
   rw [@mem_colNeighbors_comm _ _ _ _ _ _ y, @mem_colNeighbors_comm _ _ _ _ _ _ y]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 -- this proof might be possible without the empty casing from the col_density_sum variants
 theorem five_five_aux {X Y : Finset V} :
     ∑ x ∈ X, ∑ _y ∈ X, red_density χ X Y * (red_neighbors χ x ∩ Y).card ≤
@@ -216,8 +215,8 @@ theorem five_five (χ : TopEdgeLabelling V (Fin 2)) (X Y : Finset V) :
   norm_cast
   exact five_five_aux
 
-theorem tendsto_natCeil_atTop {α : Type*} [Semiring α] [LinearOrder α] [IsStrictOrderedRing α] [FloorSemiring α] :
-    Tendsto (fun x : α => ⌈x⌉₊) atTop atTop :=
+theorem tendsto_natCeil_atTop {α : Type*} [Semiring α] [LinearOrder α] [IsStrictOrderedRing α]
+    [FloorSemiring α] : Tendsto (fun x : α => ⌈x⌉₊) atTop atTop :=
   Nat.ceil_mono.tendsto_atTop_atTop fun n => ⟨n, (Nat.ceil_natCast _).ge⟩
 
 theorem log_n_large (c : ℝ) :
@@ -405,8 +404,8 @@ theorem five_six :
   filter_upwards [hf, top_adjuster (t.eventually_gt_atTop 0),
     top_adjuster ((tendsto_log_atTop.comp t).eventually_ge_atTop 0),
     ((tendsto_rpow_atTop h23).comp t).eventually (ceil_eventually_le 6 (by norm_num1)),
-    t.eventually (((isLittleO_one_rpow h34).add (isLittleO_rpow_rpow h2334)).def hc6)] with l hl hl₀ hll₀ hl'
-    hl₁ k hlk
+    t.eventually (((isLittleO_one_rpow h34).add (isLittleO_rpow_rpow h2334)).def hc6)] with
+    l hl hl₀ hll₀ hl' hl₁ k hlk
   specialize hl k hlk
   rw [ramseyNumber_pair_swap]
   refine' (Nat.mul_le_mul_left _ ramseyNumber_le_right_pow_left').trans _
@@ -452,7 +451,6 @@ theorem sum_pairWeight_eq {X Y : Finset V} (y : V) (hy : y ∈ X) :
     ∑ x ∈ X, pairWeight χ X Y y x = weight χ X Y y + pairWeight χ X Y y y := by
   rw [weight, sum_erase_add _ _ hy]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 theorem double_sum_pairWeight_eq {X Y : Finset V} :
     ∑ x ∈ X, ∑ y ∈ X, pairWeight χ X Y x y = ∑ y ∈ X, (weight χ X Y y + pairWeight χ X Y y y) :=
   sum_congr rfl sum_pairWeight_eq
@@ -576,15 +574,16 @@ theorem five_four :
     exact div_nonneg h₅₄ (mul_nonneg b.le (Nat.cast_nonneg _))
   refine' this.trans' _
   rw [neg_le_neg_iff]
-  refine' (add_le_add (div_le_div_of_nonneg_left _ _ h) (div_le_div_of_nonneg_left zero_le_one _ c)).trans _
+  refine'
+    (add_le_add (div_le_div_of_nonneg_left _ _ h)
+        (div_le_div_of_nonneg_left zero_le_one _ c)).trans _
   · exact Nat.cast_nonneg _
   · refine' mul_pos (sub_pos.2 (one_lt_pow₀ (Nat.one_lt_cast.2 hl₂) (by norm_num))) _
     rwa [Nat.cast_pos]
   · exact pow_pos (Nat.cast_pos.2 (Nat.zero_lt_of_lt hl₂) : (0 : ℝ) < k) _
   rw [mul_comm, ← div_div, div_self]
   · exact hl₃
-  rw [Nat.cast_ne_zero, ← pos_iff_ne_zero]
-  exact hm
+  rwa [Nat.cast_ne_zero, ← pos_iff_ne_zero]
 
 theorem five_seven_aux {k : ℕ} {p₀ p : ℝ} :
     αFunction k (height k p₀ p) =
@@ -771,6 +770,13 @@ theorem α_le_one {k : ℕ} {p₀ p : ℝ} (hp₀₁ : p₀ ≤ 1) (h : 1 / (k :
   rw [Nat.cast_pow, ← rpow_natCast, ← rpow_mul] <;> norm_num
 
 variable {k l : ℕ} {ini : BookConfig χ} {i : ℕ}
+
+omit [Fintype V] in
+/-- The absolute lower bound `p₀l` on the initial density transfers to the `1 / k` bound that the
+lemmas about `red_neighbors` want, as soon as `k` is large enough that `p₀l⁻¹ ≤ k`. -/
+theorem one_div_k_le_p {p₀l : ℝ} (hp₀l : 0 < p₀l) (hini : p₀l ≤ ini.p) (hk : p₀l⁻¹ ≤ (k : ℝ)) :
+    (1 : ℝ) / k ≤ ini.p :=
+  hini.trans' (by rw [one_div]; exact inv_le_of_inv_le₀ hp₀l hk)
 
 theorem p_pos {μ : ℝ} (hi : i < finalStep μ k l ini) : 0 < (algorithm μ k l ini i).p := by
   refine' (one_div_k_lt_p_of_lt_finalStep hi).trans_le' _
@@ -999,10 +1005,7 @@ theorem five_one_case_b (p₀l : ℝ) (hp₀l : 0 < p₀l) :
     sub_eq_add_neg _ (_ / _ * _)]
   simp only [← mul_assoc, add_assoc]
   rw [add_le_add_iff_left, add_le_add_iff_left]
-  have hp₀ : (1 : ℝ) / k ≤ ini.p := by
-    refine' hini.trans' _
-    rw [one_div]
-    exact inv_le_of_inv_le₀ hp₀l hl
+  have hp₀ : (1 : ℝ) / k ≤ ini.p := one_div_k_le_p hp₀l hini hl
   have : (C.Y.card : ℝ) ≤ k * (2 * (red_neighbors χ x ∩ C.Y).card) := by
     rw [mul_left_comm, ← mul_assoc, ← div_le_iff₀', div_eq_mul_one_div, mul_comm]
     · exact h₅₈
@@ -1144,10 +1147,7 @@ theorem five_one_case_b_condition (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp�
   have hβ : blueXRatio μ k l ini i = 0 := by
     rw [blueXRatio_eq hi, hXB, card_empty, Nat.cast_zero, zero_div]
   rw [hXB, hβ, sum_empty, mul_zero, zero_mul, zero_add, sub_zero, mul_one] at hl
-  have hp₀ : (1 : ℝ) / k ≤ ini.p := by
-    refine' hini.trans' _
-    rw [one_div]
-    exact inv_le_of_inv_le₀ hp₀l (hl' k hlk)
+  have hp₀ : (1 : ℝ) / k ≤ ini.p := one_div_k_le_p hp₀l hini (hl' k hlk)
   refine' (not_le_of_gt ?_) (by simpa using hl)
   refine' mul_pos _ _
   swap
@@ -1202,10 +1202,7 @@ theorem five_one (μ₁ p₀l : ℝ) (hμ₁ : μ₁ < 1) (hp₀l : 0 < p₀l) :
   change
     C.p - α ≤ red_density χ (red_neighbors χ x ∩ C.X) Yr ∨
       0 < β ∧ C.p + (1 - ε) * ((1 - β) / β) * α ≤ red_density χ (blue_neighbors χ x ∩ C.X) Yr
-  have hp₀ : (1 : ℝ) / k ≤ ini.p := by
-    refine' hini.trans' _
-    rw [one_div]
-    exact inv_le_of_inv_le₀ hp₀l (hkp k hlk)
+  have hp₀ : (1 : ℝ) / k ≤ ini.p := one_div_k_le_p hp₀l hini (hkp k hlk)
   have hYr : Yr.Nonempty :=
     red_neighbors_Y_nonempty' hp₀ (hl₁.trans_le hlk) hi _
       (BookConfig.getCentralVertex_mem_x _ _ _)
