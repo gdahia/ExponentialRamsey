@@ -1780,8 +1780,7 @@ theorem seven_twelve (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
     refine' (h9 (i - 1) hi₁'.2 hi₃.le _).not_gt _
     · rw [Nat.sub_add_cancel hi₁'.1]
       exact this.le
-    rw [Nat.sub_add_cancel hi₁'.1]
-    exact hi₂
+    rwa [Nat.sub_add_cancel hi₁'.1]
 
 theorem seven_six_large_jump_bound (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
     ∀ᶠ l : ℕ in atTop,
@@ -2097,27 +2096,6 @@ theorem seven_one (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
       rpow_add two_pos, rpow_add two_pos]
     exact seven_one_calc
   rw [this]
-  have :
-    (0 : ℝ) ≤
-      ∏ i ∈ ℛ, ((algorithm μ k l ini (i + 1)).X.card : ℝ) / ((algorithm μ k l ini i).X.card : ℝ) :=
-    by
-    refine' prod_nonneg _
-    intro i hi
-    positivity
-  have :
-    (0 : ℝ) ≤
-      ∏ i ∈ ℬ, ((algorithm μ k l ini (i + 1)).X.card : ℝ) / ((algorithm μ k l ini i).X.card : ℝ) :=
-    by
-    refine' prod_nonneg _
-    intro i hi
-    positivity
-  have :
-    (0 : ℝ) ≤
-      ∏ i ∈ 𝒮, ((algorithm μ k l ini (i + 1)).X.card : ℝ) / ((algorithm μ k l ini i).X.card : ℝ) :=
-    by
-    refine' prod_nonneg _
-    intro i hi
-    positivity
   refine' mul_le_mul _ hd (rpow_nonneg two_pos.le _) _
   refine'
     mul_le_mul _ hs
