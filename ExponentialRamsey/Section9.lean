@@ -1451,15 +1451,13 @@ theorem nine_two_part_two {k t : ℕ} {γ η : ℝ} (hγl : 0 ≤ γ) (hγu : γ
     exp (6 * γ * t ^ 2 / (20 * k)) ≤ exp (γ * t ^ 2 / (2 * k)) * (1 - γ - η) ^ (γ * t / (1 - γ)) := by
   have : 0 < 1 - γ - η := by linarith only [hγu, hηγ]
   rw [div_eq_mul_one_div _ (1 - γ), mul_comm _ (1 / (1 - γ)), rpow_mul this.le]
-  have hpow :
-      exp (γ * t ^ 2 / (2 * k)) * exp (-1 / 3 + 1 / 5) ^ (γ * t) ≤
-        exp (γ * t ^ 2 / (2 * k)) * ((1 - γ - η) ^ (1 / (1 - γ))) ^ (γ * t) :=
-    mul_le_mul_of_nonneg_left (rpow_le_rpow (exp_pos _).le h (by positivity))
-      (exp_pos _).le
-  refine' hpow.trans' _
-  rw [← exp_one_rpow (_ + _), ← rpow_mul (exp_pos _).le, exp_one_rpow,
-    ← Real.exp_add, exp_le_exp, sq, mul_mul_mul_comm, ← div_mul_eq_mul_div,
-    ← mul_assoc γ, mul_div_assoc (γ * t), mul_comm (γ * t), ← add_mul, div_add']
+  refine'
+    (mul_le_mul_of_nonneg_left (rpow_le_rpow (exp_pos _).le h (by positivity))
+          (exp_pos _).le).trans'
+      _
+  rw [← exp_one_rpow (_ + _), ← rpow_mul (exp_pos _).le, exp_one_rpow, ← Real.exp_add, exp_le_exp,
+    sq, mul_mul_mul_comm, ← div_mul_eq_mul_div, ← mul_assoc γ, mul_div_assoc (γ * t),
+    mul_comm (γ * t), ← add_mul, div_add']
   swap
   · positivity
   refine' mul_le_mul_of_nonneg_right _ (by positivity)
@@ -1535,17 +1533,11 @@ theorem nine_two_part_five {k t : ℕ} {η γ γ₀ δ fk : ℝ} (hη₀ : 0 ≤
       exp (-δ * k + fk) * (1 - γ - η) ^ (γ * t / (1 - γ)) * ((1 - γ - η) / (1 - γ)) ^ t *
         exp (γ * t ^ 2 / (2 * ↑k)) := by
   rw [mul_right_comm _ ((1 - γ - η) ^ (_ : ℝ)), mul_right_comm, mul_assoc]
-  have hnonneg :
-      0 ≤ exp (-δ * k + fk) * ((1 - γ - η) / (1 - γ)) ^ t :=
-    mul_nonneg (exp_pos _).le (pow_nonneg (div_nonneg h₂ (sub_pos_of_lt hγ₁).le) _)
-  have htwo :
-      exp (-δ * k + fk) * ((1 - γ - η) / (1 - γ)) ^ t *
-          exp (6 * γ * t ^ 2 / (20 * k)) ≤
-        exp (-δ * k + fk) * ((1 - γ - η) / (1 - γ)) ^ t *
-          (exp (γ * t ^ 2 / (2 * ↑k)) * (1 - γ - η) ^ (γ * t / (1 - γ))) :=
-    mul_le_mul_of_nonneg_left (nine_two_part_two hγ₀'.le hγu hηγ ht hk (nine_two_numeric hγu hηγ))
-      hnonneg
-  refine' htwo.trans' _
+  refine'
+    (mul_le_mul_of_nonneg_left (nine_two_part_two hγ₀'.le hγu hηγ ht hk (nine_two_numeric hγu hηγ))
+          _).trans'
+      _
+  · exact mul_nonneg (exp_pos _).le (pow_nonneg (div_nonneg h₂ (sub_pos_of_lt hγ₁).le) _)
   rw [mul_right_comm, ← Real.exp_add]
   refine' (mul_le_mul_of_nonneg_left (nine_two_part_four hη₀ hγu hηγ ht hk) (exp_pos _).le).trans' _
   rw [← Real.exp_add, one_le_exp_iff, add_right_comm _ fk, add_right_comm _ fk, neg_mul, neg_mul,
@@ -1563,23 +1555,18 @@ theorem nine_two_part_five {k t : ℕ} {η γ γ₀ δ fk : ℝ} (hη₀ : 0 ≤
     · positivity
   have hfk' : -fk ≤ γ / 60 * k :=
     hfk.trans (mul_le_mul_of_nonneg_right (by linarith only [hγ₀]) (Nat.cast_nonneg _))
-  calc
-    -fk ≤ γ / 60 * k := hfk'
-    _ ≤ -(((2 / 3) ^ 2)⁻¹ * γ * t ^ 2 / (20 * k)) +
-        (6 * γ * t ^ 2 - 3 * γ * t ^ 2) / (20 * k) := by
-      rw [neg_add_eq_sub, ← sub_div, mul_assoc, mul_assoc, mul_assoc, ← sub_mul, ← sub_mul, ← div_div,
-        le_div_iff₀, mul_assoc, ← sq, div_mul_comm, mul_comm, mul_left_comm, mul_div_assoc, ←
-        div_mul_eq_mul_div]
-      swap
-      · positivity
-      refine' mul_le_mul_of_nonneg_left _ hγ₀'.le
-      rw [← div_le_iff₀', div_div, div_eq_mul_one_div]
-      swap
-      · norm_num1
-      refine' (pow_le_pow_left₀ (by positivity) ht _).trans_eq' _
-      ring
-    _ ≤ -(δ * k) + (6 * γ * t ^ 2 - 3 * γ * t ^ 2) / (20 * k) := by
-      linarith only [this]
+  refine' hfk'.trans ((add_le_add_left this _).trans' _)
+  rw [neg_add_eq_sub, ← sub_div, mul_assoc, mul_assoc, mul_assoc, ← sub_mul, ← sub_mul, ← div_div,
+    le_div_iff₀, mul_assoc, ← sq, div_mul_comm, mul_comm, mul_left_comm, mul_div_assoc, ←
+    div_mul_eq_mul_div]
+  swap
+  · positivity
+  refine' mul_le_mul_of_nonneg_left _ hγ₀'.le
+  rw [← div_le_iff₀', div_div, div_eq_mul_one_div]
+  swap
+  · norm_num1
+  refine' (pow_le_pow_left₀ (by positivity) ht _).trans_eq' _
+  ring
 
 -- TODO: move
 section
@@ -1592,12 +1579,11 @@ theorem ramseyNumber_le_finset_aux {s : Finset V} (C : TopEdgeLabelling V K)
         (C.pullback (Function.Embedding.subtype (· ∈ s))).MonochromaticOf m c ∧ n c ≤ m.card) :
     ∃ (m : Finset V) (c : K), m ⊆ s ∧ C.MonochromaticOf m c ∧ n c ≤ m.card := by
   obtain ⟨m, c, hm, hn⟩ := h
-  refine' ⟨m.map (Function.Embedding.subtype (· ∈ s)), c, _, hm.map, _⟩
-  · intro x hx
-    rw [Finset.mem_map] at hx
-    obtain ⟨x, _, rfl⟩ := hx
-    exact x.property
-  · simpa [card_map] using hn
+  refine' ⟨_, c, _, hm.map, hn.trans_eq (card_map _).symm⟩
+  simp only [subset_iff, Finset.mem_map, Function.Embedding.coe_subtype, Subtype.exists,
+    exists_and_right, exists_eq_right, forall_exists_index]
+  intro x hx _
+  exact hx
 
 -- there should be a version of this for IsRamseyValid and it should be useful *for* the proof
 -- that ramsey numbers exist
