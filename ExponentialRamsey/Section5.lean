@@ -186,8 +186,6 @@ theorem five_five_aux_part_two {X Y : Finset V} :
   refine' if_congr _ rfl rfl
   rw [@mem_colNeighbors_comm _ _ _ _ _ _ y, @mem_colNeighbors_comm _ _ _ _ _ _ y]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 -- this proof might be possible without the empty casing from the col_density_sum variants
 theorem five_five_aux {X Y : Finset V} :
     ∑ x ∈ X, ∑ _y ∈ X, red_density χ X Y * (red_neighbors χ x ∩ Y).card ≤
@@ -453,7 +451,6 @@ theorem sum_pairWeight_eq {X Y : Finset V} (y : V) (hy : y ∈ X) :
     ∑ x ∈ X, pairWeight χ X Y y x = weight χ X Y y + pairWeight χ X Y y y := by
   rw [weight, sum_erase_add _ _ hy]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (x y) -/
 theorem double_sum_pairWeight_eq {X Y : Finset V} :
     ∑ x ∈ X, ∑ y ∈ X, pairWeight χ X Y x y = ∑ y ∈ X, (weight χ X Y y + pairWeight χ X Y y y) :=
   sum_congr rfl sum_pairWeight_eq
