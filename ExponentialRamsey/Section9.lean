@@ -782,27 +782,22 @@ theorem asc_hMul_asc {a b c : ℕ} :
     a.ascFactorial b * (a + b).ascFactorial c = a.ascFactorial c * (a + c).ascFactorial b := by
   rw [mul_comm, ← yael_two, mul_comm, ← yael_two, add_comm]
 
+-- `Nat.ascFactorial_pos` is stated for a successor, so restate it for a positive base
+theorem ascFactorial_pos_of_pos {a : ℕ} (ha : 0 < a) (b : ℕ) : 0 < a.ascFactorial b := by
+  obtain ⟨a, rfl⟩ := Nat.exists_eq_succ_of_ne_zero ha.ne'
+  exact Nat.ascFactorial_pos _ _
+
 theorem asc_div_asc_const_right' {a b c : ℕ} (ha : 0 < a) :
     (a.ascFactorial b : ℝ) / (a + c).ascFactorial b = a.ascFactorial c / (a + b).ascFactorial c := by
-  obtain ⟨a, rfl⟩ := Nat.exists_eq_succ_of_ne_zero ha.ne'
-  rw [div_eq_div_iff]
-  · exact_mod_cast asc_hMul_asc (a := a.succ) (b := b) (c := c)
-  · simpa [Nat.succ_eq_add_one, add_assoc, add_comm, add_left_comm] using
-      (by exact_mod_cast (Nat.ascFactorial_pos (a + c) b).ne' :
-        ((a + c + 1).ascFactorial b : ℝ) ≠ 0)
-  · simpa [Nat.succ_eq_add_one, add_assoc, add_comm, add_left_comm] using
-      (by exact_mod_cast (Nat.ascFactorial_pos (a + b) c).ne' :
-        ((a + b + 1).ascFactorial c : ℝ) ≠ 0)
+  rw [div_eq_div_iff, ← Nat.cast_mul, asc_hMul_asc, Nat.cast_mul]
+  · exact_mod_cast (ascFactorial_pos_of_pos (by omega) b).ne'
+  · exact_mod_cast (ascFactorial_pos_of_pos (by omega) c).ne'
 
 theorem asc_div_asc_const_right {a b c : ℕ} (ha : 0 < a) :
     ((a + c).ascFactorial b : ℝ) / a.ascFactorial b = (a + b).ascFactorial c / a.ascFactorial c := by
-  obtain ⟨a, rfl⟩ := Nat.exists_eq_succ_of_ne_zero ha.ne'
-  rw [div_eq_div_iff]
-  · rw [mul_comm ((a.succ + c).ascFactorial b : ℝ),
-      mul_comm ((a.succ + b).ascFactorial c : ℝ)]
-    exact_mod_cast (asc_hMul_asc (a := a.succ) (b := b) (c := c)).symm
-  · exact_mod_cast (Nat.ascFactorial_pos a b).ne'
-  · exact_mod_cast (Nat.ascFactorial_pos a c).ne'
+  rw [div_eq_div_iff, mul_comm, ← Nat.cast_mul, asc_hMul_asc, Nat.cast_mul, mul_comm]
+  · exact_mod_cast (ascFactorial_pos_of_pos ha b).ne'
+  · exact_mod_cast (ascFactorial_pos_of_pos ha c).ne'
 
 -- d = a + c
 -- a = d - c
@@ -828,11 +823,8 @@ theorem choose_ratio {l k t : ℕ} (h : t ≤ k) :
 
 theorem fact_d_two_part_one {l k t : ℕ} (h : t ≤ k) :
     ((k + l - t).choose l : ℝ) / (k + l).choose l =
-      (k / (k + l)) ^ t *
-        ∏ i ∈ range t, (1 - (i : ℝ) * l / (k * (k + l - i))) := by
-  have : ((k : ℝ) / (k + l)) ^ t = ∏ i ∈ range t, (k : ℝ) / (k + l) := by
-    rw [div_pow]
-    simp
+      (k / (k + l)) ^ t * ∏ i ∈ range t, (1 - (i : ℝ) * l / (k * (k + l - i))) := by
+  have : ((k : ℝ) / (k + l)) ^ t = ∏ i ∈ range t, (k : ℝ) / (k + l) := by simp [div_pow]
   rw [this, choose_ratio h, ← prod_mul_distrib]
   refine' prod_congr rfl _
   intro i hi
@@ -1295,7 +1287,7 @@ theorem sum_pair_subset {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
     refine' sum_congr _ fun U hU => rfl
     congr 1
     ext z
-    simp [mem_erase, mem_sdiff, mem_insert]
+    simp [mem_erase, mem_insert]
     tauto
 
 theorem choose_helper {n k : ℕ} (h : k + 1 < n) :
