@@ -255,41 +255,40 @@ theorem end_ramseyNumber_pow_isLittleO :
         (rpow_le_rpow (Nat.cast_nonneg _) (Nat.cast_le.2 hlk) (by norm_num1)) two_pos.le)
   exact (one_le_rpow (Nat.one_le_cast.2 hl₁) (by norm_num1)).trans' (by norm_num1)
 
-theorem descFactorial_eq_prod {n k : ℕ} : n.descFactorial k = ∏ i ∈ range k, (n - i) :=
-  Nat.descFactorial_eq_prod_range n k
+theorem descFactorial_eq_prod {n k : ℕ} : n.descFactorial k = ∏ i ∈ range k, (n - i) := by
+  induction' k with k ih
+  · simp
+  rw [Nat.descFactorial_succ, ih, prod_range_succ, mul_comm]
 
 theorem cast_descFactorial_eq_prod {n k : ℕ} :
-    (n.descFactorial k : ℝ) = ∏ i ∈ range k, (↑(n - i) : ℝ) := by
-  rw [descFactorial_eq_prod]
-  norm_cast
+    (n.descFactorial k : ℝ) = ∏ i ∈ range k, (n - i : ℝ) := by
+  rw [descFactorial_eq_prod, prod_range_natCast_sub]
 
 theorem pow_div_le_choose {n k : ℕ} (h : k ≤ n) : (n / k : ℝ) ^ k ≤ n.choose k := by
-  have h1 : k.factorial ∣ n.descFactorial k := Nat.factorial_dvd_descFactorial _ _
-  have h2 : (↑k.factorial : ℝ) ≠ 0 := by positivity
-  rw [Nat.choose_eq_descFactorial_div_factorial, Nat.cast_div h1 h2,
-    ← prod_range_add_one_eq_factorial, Nat.cast_prod, ← prod_range_reflect,
-    cast_descFactorial_eq_prod, ← prod_div_distrib]
-  suffices h : ∀ x ∈ range k, (n / k : ℝ) ≤ (↑(n - x) : ℝ) / (k - 1 - x + 1 : ℕ) by
-    have key := prod_le_prod (fun x (_ : x ∈ range k) => by positivity) h
-    simp only [prod_const, card_range] at key ⊢
-    exact key
-  intro x hx
-  rw [mem_range] at hx
-  have hlt : 0 < k - x := Nat.sub_pos_of_lt hx
-  rw [Nat.sub_sub, add_comm 1, ← Nat.sub_sub, Nat.sub_add_cancel hlt]
-  rw [div_le_div_iff₀ (Nat.cast_pos.2 (Nat.pos_of_ne_zero (by omega : k ≠ 0)))
-    (Nat.cast_pos.2 hlt)]
-  rw [Nat.cast_sub hx.le, Nat.cast_sub (hx.le.trans h), mul_sub, sub_mul,
-    sub_le_sub_iff_left, mul_comm, ← Nat.cast_mul, ← Nat.cast_mul, Nat.cast_le]
-  exact Nat.mul_le_mul_right _ h
+  rw [Nat.choose_eq_descFactorial_div_factorial, Nat.cast_div, ← prod_range_add_one_eq_factorial,
+    Nat.cast_prod, ← prod_range_reflect, cast_descFactorial_eq_prod, ← prod_div_distrib]
+  · suffices ∀ x ∈ range k, (n / k : ℝ) ≤ (n - x : ℝ) / (k - 1 - x + 1 : ℕ) by
+      refine' (prod_le_prod _ this).trans_eq' _
+      · intros
+        positivity
+      simp [div_pow]
+    intro x hx
+    rw [mem_range] at hx
+    have : 0 < k - x := Nat.sub_pos_of_lt hx
+    rw [Nat.sub_sub, add_comm 1, ← Nat.sub_sub, Nat.sub_add_cancel, div_le_div_iff₀,
+      Nat.cast_sub hx.le, mul_sub, sub_mul, sub_le_sub_iff_left, mul_comm, ← Nat.cast_mul, ←
+      Nat.cast_mul, Nat.cast_le]
+    · exact Nat.mul_le_mul_right _ h
+    · rw [Nat.cast_pos]
+      exact pos_of_gt hx
+    · rwa [Nat.cast_pos]
+    · exact this
+  · exact Nat.factorial_dvd_descFactorial _ _
+  · positivity
 
 theorem exp_le_one_sub_inv {x : ℝ} (hx : x < 1) : exp x ≤ (1 - x)⁻¹ := by
-  rw [← one_mul ((1 - x)⁻¹), le_mul_inv_iff₀ (sub_pos_of_lt hx)]
-  convert mul_le_mul_of_nonneg_left (add_one_le_exp (-x)) (exp_pos x).le using 1
-  · ring
-  rw [← Real.exp_add]
-  ring_nf
-  rw [Real.exp_zero]
+  rw [le_inv_comm₀ (exp_pos _) (sub_pos_of_lt hx), ← Real.exp_neg, ← neg_add_eq_sub]
+  exact add_one_le_exp _
 
 theorem le_of_gamma_le_half {l k : ℕ} {γ : ℝ} (h : γ = l / (k + l)) (hl : 0 < l) (hγ : γ ≤ 1 / 2) :
     l ≤ k := by
@@ -581,14 +580,15 @@ theorem nine_three_part_three (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
     exact inv_nonneg_of_nonneg (mul_nonneg (exp_pos _).le (sub_pos_of_lt hγ₁').le)
   rw [mul_div_assoc', ← div_mul_eq_mul_div, div_div, mul_sub, sub_sub, add_comm, ← sub_sub,
     sub_le_iff_le_add, ← add_mul, div_eq_mul_inv, ← mul_add_one, ← one_div, add_comm _ (1 : ℝ), ←
-    div_le_iff₀', ← div_div, sub_div, div_eq_mul_inv, mul_div_cancel_left₀ _ hγ₀'.ne', add_div, mul_comm δ,
-    mul_div_assoc, ← sub_sub, ← mul_one_sub, sub_mul, div_mul_eq_mul_div, mul_div_assoc] at hl
+    div_le_iff₀', ← div_div, sub_div, div_eq_mul_inv, mul_div_cancel_left₀ _ hγ₀'.ne', add_div,
+    mul_comm δ, mul_div_assoc, ← sub_sub, ← mul_one_sub, sub_mul, div_mul_eq_mul_div,
+    mul_div_assoc] at hl
   · refine' hl.trans' (sub_le_sub_left _ _)
     rw [mul_comm (1 / γ₀)]
-    refine' mul_le_mul (le_abs_self _)
-      ((div_le_div_of_nonneg_right (inv_le_one_of_one_le₀ (le_add_of_nonneg_right this))
-          hγ₀'.le).trans (div_le_div_of_nonneg_left zero_le_one hγ₀ hγl)) _ (abs_nonneg _)
-    exact div_nonneg (inv_nonneg_of_nonneg (add_nonneg zero_le_one this)) hγ₀'.le
+    refine' mul_le_mul (le_abs_self _) (div_le_div₀ zero_le_one _ hγ₀ hγl) _ (abs_nonneg _)
+    · exact inv_le_one_of_one_le₀ (le_add_of_nonneg_right this)
+    refine' div_nonneg _ hγ₀'.le
+    positivity
   · positivity
 
 theorem it_keeps_showing_up {γ : ℝ} (hγ : γ ≤ 1) : 0 < 1 + 1 / (exp 1 * (1 - γ)) :=
@@ -627,9 +627,9 @@ theorem numerics_one_left {γ δ : ℝ} (hγl : 0 < γ) (hγu : γ ≤ 1 / 10) (
   refine' (numerics_one_middle_aux rfl).trans_le _
   refine' mul_le_mul_of_nonneg_left _ (by norm_num1)
   refine' inv_anti₀ (it_keeps_showing_up (by linarith only [hγu])) _
-  simpa [add_comm] using add_le_add_left
-    (one_div_le_one_div_of_le (mul_pos (exp_pos (1 : ℝ)) (by norm_num1 : (0 : ℝ) < 1 - 1 / 10))
-      (mul_le_mul_of_nonneg_left (sub_le_sub_left hγu 1) (exp_pos (1 : ℝ)).le)) (1 : ℝ)
+  refine' add_le_add_right (one_div_le_one_div_of_le (mul_pos (exp_pos _) (by norm_num1)) _) _
+  refine' mul_le_mul_of_nonneg_left _ (exp_pos _).le
+  linarith only [hγu]
 
 theorem ConcaveOn.hMul {f g : ℝ → ℝ} {s : Set ℝ} (hf : ConcaveOn ℝ s f) (hg : ConcaveOn ℝ s g)
     (hf' : MonotoneOn f s) (hg' : AntitoneOn g s) (hf'' : ∀ x ∈ s, 0 ≤ f x)
@@ -665,17 +665,18 @@ theorem StrictConvexOn.const_hMul {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf 
       (by simp only [smul_eq_mul]; ring_nf)⟩
 
 theorem convexOn_inv : ConvexOn ℝ (Set.Ioi (0 : ℝ)) fun x => x⁻¹ :=
-  ConvexOn.congr' (convexOn_zpow (-1)) (by intro x hx; simp [zpow_neg_one x])
+  ConvexOn.congr' (convexOn_zpow (-1)) (by simp [Set.EqOn])
 
 theorem convexOn_one_div : ConvexOn ℝ (Set.Ioi (0 : ℝ)) fun x => 1 / x :=
-  ConvexOn.congr' (convexOn_zpow (-1)) (by intro x hx; exact (zpow_neg_one x).trans (inv_eq_one_div x))
+  ConvexOn.congr' (convexOn_zpow (-1)) (by simp [Set.EqOn])
 
 theorem quadratic_is_concave {a b c : ℝ} (ha : 0 < a) :
     StrictConvexOn ℝ Set.univ fun x => a * x ^ 2 + b * x + c := by
   have : ∀ x, a * x ^ 2 + b * x + c = a * (x + b / (2 * a)) ^ 2 - (a * (b / (2 * a)) ^ 2 - c) := by
     intro x
-    field_simp [ha.ne']
-    ring
+    rw [← sub_add, ← mul_sub, add_left_inj, add_sq, add_sub_cancel_right, mul_add, mul_div_assoc',
+      mul_div_assoc', mul_assoc, mul_left_comm, ← mul_assoc, mul_div_cancel_left₀, mul_comm x]
+    exact mul_ne_zero (by positivity) ha.ne'
   simp only [this]
   refine' StrictConvexOn.sub_concaveOn _ (concaveOn_const _ convex_univ)
   refine' StrictConvexOn.const_hMul _ ha
@@ -762,22 +763,20 @@ theorem nine_three (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
   have hl₀ : 0 < l := hk₀ l le_rfl
   specialize h9 k γ hγ hγl hγu hlk δ hδ n χ hχ ini hini hn' hn
   specialize herr k hlk
-  rw [norm_eq_abs, abs_le] at herr
+  rw [norm_eq_abs, Real.norm_natCast, abs_le] at herr
   refine' h9.trans' _
-  rw [mul_rotate, add_comm ((1 - δ / γ) * (1 + 1 / (exp 1 * (1 - γ)))⁻¹ * (k : ℝ))]
-  refine' (add_le_add_left (by
-    simpa [abs_of_nonneg (Nat.cast_nonneg k : (0 : ℝ) ≤ (k : ℝ))] using herr.1)
-      ((1 - δ / γ) * (1 + 1 / (exp 1 * (1 - γ)))⁻¹ * (k : ℝ))).trans' _
+  rw [mul_rotate]
+  refine' (add_le_add_right herr.1 _).trans' _
   rw [← neg_mul, ← add_mul]
-  refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg k)
-  linarith only [(numerics_one (hγ₀.trans_le hγl) hγu hδ).le]
+  refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)
+  linarith only [numerics_one (hγ₀.trans_le hγl) hγu hδ]
 
-theorem yael_two {n k a : ℕ} : n.ascFactorial (k + a) = (n + a).ascFactorial k * n.ascFactorial a := by
-  induction a with
-  | zero => simp
-  | succ a ih =>
-    rw [Nat.add_succ, Nat.ascFactorial_succ, Nat.ascFactorial_succ, mul_left_comm, ← mul_assoc,
-      Nat.add_succ n a, Nat.succ_ascFactorial (n + a), ih, mul_assoc, add_comm k a, ← add_assoc]
+theorem yael_two {n k a : ℕ} :
+    n.ascFactorial (k + a) = (n + a).ascFactorial k * n.ascFactorial a := by
+  induction' a with a ih
+  · simp
+  rw [Nat.add_succ, Nat.ascFactorial_succ, Nat.ascFactorial_succ, mul_left_comm, ← mul_assoc,
+    Nat.add_succ n a, Nat.succ_ascFactorial (n + a), ih, mul_assoc, add_comm k a, ← add_assoc]
 
 theorem asc_hMul_asc {a b c : ℕ} :
     a.ascFactorial b * (a + b).ascFactorial c = a.ascFactorial c * (a + c).ascFactorial b := by
@@ -822,12 +821,7 @@ theorem choose_ratio {l k t : ℕ} (h : t ≤ k) :
     Nat.cast_div_div_div_cancel_right, ← tsub_add_eq_add_tsub h,
     Nat.add_descFactorial_eq_ascFactorial, Nat.add_descFactorial_eq_ascFactorial,
     asc_div_asc_const_right_sub' h, cast_descFactorial_eq_prod, cast_descFactorial_eq_prod,
-    ← prod_div_distrib (s := range t) (fun i => (↑(k - i) : ℝ))
-      (fun i => (↑(k + l - i) : ℝ))]
-  refine' prod_congr rfl _
-  intro i hi
-  rw [mem_range] at hi
-  rw [Nat.cast_sub (hi.le.trans h), Nat.cast_sub ((hi.le.trans h).trans (Nat.le_add_right k l))]
+    ← prod_div_distrib]
   · simp
   · exact Nat.factorial_dvd_descFactorial _ _
   · exact Nat.factorial_dvd_descFactorial _ _
