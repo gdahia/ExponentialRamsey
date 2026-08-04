@@ -677,25 +677,30 @@ theorem my_ineq {α : Type*} {y : Finset α} (hy : y.Nonempty) {f : α → ℝ} 
     ← Real.finset_prod_rpow y (fun x => (f x)⁻¹)
       (fun i hi => inv_nonneg_of_nonneg (hf i hi).le)]
   refine' geom_mean_le_arith_mean_weighted _ _ _ _ _ _
-  · intro i hi
-    exact inv_nonneg_of_nonneg hycard_pos.le
+  · intros; positivity
   · simp only [sum_const, nsmul_eq_mul]
-    exact mul_inv_cancel₀ hycard_ne
+    rw [mul_inv_cancel₀]
+    positivity
   · intro i hi
-    exact inv_nonneg_of_nonneg (hf i hi).le
-  · exact mul_nonneg (inv_nonneg_of_nonneg hycard_pos.le)
-      (sum_nonneg fun i hi => inv_nonneg_of_nonneg (hf i hi).le)
-  · exact prod_nonneg fun i hi => inv_nonneg_of_nonneg (hf i hi).le
-  · exact rpow_nonneg
-      (mul_nonneg (inv_nonneg_of_nonneg hycard_pos.le)
-        (sum_nonneg fun i hi => inv_nonneg_of_nonneg (hf i hi).le)) _
-  · exact inv_pos.2 hycard_pos
-  · exact mul_nonneg hycard_pos.le
-      (inv_nonneg_of_nonneg (sum_nonneg fun i hi => inv_nonneg_of_nonneg (hf i hi).le))
-  · exact prod_pos hf
-  · exact pow_pos
-      (mul_pos hycard_pos
-        (inv_pos.2 (sum_pos (fun i hi => inv_pos.2 (hf i hi)) hy))) _
+    have := hf i hi
+    positivity
+  · refine' mul_nonneg (by positivity) (sum_nonneg fun i hi => _)
+    have := hf i hi
+    positivity
+  · refine' prod_nonneg fun i hi => _
+    have := hf i hi
+    positivity
+  · refine' rpow_nonneg (mul_nonneg (by positivity) (sum_nonneg fun i hi => _)) _
+    have := hf i hi
+    positivity
+  · positivity
+  · refine' mul_nonneg (by positivity) (inv_nonneg_of_nonneg (sum_nonneg fun i hi => _))
+    have := hf i hi
+    positivity
+  · refine' prod_pos hf
+  · refine' pow_pos (mul_pos (by positivity) (inv_pos.2 (sum_pos (fun i hi => _) hy))) _
+    have := hf i hi
+    positivity
 
 theorem seven_four :
     ∃ f : ℕ → ℝ,
