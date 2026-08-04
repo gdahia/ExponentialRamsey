@@ -964,9 +964,9 @@ theorem nine_five_density :
   · norm_num1
   refine'
     mul_le_mul _ (pow_le_pow_left₀ (hp₀.le.trans hγη) hini _) (pow_nonneg (hp₀.le.trans hγη) _)
-      (pow_nonneg hp₀''.le _)
+      (pow_nonneg colDensity_nonneg _)
   rw [← rpow_natCast, mul_comm]
-  refine' (rpow_le_rpow_of_exponent_ge hp₀'' (by simpa [BookConfig.p] using colDensity_le_one) hst).trans' _
+  refine' (rpow_le_rpow_of_exponent_ge hp₀'' colDensity_le_one hst).trans' _
   rw [div_mul_eq_mul_div γ, rpow_add hp₀'']
   refine'
     mul_le_mul (rpow_le_rpow (hp₀.le.trans hγη) hini _) (rpow_le_rpow hp₀.le hp₀' (by positivity))
