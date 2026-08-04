@@ -528,7 +528,8 @@ theorem hMul_log_ineq {x : ℝ} (hx : 0 < x) : -x * log x ≤ exp (-1) := by
   rwa [sub_add_cancel, sub_eq_add_neg, Real.exp_add, Real.exp_neg, exp_log hx, inv_mul_eq_div,
     le_div_iff₀ hx, mul_comm, mul_neg, ← neg_mul] at this
 
-theorem hMul_log_ineq_special {c x : ℝ} (hc : 0 < c) (hx : 0 < x) : x * log (c / x) ≤ c / exp 1 := by
+theorem hMul_log_ineq_special {c x : ℝ} (hc : 0 < c) (hx : 0 < x) :
+    x * log (c / x) ≤ c / exp 1 := by
   have := hMul_log_ineq (div_pos hx hc)
   rwa [neg_mul, ← mul_neg, ← log_inv, inv_div, div_mul_eq_mul_div, div_le_iff₀ hc, Real.exp_neg,
     inv_mul_eq_div] at this
@@ -788,13 +789,15 @@ theorem ascFactorial_pos_of_pos {a : ℕ} (ha : 0 < a) (b : ℕ) : 0 < a.ascFact
   exact Nat.ascFactorial_pos _ _
 
 theorem asc_div_asc_const_right' {a b c : ℕ} (ha : 0 < a) :
-    (a.ascFactorial b : ℝ) / (a + c).ascFactorial b = a.ascFactorial c / (a + b).ascFactorial c := by
+    (a.ascFactorial b : ℝ) / (a + c).ascFactorial b =
+      a.ascFactorial c / (a + b).ascFactorial c := by
   rw [div_eq_div_iff, ← Nat.cast_mul, asc_hMul_asc, Nat.cast_mul]
   · exact_mod_cast (ascFactorial_pos_of_pos (by omega) b).ne'
   · exact_mod_cast (ascFactorial_pos_of_pos (by omega) c).ne'
 
 theorem asc_div_asc_const_right {a b c : ℕ} (ha : 0 < a) :
-    ((a + c).ascFactorial b : ℝ) / a.ascFactorial b = (a + b).ascFactorial c / a.ascFactorial c := by
+    ((a + c).ascFactorial b : ℝ) / a.ascFactorial b =
+      (a + b).ascFactorial c / a.ascFactorial c := by
   rw [div_eq_div_iff, mul_comm, ← Nat.cast_mul, asc_hMul_asc, Nat.cast_mul, mul_comm]
   · exact_mod_cast (ascFactorial_pos_of_pos ha b).ne'
   · exact_mod_cast (ascFactorial_pos_of_pos ha c).ne'
@@ -860,7 +863,8 @@ theorem fact_d_two_part_two {l k t : ℕ} (h : t ≤ k) :
   have hik : i < k := hi.trans_le h
   have : 0 < k := pos_of_gt hik
   have : 0 < k - i := Nat.sub_pos_of_lt hik
-  refine' div_le_div_of_nonneg_left (by positivity) _ (mul_le_mul_of_nonneg_left _ (Nat.cast_nonneg _))
+  refine'
+    div_le_div_of_nonneg_left (by positivity) _ (mul_le_mul_of_nonneg_left _ (Nat.cast_nonneg _))
   · rw [← sub_add_eq_add_sub, ← Nat.cast_sub hik.le]
     positivity
   simp
@@ -1448,7 +1452,8 @@ theorem nine_two_numeric {γ η : ℝ} (hγu : γ ≤ 1 / 10) (hηγ : η ≤ γ
 theorem nine_two_part_two {k t : ℕ} {γ η : ℝ} (hγl : 0 ≤ γ) (hγu : γ ≤ 1 / 10) (hηγ : η ≤ γ / 15)
     (ht : (2 / 3 : ℝ) * k ≤ t) (hk : 0 < k)
     (h : exp (-1 / 3 + 1 / 5) ≤ (1 - γ - η) ^ (1 / (1 - γ))) :
-    exp (6 * γ * t ^ 2 / (20 * k)) ≤ exp (γ * t ^ 2 / (2 * k)) * (1 - γ - η) ^ (γ * t / (1 - γ)) := by
+    exp (6 * γ * t ^ 2 / (20 * k)) ≤
+      exp (γ * t ^ 2 / (2 * k)) * (1 - γ - η) ^ (γ * t / (1 - γ)) := by
   have : 0 < 1 - γ - η := by linarith only [hγu, hηγ]
   rw [div_eq_mul_one_div _ (1 - γ), mul_comm _ (1 / (1 - γ)), rpow_mul this.le]
   refine'
@@ -1768,12 +1773,14 @@ theorem uLowerBoundRatio_eq {ξ : ℝ} (k l m : ℕ) :
   rw [uLowerBoundRatio, prod_mul_distrib]
   simp
 
-theorem uLowerBoundRatio_of_l_lt_m {ξ : ℝ} {k l m : ℕ} (h : l < m) : uLowerBoundRatio ξ k l m = 0 := by
+theorem uLowerBoundRatio_of_l_lt_m {ξ : ℝ} {k l m : ℕ} (h : l < m) :
+    uLowerBoundRatio ξ k l m = 0 := by
   rw [← mem_range] at h
   rw [uLowerBoundRatio, prod_eq_zero h, MulZeroClass.mul_zero]
   rw [sub_self, zero_div]
 
-theorem uLowerBoundRatio_nonneg {ξ : ℝ} {k l m : ℕ} (hξ : 0 ≤ ξ) : 0 ≤ uLowerBoundRatio ξ k l m := by
+theorem uLowerBoundRatio_nonneg {ξ : ℝ} {k l m : ℕ} (hξ : 0 ≤ ξ) :
+    0 ≤ uLowerBoundRatio ξ k l m := by
   cases' lt_or_ge l m with h h
   · rw [uLowerBoundRatio_of_l_lt_m h]
   rw [uLowerBoundRatio_eq]
@@ -1927,7 +1934,8 @@ theorem maximally_good_clique_aux {V : Type*} [DecidableEq V] [Fintype V]
   rintro ⟨x, hx⟩ -
   rw [← SimpleGraph.card_neighborFinset_eq_degree]
   have hcard :
-      (((χ.pullback (Function.Embedding.subtype (· ∈ U))).labelGraph 1).neighborFinset ⟨x, hx⟩).card =
+      (((χ.pullback (Function.Embedding.subtype (· ∈ U))).labelGraph 1).neighborFinset
+            ⟨x, hx⟩).card =
         ((blue_neighbors χ x ∩ U).card) := by
     refine' card_bij (fun x _ => (x : V)) _ (fun _ _ _ _ h => Subtype.ext h) _
     · simp only [Subtype.forall, mem_neighborFinset, TopEdgeLabelling.labelGraph_adj,
@@ -2193,7 +2201,8 @@ theorem nine_one_o_filter (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
   exact IsLittleO.comp_tendsto (isLittleO_const_id_atTop _) tendsto_natCast_atTop_atTop
 
 theorem nine_one_nine :
-    ∀ᶠ l : ℕ in atTop, ∀ k, k = 9 * l → (ramseyNumber ![k, l] : ℝ) ≤ exp (-l / 25) * (k + l).choose l := by
+    ∀ᶠ l : ℕ in atTop,
+      ∀ k, k = 9 * l → (ramseyNumber ![k, l] : ℝ) ≤ exp (-l / 25) * (k + l).choose l := by
   filter_upwards [nine_one_precise (1 / 10) (by norm_num1), eventually_ge_atTop 200] with l hl hl'
     k hk
   subst hk
