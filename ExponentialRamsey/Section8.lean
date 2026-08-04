@@ -13,7 +13,7 @@ namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey
 
-open Filter Finset Nat Real Asymptotics
+open Filter _root_.Finset Nat Real Asymptotics
 
 variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2)}
 
@@ -126,7 +126,7 @@ macro_rules
   | `(ε) => `((($(Lean.mkIdent `k) : ℝ) ^ (-1 / 4 : ℝ)))
 
 theorem prop33_aux {μ : ℝ} {z : ℕ} (h : 1 ≤ z) :
-    ∑ h ∈ Finset.Icc 1 z, Δ' μ k l ini i h =
+    ∑ h ∈ Icc 1 z, Δ' μ k l ini i h =
       min (qFunction k ini.p z) (algorithm μ k l ini (i + 1)).p -
         min (qFunction k ini.p z) (algorithm μ k l ini i).p := by
   cases z with
@@ -138,11 +138,11 @@ theorem prop33_aux {μ : ℝ} {z : ℕ} (h : 1 ≤ z) :
       | zero =>
           simp [Δ', p']
       | succ z ih =>
-          have hsplit : Finset.Icc 1 (z + 1 + 1) = insert (z + 1 + 1) (Finset.Icc 1 (z + 1)) := by
-            simpa [Nat.add_assoc] using
+          have hsplit : Icc 1 (z + 1 + 1) = insert (z + 1 + 1) (Icc 1 (z + 1)) := by
+            simpa [add_assoc] using
               (Finset.insert_Icc_right_eq_Icc_succ (a := 1) (b := z + 1)
                 (Nat.succ_le_succ (Nat.zero_le _))).symm
-          rw [hsplit, Finset.sum_insert, ih, Δ', p', p', if_neg, if_neg, add_comm,
+          rw [hsplit, sum_insert, ih, Δ', p', p', if_neg, if_neg, add_comm,
             Nat.succ_sub_succ_eq_sub, Nat.sub_zero, min_add_clamp_self]
           · exact q_increasing (Nat.lt_succ_self _).le
           · simp
@@ -230,10 +230,10 @@ theorem prop_33 :
             ∀ n : ℕ,
               ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
                 ∀ ini : BookConfig χ,
-                  ∀ i, ∑ h ∈ Finset.Ico 1 (maxHeight k), Δ' μ k l ini i h = Δ μ k l ini i := by
+                  ∀ i, ∑ h ∈ Ico 1 (maxHeight k), Δ' μ k l ini i h = Δ μ k l ini i := by
   filter_upwards [p_le_q, maxHeight_large] with l hl hl' k hlk μ n χ ini i
   -- TODO: not sure about this one
-  change ∑ h ∈ Finset.Ico 1 (Order.succ ⌊2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k⌋₊ : ℕ), _ = _
+  change ∑ h ∈ Ico 1 (Order.succ ⌊2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k⌋₊ : ℕ), _ = _
   rw [Finset.Ico_succ_right_eq_Icc]
   rw [prop33_aux, Δ, min_eq_right, min_eq_right]
   · refine' (hl k hlk _ _ _ _ _ _ le_rfl).trans _
@@ -275,9 +275,9 @@ theorem forall_nonneg_iff_nonneg :
   constructor
   · intro hi
     rw [← hl _ hlk]
-    refine' Finset.sum_nonneg _
+    refine' sum_nonneg _
     intro j hj
-    rw [Finset.mem_Ico] at hj
+    rw [mem_Ico] at hj
     exact hi _ hj.1
   intro hi j hj
   rw [Δ, sub_nonneg] at hi
@@ -296,8 +296,8 @@ theorem forall_nonpos_iff_nonpos :
   constructor
   · intro hi
     rw [← hl _ hlk]
-    refine' Finset.sum_nonpos fun j hj => _
-    rw [Finset.mem_Ico] at hj
+    refine' sum_nonpos fun j hj => _
+    rw [mem_Ico] at hj
     exact hi _ hj.1
   intro hi j hj
   rw [Δ, sub_nonpos] at hi
@@ -311,16 +311,16 @@ theorem prop_34 :
             ∀ n : ℕ,
               ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
                 ∀ ini : BookConfig χ,
-                  ∑ h ∈ Finset.Ico 1 (maxHeight k),
-                      ∑ i ∈ Finset.range (finalStep μ k l ini), Δ' μ k l ini i h / αFunction k h ≤
+                  ∑ h ∈ Ico 1 (maxHeight k),
+                      ∑ i ∈ range (finalStep μ k l ini), Δ' μ k l ini i h / αFunction k h ≤
                     2 / (k : ℝ) ^ (-1 / 4 : ℝ) * log k := by
   filter_upwards [Δ'_eq_of_ge, top_adjuster (Filter.eventually_ge_atTop 1)] with l hl hk k hlk μ n χ ini
-  refine' (Finset.sum_le_card_nsmul _ _ 1 _).trans _
+  refine' (sum_le_card_nsmul _ _ 1 _).trans _
   · intro h hh
-    rw [← Finset.sum_div, div_le_one (α_pos _ _ (hk _ hlk))]
+    rw [← sum_div, div_le_one (α_pos _ _ (hk _ hlk))]
     simp only [Δ']
-    rw [Finset.sum_range_sub fun x => p' μ k l ini x h]
-    rw [Finset.mem_Ico] at hh
+    rw [sum_range_sub fun x => p' μ k l ini x h]
+    rw [mem_Ico] at hh
     rw [p', p']
     have : αFunction k h = qFunction k ini.p h - qFunction k ini.p (h - 1) := by
       rw [← Nat.sub_add_cancel hh.1, αFunction_eq_q_diff, Nat.add_sub_cancel]
@@ -351,7 +351,7 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
                       (1 - k ^ (-1 / 8 : ℝ) : ℝ) *
                           ∑ i ∈ moderateSteps μ k l ini,
                             (1 - blueXRatio μ k l ini i) / blueXRatio μ k l ini i ≤
-                        ∑ h ∈ Finset.Ico 1 (maxHeight k),
+                        ∑ h ∈ Ico 1 (maxHeight k),
                           ∑ i ∈ densitySteps μ k l ini, Δ' μ k l ini i h / αFunction k h := by
   have tt : Filter.Tendsto (Nat.cast : ℕ → ℝ) atTop atTop := tendsto_natCast_atTop_atTop
   have hh₁ : (0 : ℝ) < 1 / 8 := by norm_num
@@ -369,18 +369,18 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
   suffices
     ∀ i ∈ moderateSteps μ k l ini,
       (1 - k ^ (-1 / 8 : ℝ) : ℝ) * (1 - blueXRatio μ k l ini i) / blueXRatio μ k l ini i ≤
-        ∑ h ∈ Finset.Ico 1 (maxHeight k), Δ' μ k l ini i h / αFunction k h
+        ∑ h ∈ Ico 1 (maxHeight k), Δ' μ k l ini i h / αFunction k h
     by
-    simp only [Finset.mul_sum, mul_div_assoc']
-    refine' (Finset.sum_le_sum this).trans _
-    rw [Finset.sum_comm]
-    refine' Finset.sum_le_sum fun i hi => Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _) _
+    simp only [mul_sum, mul_div_assoc']
+    refine' (sum_le_sum this).trans _
+    rw [sum_comm]
+    refine' sum_le_sum fun i hi => sum_le_sum_of_subset_of_nonneg (filter_subset _ _) _
     intro j hj hj'
     exact div_nonneg (Δ'_nonneg_of_p_le_p (h₅₃ j hj)) (α_nonneg _ _)
   intro i hi
-  rw [moderateSteps, Finset.mem_filter] at hi
+  rw [moderateSteps, mem_filter] at hi
   have :
-    ∀ h ∈ Finset.Ico 1 (maxHeight k),
+    ∀ h ∈ Ico 1 (maxHeight k),
       Δ' μ k l ini i h / αFunction k (height k ini.p (algorithm μ k l ini (i + 1)).p) ≤
         Δ' μ k l ini i h / αFunction k h := by
     intro h hh
@@ -392,9 +392,9 @@ theorem eight_two (μ₁ p₀ : ℝ) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
     rw [Δ', p'_eq_of_ge' (hk k hlk).ne' hp, p'_eq_of_ge' (hk k hlk).ne' _, sub_self]
     refine' hp.trans_le' _
     exact height_mono (hk k hlk).ne' (h₅₃ i hi.1)
-  refine' (Finset.sum_le_sum this).trans' _
+  refine' (sum_le_sum this).trans' _
   clear this
-  rw [← Finset.sum_div, h33 _ hlk]
+  rw [← sum_div, h33 _ hlk]
   clear h33
   obtain ⟨hβ, hβ'⟩ := hl₅₂ k hlk μ hμu n χ ini hini i hi.1
   clear hl₅₂
@@ -472,20 +472,20 @@ theorem eight_three :
               ∀ χ : TopEdgeLabelling (Fin n) (Fin 2),
                 ∀ ini : BookConfig χ,
                   -(1 + ε : ℝ) ^ 2 * (redSteps μ k l ini).card ≤
-                    ∑ h ∈ Finset.Ico 1 (maxHeight k), ∑ i ∈ ℛ,
+                    ∑ h ∈ Ico 1 (maxHeight k), ∑ i ∈ ℛ,
                     Δ' μ k l ini i h / αFunction k h := by
   filter_upwards [forall_nonneg_iff_nonneg, forall_nonpos_iff_nonpos, six_five_red,
     top_adjuster (Filter.eventually_gt_atTop 0), prop_33] with l hl₁ hl₂ hl₃ hk h₃₃ k hlk μ n χ ini
   specialize hl₁ k hlk μ n χ ini
   specialize hl₂ k hlk μ n χ ini
   specialize hl₃ k hlk μ n χ ini
-  rw [mul_comm, ← nsmul_eq_mul, Finset.sum_comm]
-  refine' Finset.card_nsmul_le_sum _ _ _ _
+  rw [mul_comm, ← nsmul_eq_mul, sum_comm]
+  refine' card_nsmul_le_sum _ _ _ _
   intro i hi
   cases' le_or_gt 0 (Δ μ k l ini i) with hΔ hΔ
-  · refine' (Finset.sum_nonneg _).trans' (neg_nonpos_of_nonneg (by positivity))
+  · refine' (sum_nonneg _).trans' (neg_nonpos_of_nonneg (by positivity))
     intro j hj
-    rw [Finset.mem_Ico] at hj
+    rw [mem_Ico] at hj
     exact div_nonneg ((hl₁ i).2 hΔ j hj.1) (α_nonneg _ _)
   specialize hl₃ i hi
   have : ∀ h, 1 ≤ h → h < height k ini.p (algorithm μ k l ini i).p - 2 → Δ' μ k l ini i h = 0 := by
@@ -506,11 +506,11 @@ theorem eight_three :
       simp
     rw [h₁, h₂, sub_self]
   have :
-    ∀ h ∈ Finset.Ico 1 (maxHeight k),
+    ∀ h ∈ Ico 1 (maxHeight k),
       (1 + ε : ℝ) ^ 2 * Δ' μ k l ini i h / αFunction k (height k ini.p (algorithm μ k l ini i).p) ≤
         Δ' μ k l ini i h / αFunction k h := by
     intro h hh
-    rw [Finset.mem_Ico] at hh
+    rw [mem_Ico] at hh
     cases' lt_or_ge h (height k ini.p (algorithm μ k l ini i).p - 2) with hp hp
     · rw [this h hh.1 hp, MulZeroClass.mul_zero, zero_div, zero_div]
     rw [div_le_div_iff₀ (α_pos _ _ (hk k hlk)) (α_pos _ _ (hk k hlk)), mul_comm (_ ^ 2 : ℝ),
@@ -521,36 +521,36 @@ theorem eight_three :
     rw [αFunction, αFunction, mul_div_assoc', mul_left_comm, ← pow_add]
     congr 3
     rw [add_comm 2, tsub_add_eq_add_tsub hh.1]
-  refine' (Finset.sum_le_sum this).trans' ?_
-  rw [← Finset.sum_div, ← Finset.mul_sum, h₃₃ k hlk, le_div_iff₀ (α_pos _ _ (hk k hlk)), neg_mul, ← mul_neg]
+  refine' (sum_le_sum this).trans' ?_
+  rw [← sum_div, ← mul_sum, h₃₃ k hlk, le_div_iff₀ (α_pos _ _ (hk k hlk)), neg_mul, ← mul_neg]
   refine' mul_le_mul_of_nonneg_left _ (sq_nonneg _)
   rw [Δ, neg_le_sub_iff_le_add, ← sub_le_iff_le_add]
   exact six_four_red hi
 
 theorem eight_four_first_step (μ : ℝ) :
-    ∑ h ∈ Finset.Ico 1 (maxHeight k),
+    ∑ h ∈ Ico 1 (maxHeight k),
         ∑ i ∈ bigBlueSteps μ k l ini, (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) / αFunction k h ≤
-      ∑ h ∈ Finset.Ico 1 (maxHeight k),
+      ∑ h ∈ Ico 1 (maxHeight k),
         ∑ i ∈ degreeSteps μ k l ini ∪ bigBlueSteps μ k l ini, Δ' μ k l ini i h / αFunction k h := by
-  refine' Finset.sum_le_sum _
+  refine' sum_le_sum _
   intro h hh
-  rw [Finset.sum_union (degreeSteps_disjoint_bigBlueSteps_union_redOrDensitySteps.mono_right _)]
+  rw [sum_union (degreeSteps_disjoint_bigBlueSteps_union_redOrDensitySteps.mono_right _)]
   swap
   · intro i hi
     exact Finset.mem_union.mpr (Or.inl hi)
-  simp only [add_div, Finset.sum_add_distrib, add_le_add_iff_right]
+  simp only [add_div, sum_add_distrib, add_le_add_iff_right]
   have : bigBlueSteps μ k l ini ⊆ (degreeSteps μ k l ini).map ⟨_, add_left_injective 1⟩ := by
     intro i hi
     have := bigBlueSteps_sub_one_mem_degree hi
     rw [Finset.mem_map, Function.Embedding.coeFn_mk]
     exact ⟨i - 1, this.2, Nat.sub_add_cancel this.1⟩
-  refine' (Finset.sum_le_sum_of_subset_of_nonneg this _).trans _
+  refine' (sum_le_sum_of_subset_of_nonneg this _).trans _
   · intro i hi _
     rcases Finset.mem_map.mp hi with ⟨j, hj, rfl⟩
     refine' div_nonneg _ (α_nonneg _ _)
     refine' Δ'_nonneg_of_p_le_p _
     exact six_four_degree hj
-  rw [Finset.sum_map]
+  rw [sum_map]
   simpa only [Function.Embedding.coeFn_mk, add_tsub_cancel_right] using
     (le_rfl :
       ∑ x ∈ degreeSteps μ k l ini, Δ' μ k l ini x h / αFunction k h ≤
@@ -588,7 +588,7 @@ theorem eq_39 (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
                         Δ μ k l ini (i - 1) + Δ μ k l ini i < 0 →
                           (∀ h, Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h ≤ 0) →
                             (-2 : ℝ) * k ^ (1 / 8 : ℝ) ≤
-                              ∑ h ∈ Finset.Ico 1 (maxHeight k),
+                              ∑ h ∈ Ico 1 (maxHeight k),
                                 (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) / αFunction k h := by
   filter_upwards [six_five_blue μ₀ hμ₀, top_adjuster (Filter.eventually_gt_atTop 0), prop_33,
     top_adjuster eq_39_end] with l h₆₅ hk h₃₃ hl k hlk μ hμl n χ hχ ini i hi hh' hh
@@ -620,12 +620,12 @@ theorem eq_39 (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
       simp
     rw [h₁, h₂, sub_self]
   have :
-    ∀ h ∈ Finset.Ico 1 (maxHeight k),
+    ∀ h ∈ Ico 1 (maxHeight k),
       (1 + ε : ℝ) ^ (2 * k ^ (1 / 8 : ℝ) : ℝ) * (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) /
           αFunction k (height k ini.p (algorithm μ k l ini (i - 1)).p) ≤
         (Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h) / αFunction k h := by
     intro h hh'
-    rw [Finset.mem_Ico] at hh'
+    rw [mem_Ico] at hh'
     cases'
       lt_or_ge (h : ℝ) (height k ini.p (algorithm μ k l ini (i - 1)).p - 2 * k ^ (1 / 8 : ℝ)) with
       hp hp
@@ -641,8 +641,8 @@ theorem eq_39 (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
       positivity
     rwa [Nat.cast_sub hh'.1, Nat.cast_sub one_le_height, Nat.cast_one, add_sub_assoc',
       sub_le_sub_iff_right, ← sub_le_iff_le_add']
-  refine' (Finset.sum_le_sum this).trans' _
-  rw [← Finset.sum_div, ← Finset.mul_sum, Finset.sum_add_distrib, h₃₃, h₃₃, le_div_iff₀ (α_pos _ _ (hk k hlk)), mul_assoc,
+  refine' (sum_le_sum this).trans' _
+  rw [← sum_div, ← mul_sum, sum_add_distrib, h₃₃, h₃₃, le_div_iff₀ (α_pos _ _ (hk k hlk)), mul_assoc,
     neg_mul, ← mul_neg]
   refine' mul_le_mul_of_nonpos_of_nonneg' (hl k hlk) _ two_pos.le hh'.le
   rw [Δ, Δ, Nat.sub_add_cancel hi₁, sub_add_sub_cancel', le_sub_iff_add_le', ← sub_eq_add_neg]
@@ -660,7 +660,7 @@ theorem eight_four (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
                         χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card) →
                     ∀ ini : BookConfig χ,
                       -(2 : ℝ) * k ^ (7 / 8 : ℝ) ≤
-                        ∑ h ∈ Finset.Ico 1 (maxHeight k),
+                        ∑ h ∈ Ico 1 (maxHeight k),
                           ∑ i ∈ degreeSteps μ k l ini ∪ bigBlueSteps μ k l ini,
                             Δ' μ k l ini i h / αFunction k h := by
   filter_upwards [four_three hμ₀, top_adjuster (Filter.eventually_gt_atTop 0), eq_39 μ₀ hμ₀] with l h₄₃
@@ -668,7 +668,7 @@ theorem eight_four (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
   specialize h₄₃ k hlk μ hμl n χ hχ ini
   specialize hl k hlk μ hμl n χ hχ ini
   refine' (eight_four_first_step _).trans' _
-  rw [Finset.sum_comm]
+  rw [sum_comm]
   have : -(2 : ℝ) * k ^ (7 / 8 : ℝ) ≤ (bigBlueSteps μ k l ini).card • (-2 * k ^ (1 / 8 : ℝ)) := by
     rw [neg_mul, neg_mul, smul_neg, neg_le_neg_iff, nsmul_eq_mul]
     have := h₄₃.trans (rpow_le_rpow (Nat.cast_nonneg _) (Nat.cast_le.2 hlk) (by norm_num1))
@@ -677,7 +677,7 @@ theorem eight_four (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
     · norm_num
     rw [Nat.cast_pos]
     exact hk₀ k hlk
-  refine' this.trans (Finset.card_nsmul_le_sum _ _ _ _)
+  refine' this.trans (card_nsmul_le_sum _ _ _ _)
   intro i hi
   have := bigBlueSteps_sub_one_mem_degree hi
   cases' le_or_gt 0 (Δ μ k l ini (i - 1) + Δ μ k l ini i) with hΔ hΔ
@@ -687,7 +687,7 @@ theorem eight_four (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
       rw [Δ', Δ', Nat.sub_add_cancel this.1, sub_add_sub_cancel', sub_nonneg]
       rw [Δ, Δ, Nat.sub_add_cancel this.1, sub_add_sub_cancel', sub_nonneg] at hΔ
       exact p'_le_p'_of_p_le_p hΔ
-    refine' (Finset.sum_nonneg fun h _ => this h).trans' ?_
+    refine' (sum_nonneg fun h _ => this h).trans' ?_
     have : 0 ≤ (2 : ℝ) * k ^ (1 / 8 : ℝ) := by positivity
     linarith
   have : ∀ h, Δ' μ k l ini (i - 1) h + Δ' μ k l ini i h ≤ 0 := by
@@ -725,12 +725,12 @@ theorem eq_41 (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1)
   refine' h₃₄.trans' _
   rw [sub_eq_add_neg, sub_eq_add_neg, ← neg_mul, ← neg_mul]
   refine' (add_le_add_three h₈₂ h₈₃ h₈₄).trans _
-  rw [← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
-  refine' Finset.sum_le_sum _
+  rw [← sum_add_distrib, ← sum_add_distrib]
+  refine' sum_le_sum _
   intro h hh
-  rw [← Finset.sum_union redSteps_disjoint_densitySteps.symm, Finset.union_comm, redSteps_union_densitySteps,
-    Finset.union_comm, ← union_partial_steps, Finset.union_assoc, ← Finset.sum_union]
-  rw [Finset.disjoint_union_right]
+  rw [← sum_union redSteps_disjoint_densitySteps.symm, union_comm, redSteps_union_densitySteps,
+    union_comm, ← union_partial_steps, union_assoc, ← sum_union]
+  rw [disjoint_union_right]
   refine' ⟨bigBlueSteps_disjoint_redOrDensitySteps.symm, _⟩
   refine' degreeSteps_disjoint_bigBlueSteps_union_redOrDensitySteps.symm.mono_left _
   intro i hi
@@ -908,20 +908,20 @@ theorem one_div_sq_le_beta (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁
     · exact Nat.cast_nonneg _
     · positivity
     · exact hμ₀
-  have : (moderateSteps μ k l ini).Nonempty := by rwa [Finset.nonempty_iff_ne_empty]
+  have : (moderateSteps μ k l ini).Nonempty := by rwa [nonempty_iff_ne_empty]
   rw [← div_eq_mul_inv, div_le_div_iff₀, one_mul]
   rotate_left
   · positivity
-  · refine' Finset.sum_pos _ this
+  · refine' sum_pos _ this
     intro i hi
     rw [one_div_pos]
-    exact hβ₀ i (Finset.filter_subset _ _ hi)
+    exact hβ₀ i (filter_subset _ _ hi)
   rw [← nsmul_eq_mul]
-  refine' Finset.sum_le_card_nsmul _ _ _ _
+  refine' sum_le_card_nsmul _ _ _ _
   intro i hi
   rw [one_div_le]
-  · exact hβ i (Finset.filter_subset _ _ hi)
-  · exact hβ₀ i (Finset.filter_subset _ _ hi)
+  · exact hβ i (filter_subset _ _ hi)
+  · exact hβ₀ i (filter_subset _ _ hi)
   · positivity
 
 theorem beta_pos (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
@@ -969,16 +969,16 @@ theorem eight_five (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
     ∑ i ∈ moderateSteps μ k l ini, (1 - blueXRatio μ k l ini i) / blueXRatio μ k l ini i =
       ∑ i ∈ moderateSteps μ k l ini, 1 / blueXRatio μ k l ini i -
         (moderateSteps μ k l ini).card := by
-    simp only [sub_div, Finset.sum_sub_distrib, sub_right_inj]
-    rw [← nsmul_one, ← Finset.sum_const _]
-    refine' Finset.sum_congr rfl fun i hi => _
-    rw [div_self (hβ i (Finset.filter_subset _ _ hi)).ne']
+    simp only [sub_div, sum_sub_distrib, sub_right_inj]
+    rw [← nsmul_one, ← sum_const _]
+    refine' sum_congr rfl fun i hi => _
+    rw [div_self (hβ i (filter_subset _ _ hi)).ne']
   rw [this] at h₄₂
-  have : moderateSteps μ k l ini ⊆ densitySteps μ k l ini := Finset.filter_subset _ _
+  have : moderateSteps μ k l ini ⊆ densitySteps μ k l ini := filter_subset _ _
   replace h₄₂ := h₄₂.trans' (sub_le_sub_left (Nat.cast_le.2 (Finset.card_le_card this)) _)
   have hμ' : μ < 1 := hμu.trans_lt hμ₁
   cases' (moderateSteps μ k l ini).eq_empty_or_nonempty with hS hS
-  · rw [hS, Finset.sdiff_empty] at h₇₅
+  · rw [hS, sdiff_empty] at h₇₅
     refine' h₇₅.trans (le_add_of_nonneg_of_le _ _)
     · refine' mul_nonneg (div_nonneg (beta_nonneg (hμ₀.trans_le hμl)) _) (Nat.cast_nonneg _)
       exact sub_nonneg_of_le (hβ'.trans hμ'.le)
@@ -997,13 +997,13 @@ theorem eight_five (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁
   · exact sub_pos_of_lt (hβ'.trans_lt (hμu.trans_lt hμ₁))
   rw [add_mul, ← add_assoc, mul_assoc, mul_left_comm, ← mul_add]
   refine' (add_le_add_right h₇₅ _).trans' _
-  rw [moderateSteps, Finset.cast_card_sdiff (Finset.filter_subset _ _), ← moderateSteps, mul_one_sub,
+  rw [moderateSteps, cast_card_sdiff (filter_subset _ _), ← moderateSteps, mul_one_sub,
     add_sub_assoc', add_comm, add_sub_assoc, sub_eq_add_neg, add_le_add_iff_left,
     le_sub_iff_add_le', ← sub_eq_add_neg]
   refine' (mul_le_mul_of_nonneg_left h₄₂ (beta_nonneg (hμ₀.trans_le hμl))).trans' _
   rw [mul_sub, mul_comm, sub_le_sub_iff_right, ← div_le_iff₀' hβ₀, div_eq_mul_one_div, beta_prop hS,
     one_div, mul_inv_cancel_left₀]
-  exact_mod_cast (Finset.card_pos.mpr hS).ne'
+  exact_mod_cast (card_pos.mpr hS).ne'
 
 -- the little-o function is -7 / (1 - μ₁) * k ^ (- 1 / 32)
 theorem eight_six (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :

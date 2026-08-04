@@ -13,7 +13,7 @@ namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey
 
-open Filter Finset Real
+open Filter _root_.Finset Real
 
 variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2)}
 
@@ -55,7 +55,7 @@ theorem six_four_red {μ : ℝ} (hi : i ∈ redSteps μ k l ini) :
   change (_ : ℝ) ≤ (red_density χ) _ _
   rw [red_applied hi, BookConfig.redStepBasic_x, BookConfig.redStepBasic_Y]
   have hi' := hi
-  simp only [redSteps, Finset.mem_image, Finset.mem_filter, Finset.mem_attach, true_and,
+  simp only [redSteps, mem_image, mem_filter, mem_attach, true_and,
     Subtype.exists, exists_and_right, exists_eq_right] at hi'
   obtain ⟨hx, hx'⟩ := hi'
   exact hx'
@@ -92,37 +92,37 @@ theorem increase_average {α : Type*} {s : Finset α} {f : α → ℝ} {k : ℝ}
       (∑ i ∈ (s.filter fun j => k ≤ f j), f i) / (s.filter fun j => k ≤ f j).card := by
   classical
   rcases s.eq_empty_or_nonempty with (rfl | hs)
-  · rw [Finset.filter_empty]
-  have hs' : (0 : ℝ) < s.card := by rwa [Nat.cast_pos, Finset.card_pos]
+  · rw [filter_empty]
+  have hs' : (0 : ℝ) < s.card := by rwa [Nat.cast_pos, card_pos]
   have : (s.filter fun j => k ≤ f j).Nonempty := by
-    rw [Finset.nonempty_iff_ne_empty, ne_eq, Finset.filter_eq_empty_iff]
+    rw [nonempty_iff_ne_empty, ne_eq, filter_eq_empty_iff]
     intro h
     simp only [not_le] at h
     rw [le_div_iff₀' hs'] at hk
-    refine' (not_le_of_gt (Finset.sum_lt_sum_of_nonempty hs h)) _
-    rwa [Finset.sum_const, nsmul_eq_mul]
-  have hs'' : (0 : ℝ) < (s.filter fun j => k ≤ f j).card := by rwa [Nat.cast_pos, Finset.card_pos]
-  rw [div_le_div_iff₀ hs' hs'', ← Finset.sum_filter_add_sum_filter_not s fun j : α => k ≤ f j,
+    refine' (sum_lt_sum_of_nonempty hs h).not_ge _
+    rwa [sum_const, nsmul_eq_mul]
+  have hs'' : (0 : ℝ) < (s.filter fun j => k ≤ f j).card := by rwa [Nat.cast_pos, card_pos]
+  rw [div_le_div_iff₀ hs' hs'', ← sum_filter_add_sum_filter_not s fun j : α => k ≤ f j,
     add_mul, ← le_sub_iff_add_le', ← mul_sub,
-    ← Finset.cast_card_sdiff (Finset.filter_subset _ s), mul_comm]
+    ← cast_card_sdiff (filter_subset _ s), mul_comm]
   have h₁ :
       ∑ i ∈ s.filter fun x => ¬k ≤ f x, f i ≤ (s.filter fun x => ¬k ≤ f x).card * k := by
     rw [← nsmul_eq_mul]
-    refine' Finset.sum_le_card_nsmul _ _ _ _
+    refine' sum_le_card_nsmul _ _ _ _
     simp (config := { contextual := true }) [le_of_lt]
   have h₂ :
       ((s.filter fun x => k ≤ f x).card : ℝ) * k ≤
         ∑ i ∈ s.filter fun j => k ≤ f j, f i := by
     rw [← nsmul_eq_mul]
-    refine' Finset.card_nsmul_le_sum _ _ _ _
+    refine' card_nsmul_le_sum _ _ _ _
     simp (config := { contextual := true })
   refine' (mul_le_mul_of_nonneg_left h₁ (Nat.cast_nonneg _)).trans _
   refine' (mul_le_mul_of_nonneg_right h₂ (Nat.cast_nonneg _)).trans' _
-  rw [← Finset.filter_not, mul_right_comm, mul_assoc]
+  rw [← filter_not, mul_right_comm, mul_assoc]
 
 theorem colDensity_eq_average {i : Fin 2} {X Y : Finset V} :
     colDensity χ i X Y = (∑ x ∈ X, ((colNeighbors χ i x ∩ Y).card : ℝ) / Y.card) / X.card := by
-  rw [colDensity_eq_sum, ← Finset.sum_div, div_div, mul_comm, Nat.cast_sum]
+  rw [colDensity_eq_sum, ← sum_div, div_div, mul_comm, Nat.cast_sum]
 
 theorem six_four_degree {μ : ℝ} (hi : i ∈ degreeSteps μ k l ini) : p_ i ≤ p_ (i + 1) := by
   change (red_density χ) _ _ ≤ (red_density χ) _ _
@@ -137,12 +137,12 @@ theorem six_four_degree {μ : ℝ} (hi : i ∈ degreeSteps μ k l ini) : p_ i �
       C.X.filter fun x =>
         C.p - k ^ (1 / 8 : ℝ) * α ≤
           (colNeighbors χ 0 x ∩ C.Y).card / C.Y.card := by
-    refine' Finset.filter_congr _
+    refine' filter_congr _
     intro x hx
     rw [le_div_iff₀]
-    rw [Nat.cast_pos, Finset.card_pos]
+    rw [Nat.cast_pos, card_pos]
     refine' Y_nonempty _
-    rw [degreeSteps, Finset.mem_filter, Finset.mem_range] at hi
+    rw [degreeSteps, mem_filter, mem_range] at hi
     exact hi.1
   rw [this, colDensity_eq_average]
   refine' increase_average _
@@ -151,21 +151,21 @@ theorem six_four_degree {μ : ℝ} (hi : i ∈ degreeSteps μ k l ini) : p_ i �
 
 theorem BookConfig.getBook_snd_nonempty {V : Type*} [DecidableEq V] {χ} {μ : ℝ} (hμ₀ : 0 < μ)
     {X : Finset V} (hX : X.Nonempty) : (BookConfig.getBook χ μ X).2.Nonempty := by
-  rw [← Finset.card_pos, ← @Nat.cast_pos ℝ]
+  rw [← card_pos, ← @Nat.cast_pos ℝ]
   refine' BookConfig.getBook_relative_card.trans_lt' _
   refine' div_pos (mul_pos (pow_pos hμ₀ _) _) two_pos
-  rwa [Nat.cast_pos, Finset.card_pos]
+  rwa [Nat.cast_pos, card_pos]
 
 theorem six_four_blue' {μ : ℝ} (hμ₀ : 0 < μ) (hi : i + 1 ∈ bigBlueSteps μ k l ini) :
     p_ i - k ^ (1 / 8 : ℝ) * αFunction k (height k ini.p (p_ i)) ≤ p_ (i + 2) := by
   change _ ≤ (red_density χ) _ _
   rw [big_blue_applied hi, BookConfig.bigBlueStep_x, BookConfig.bigBlueStep_Y]
   have h : i + 1 < finalStep μ k l ini := by
-    rw [bigBlueSteps, Finset.mem_filter, Finset.mem_range] at hi
+    rw [bigBlueSteps, mem_filter, mem_range] at hi
     exact hi.1
   have hi' : i ∈ degreeSteps μ k l ini := by
-    rw [bigBlueSteps, Finset.mem_filter, Nat.even_add_one, Classical.not_not] at hi
-    rw [degreeSteps, Finset.mem_filter, Finset.mem_range]
+    rw [bigBlueSteps, mem_filter, Nat.even_add_one, Classical.not_not] at hi
+    rw [degreeSteps, mem_filter, mem_range]
     exact ⟨h.trans_le' (Nat.le_succ _), hi.2.1⟩
   rw [degree_regularisation_applied hi', BookConfig.degreeRegularisationStep_Y, ←
     degree_regularisation_applied hi', colDensity_eq_average]
@@ -178,17 +178,17 @@ theorem six_four_blue' {μ : ℝ} (hμ₀ : 0 < μ) (hi : i + 1 ∈ bigBlueSteps
     intro x hx
     have : x ∈ (algorithm μ k l ini (i + 1)).X := BookConfig.getBook_snd_subset hx
     rw [degree_regularisation_applied hi', BookConfig.degreeRegularisationStep_x,
-      Finset.mem_filter] at this
+      mem_filter] at this
     rw [le_div_iff₀]
     · exact this.2
-    rw [Nat.cast_pos, Finset.card_pos]
+    rw [Nat.cast_pos, card_pos]
     refine' Y_nonempty _
     exact h.trans_le' (Nat.le_succ _)
   refine'
-    (div_le_div_of_nonneg_right (Finset.card_nsmul_le_sum _ _ _ this) (Nat.cast_nonneg _)).trans'
+    (div_le_div_of_nonneg_right (card_nsmul_le_sum _ _ _ this) (Nat.cast_nonneg _)).trans'
       _
   rw [BookConfig.bigBlueStep_x, nsmul_eq_mul, mul_div_cancel_left₀]
-  rw [Nat.cast_ne_zero, ← pos_iff_ne_zero, Finset.card_pos]
+  rw [Nat.cast_ne_zero, ← pos_iff_ne_zero, card_pos]
   refine' BookConfig.getBook_snd_nonempty hμ₀ _
   exact x_nonempty h
 
@@ -197,7 +197,7 @@ theorem six_four_blue {μ : ℝ} (hμ₀ : 0 < μ) (hi : i ∈ bigBlueSteps μ k
         k ^ (1 / 8 : ℝ) * αFunction k (height k ini.p (algorithm μ k l ini (i - 1)).p) ≤
       (algorithm μ k l ini (i + 1)).p := by
   have hi' := hi
-  rw [bigBlueSteps, Finset.mem_filter, Nat.not_even_iff_odd] at hi
+  rw [bigBlueSteps, mem_filter, Nat.not_even_iff_odd] at hi
   obtain ⟨b, rfl⟩ := hi.2.1.exists_bit1
   refine' six_four_blue' hμ₀ _
   rw [Nat.add_sub_cancel]
@@ -296,7 +296,7 @@ theorem six_five_red :
     swap
     · exact hh.trans' (Nat.le_succ _)
     have := (q_increasing ht').trans_lt ht
-    exact not_le_of_gt this (height_spec hk')
+    exact this.not_ge (height_spec hk')
   refine' (six_four_red hi).trans_lt' _
   have : qFunction k ini.p (h - 1) < p := q_height_lt_p (hh.trans_lt' (by norm_num))
   refine' (sub_lt_sub_right this _).trans_le' _
@@ -420,7 +420,7 @@ theorem six_five_blue (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
   · by_contra! ht'
     rw [Nat.lt_iff_add_one_le, ← le_tsub_iff_right z] at ht'
     have := (q_increasing ht').trans_lt ht
-    exact not_le_of_gt this (height_spec hk₀.ne')
+    exact this.not_ge (height_spec hk₀.ne')
   refine' (six_four_blue (hμ₀.trans_le hμl) hi).trans_lt' _
   refine' (sub_lt_sub_right this _).trans_le' _
   rw [αFunction, qFunction, qFunction, add_sub_assoc, add_le_add_iff_left, mul_div_assoc', ←
@@ -467,17 +467,17 @@ theorem sub_one_mem_degree {μ : ℝ} {i : ℕ} (hi : i < finalStep μ k l ini) 
     1 ≤ i ∧ i - 1 ∈ degreeSteps μ k l ini := by
   obtain ⟨i, rfl⟩ := hi'.exists_bit1
   refine' ⟨by simp, _⟩
-  rw [Nat.add_sub_cancel, degreeSteps, Finset.mem_filter, Finset.mem_range]
+  rw [Nat.add_sub_cancel, degreeSteps, mem_filter, mem_range]
   exact ⟨hi.trans_le' (Nat.le_succ _), even_two_mul _⟩
 
 theorem bigBlueSteps_sub_one_mem_degree {μ : ℝ} {i : ℕ} (hi : i ∈ bigBlueSteps μ k l ini) :
     1 ≤ i ∧ i - 1 ∈ degreeSteps μ k l ini := by
-  rw [bigBlueSteps, Finset.mem_filter, Finset.mem_range, Nat.not_even_iff_odd] at hi
+  rw [bigBlueSteps, mem_filter, mem_range, Nat.not_even_iff_odd] at hi
   exact sub_one_mem_degree hi.1 hi.2.1
 
 theorem redOrDensitySteps_sub_one_mem_degree {μ : ℝ} {i : ℕ}
     (hi : i ∈ redOrDensitySteps μ k l ini) : 1 ≤ i ∧ i - 1 ∈ degreeSteps μ k l ini := by
-  rw [redOrDensitySteps, Finset.mem_filter, Finset.mem_range, Nat.not_even_iff_odd] at hi
+  rw [redOrDensitySteps, mem_filter, mem_range, Nat.not_even_iff_odd] at hi
   exact sub_one_mem_degree hi.1 hi.2.1
 
 theorem redSteps_sub_one_mem_degree {μ : ℝ} {i : ℕ} (hi : i ∈ redSteps μ k l ini) :
@@ -521,7 +521,7 @@ theorem six_three_blue (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
   change ∑ i ∈ BZ, _ ≤ _
   have : ∀ i ∈ BZ, (algorithm μ k l ini (i - 1)).p - (algorithm μ k l ini (i + 1)).p ≤ 1 / k := by
     intro i hi
-    rw [Finset.mem_filter] at hi
+    rw [mem_filter] at hi
     have : height k ini.p (algorithm μ k l ini (i - 1)).p = 1 := by
       refine' height_eq_one _
       exact hi.2.2
@@ -533,12 +533,12 @@ theorem six_three_blue (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
     rw [← rpow_add' (Nat.cast_nonneg _)]
     refine' rpow_le_one_of_one_le_of_nonpos (Nat.one_le_cast.2 (hl₁ k hlk)) (by norm_num)
     norm_num
-  refine' (Finset.sum_le_card_nsmul _ _ _ this).trans _
+  refine' (sum_le_card_nsmul _ _ _ this).trans _
   rw [nsmul_eq_mul, mul_one_div]
   have : (BZ.card : ℝ) ≤ l ^ (3 / 4 : ℝ) := by
     refine' (hb k hlk μ hμl n χ hχ ini).trans' _
     rw [Nat.cast_le]
-    exact Finset.card_le_card (Finset.filter_subset _ _)
+    exact Finset.card_le_card (filter_subset _ _)
   refine' (div_le_div_of_nonneg_right this (Nat.cast_nonneg _)).trans _
   have : (0 : ℝ) < k := Nat.cast_pos.mpr (Nat.succ_le_iff.mp (hl₁ k hlk))
   rw [div_le_iff₀ this, ← rpow_add_one this.ne']
@@ -609,12 +609,12 @@ theorem six_three_red :
   change ∑ i ∈ RZ, (_ : ℝ) ≤ _
   have : ∀ i ∈ RZ, (algorithm μ k l ini (i - 1)).p - (algorithm μ k l ini (i + 1)).p ≤ ε / k := by
     intro i hi
-    simp only [RZ, Finset.mem_filter] at hi
+    simp only [RZ, mem_filter] at hi
     exact hlr k hlk μ n χ ini i hi.1 hi.2.1 hi.2.2
-  refine' (Finset.sum_le_card_nsmul _ _ _ this).trans _
+  refine' (sum_le_card_nsmul _ _ _ this).trans _
   have : (RZ.card : ℝ) ≤ k := by
     rw [Nat.cast_le]
-    refine' (Finset.card_le_card (Finset.filter_subset _ _)).trans _
+    refine' (Finset.card_le_card (filter_subset _ _)).trans _
     exact four_four_red μ hχ ini
   rw [nsmul_eq_mul]
   refine' (mul_le_mul_of_nonneg_right this _).trans_eq _
@@ -646,20 +646,20 @@ theorem six_three (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ 
         (algorithm μ k l ini (i + 1)).p < (algorithm μ k l ini (i - 1)).p ∧
           (algorithm μ k l ini (i - 1)).p ≤ ini.p) =
       ∅ := by
-    rw [Finset.filter_eq_empty_iff]
+    rw [filter_eq_empty_iff]
     intro i hi
     rw [not_and_or, not_lt]
     left
     refine' (hld k hlk μ hμu n χ ini hini i hi).trans' _
     have := densitySteps_sub_one_mem_degree hi
     simpa [Nat.sub_add_cancel this.1] using six_four_degree this.2
-  rw [decreaseSteps, Finset.filter_union, this, Finset.union_empty, Finset.filter_union,
-    Finset.sum_union]
+  rw [decreaseSteps, filter_union, this, union_empty, filter_union,
+    sum_union]
   · clear this
     refine' (add_le_add hlr hlb).trans_eq _
     rw [two_mul]
   clear this hlr hlb
-  refine' Finset.disjoint_filter_filter _
+  refine' disjoint_filter_filter _
   refine' bigBlueSteps_disjoint_redOrDensitySteps.symm.mono_left _
   exact redSteps_subset_redOrDensitySteps
 
@@ -710,7 +710,7 @@ theorem six_four_weak (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ
   filter_upwards [six_four_density μ₁ p₀ hμ₁ hp₀, six_five_red,
     top_adjuster (tendsto_natCast_atTop_atTop.eventually six_four_weak_aux)] with l hl hr hk k hlk
     μ hμl hμu n χ ini hini i hi hi'
-  simp only [Finset.mem_union, or_assoc] at hi
+  simp only [mem_union, or_assoc] at hi
   rcases hi with (hir | hib | his)
   rotate_left
   · exact six_four_blue (hμ₀.trans_le hμl) hib
@@ -751,14 +751,14 @@ theorem six_two_part_one {f : ℕ → ℝ} {j j' : ℕ} (hj : Odd j) (hj' : Odd 
         dsimp at h
         omega⟩ := by
     ext i
-    simp only [Finset.mem_filter, Finset.mem_Icc, Finset.mem_map, odd_iff_exists_bit1,
+    simp only [mem_filter, mem_Icc, Finset.mem_map, odd_iff_exists_bit1,
       Function.Embedding.coeFn_mk, and_assoc]
     constructor
     · rintro ⟨hi, hi', i, rfl⟩
       exact ⟨i, by omega, by omega, rfl⟩
     rintro ⟨i, hi, hi', rfl⟩
     exact ⟨by omega, by omega, i, rfl⟩
-  rw [this, Finset.sum_map, ← Finset.Ico_succ_right_eq_Icc, Finset.sum_Ico_eq_sum_range,
+  rw [this, sum_map, ← Finset.Ico_succ_right_eq_Icc, sum_Ico_eq_sum_range,
     Order.succ_eq_add_one, Nat.add_sub_add_right]
   simp only [Function.Embedding.coeFn_mk]
   have :
@@ -767,23 +767,23 @@ theorem six_two_part_one {f : ℕ → ℝ} {j j' : ℕ} (hj : Odd j) (hj' : Odd 
         f (2 * ((j' + 1) + k)) - f (2 * ((j' + 1) + (k + 1))) := by
     intro k
     rw [Nat.add_sub_cancel]
-    simp only [Nat.mul_add, Nat.add_assoc, Nat.mul_one]
+    simp only [mul_add, add_assoc, mul_one]
   simp only [this]
-  rw [Finset.sum_range_sub', add_zero]
+  rw [sum_range_sub', add_zero]
   have h₁ : 2 * j' + 1 + 1 = 2 * (j' + 1) := by omega
   have h₂ : 2 * j + 1 + 1 = 2 * (j' + 1 + (j - j')) := by omega
   rw [h₁, h₂]
 
 theorem sum_le_of_nonneg {α : Type*} {f : α → ℝ} {s : Finset α} :
     ∑ x ∈ s, f x ≤ ∑ x ∈ (s.filter fun i => 0 < f i), f x := by
-  rw [← Finset.sum_filter_add_sum_filter_not s fun i => 0 < f i,
+  rw [← sum_filter_add_sum_filter_not s fun i => 0 < f i,
     add_le_iff_nonpos_right]
-  exact Finset.sum_nonpos (by simp (config := { contextual := true }))
+  exact sum_nonpos (by simp (config := { contextual := true }))
 
 theorem mem_union_of_odd {μ : ℝ} {i : ℕ} (hi : Odd i) (hi' : i < finalStep μ k l ini) :
     i ∈ redSteps μ k l ini ∪ ℬ ∪ 𝒮 := by
-  rw [Finset.union_right_comm, redSteps_union_densitySteps, Finset.union_comm, bigBlueSteps,
-    redOrDensitySteps, ← Finset.filter_or, Finset.mem_filter, Finset.mem_range, ← and_or_left,
+  rw [union_right_comm, redSteps_union_densitySteps, union_comm, bigBlueSteps,
+    redOrDensitySteps, ← filter_or, mem_filter, mem_range, ← and_or_left,
     ← not_lt, and_iff_left (em' _), Nat.not_even_iff_odd, and_iff_left hi]
   exact hi'
 
@@ -796,18 +796,18 @@ theorem six_two_part_two {μ : ℝ} {k l : ℕ} {ini : BookConfig χ} {j j' : �
     ∑ i ∈ (Finset.Icc (j' + 2) j).filter Odd, (p_ (i - 1) - p_ (i + 1)) ≤
       ∑ i ∈ ((Finset.Icc (j' + 2) j).filter fun i => Odd i ∧ p_ (i + 1) < p_ (i - 1)),
         (p_ (i - 1) - p_ (i + 1)) := by
-    rw [← Finset.filter_filter]
+    rw [← filter_filter]
     refine' sum_le_of_nonneg.trans_eq _
     simp only [sub_pos]
   refine' this.trans _
   clear this
-  refine' Finset.sum_le_sum_of_subset_of_nonneg _ _
+  refine' sum_le_sum_of_subset_of_nonneg _ _
   swap
-  · simp only [Finset.mem_filter, Finset.mem_Icc, not_and, and_imp, sub_nonneg, decreaseSteps]
+  · simp only [mem_filter, mem_Icc, not_and, and_imp, sub_nonneg, decreaseSteps]
     intro i _ h _ _
     exact h.le
   intro i
-  simp only [Finset.mem_filter, decreaseSteps, and_imp, Finset.mem_Icc]
+  simp only [mem_filter, decreaseSteps, and_imp, mem_Icc]
   intro hi hi₁ hi₂ hi₃
   refine' ⟨_, hi₃, _⟩
   · exact mem_union_of_odd hi₂ (hi₁.trans_lt hjm)
@@ -878,28 +878,28 @@ theorem six_two_main (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
     rw [sub_le_self_iff]
     positivity
   have hj₂ : Odd j := by
-    rw [degreeSteps, Finset.mem_filter, Finset.mem_range] at hj₁
+    rw [degreeSteps, mem_filter, mem_range] at hj₁
     simpa only [hj, true_and, Nat.not_even_iff_odd] using hj₁
-  let js := (Finset.range (j + 1)).filter fun j' => Odd j' ∧ ini.p ≤ p_ (j' - 1)
+  let js := (range (j + 1)).filter fun j' => Odd j' ∧ ini.p ≤ p_ (j' - 1)
   have hjs : js.Nonempty := by
-    rw [Finset.filter_nonempty_iff]
+    rw [filter_nonempty_iff]
     refine' ⟨1, _, odd_one, _⟩
-    · simp only [Finset.mem_range, lt_add_iff_pos_left]
+    · simp only [mem_range, lt_add_iff_pos_left]
       exact hj₂.pos
     dsimp
     rw [algorithm_zero]
   let j' : ℕ := js.max' hjs
   have hj' : j' ≤ j ∧ Odd j' ∧ ini.p ≤ p_ (j' - 1) := by
-    simpa only [j', js, Finset.mem_filter, Finset.mem_range_succ_iff, and_imp] using
+    simpa only [j', js, mem_filter, mem_range_succ_iff, and_imp] using
       Finset.max'_mem _ hjs
   have : ∀ i : ℕ, j' + 1 ≤ i → i ≤ j → Odd i → p_ (i - 1) ≤ ini.p := by
     intro i hi₁ hi₂ hi₃
     by_contra! hi₄
     have : i ∈ js := by
-      rw [Finset.mem_filter, Finset.mem_range_succ_iff]
+      rw [mem_filter, mem_range_succ_iff]
       exact ⟨hi₂, hi₃, hi₄.le⟩
     rw [Nat.succ_le_iff] at hi₁
-    exact not_lt_of_ge (Finset.le_max' _ _ this) hi₁
+    exact (Finset.le_max' _ _ this).not_gt hi₁
   have p_first : p_ (j' + 1) - 2 * ε ≤ p_ (j + 1) := by
     rw [sub_le_comm,
       six_two_part_one (f := fun i => (algorithm μ k l ini i).p) hj₂ hj'.2.1 hj'.1]
@@ -946,7 +946,7 @@ theorem six_two (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 
   rw [Nat.succ_le_iff] at hi
   by_cases h : i ∈ 𝒟
   · refine' (six_four_degree h).trans' _
-    rw [degreeSteps, Finset.mem_filter, even_iff_exists_two_mul, Finset.mem_range] at h
+    rw [degreeSteps, mem_filter, even_iff_exists_two_mul, mem_range] at h
     obtain ⟨rfl | i, rfl⟩ := h.2
     · dsimp
       rw [algorithm_zero, sub_le_self_iff]
@@ -955,7 +955,7 @@ theorem six_two (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 
     rw [this] at *
     refine' hl k hlk μ hμl hμu n χ hχ ini hini (2 * i + 1) _ _
     · exact hi.trans_le' (Nat.le_succ _)
-    rw [degreeSteps, Finset.mem_filter]
+    rw [degreeSteps, mem_filter]
     simp
   exact hl k hlk μ hμl hμu n χ hχ ini hini i hi h
 
@@ -989,7 +989,7 @@ theorem six_one_ind (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
                           ∀ i,
                             i ≤ finalStep μ k l ini →
                               ((1 - (k : ℝ) ^ (-1 / 8 : ℝ)) * (ini.p - 3 * ε)) ^
-                                    (redOrDensitySteps μ k l ini ∩ Finset.range i).card *
+                                    (redOrDensitySteps μ k l ini ∩ range i).card *
                                   ini.Y.card ≤
                                 (algorithm μ k l ini i).Y.card := by
   have h₄ : (0 : ℝ) < 1 / 4 := by norm_num
@@ -1000,10 +1000,10 @@ theorem six_one_ind (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
     top_adjuster (eventually_ge_atTop 1), top_adjuster (t.eventually_ge_atTop p₀⁻¹),
     six_two μ₀ μ₁ p₀ hμ₀ hμ₁ hp₀] with l hl hl' hl₂ hl₃ k hlk μ hμl hμu n χ hχ ini hini i hi
   induction' i with i ih
-  · rw [Finset.range_zero, Finset.inter_empty, Finset.card_empty, pow_zero, one_mul, algorithm_zero]
+  · rw [range_zero, inter_empty, card_empty, pow_zero, one_mul, algorithm_zero]
   rw [Nat.succ_le_iff] at hi
   have hi' := hi
-  rw [← Finset.mem_range, ← union_partial_steps, Finset.mem_union, Finset.mem_union, or_assoc,
+  rw [← mem_range, ← union_partial_steps, mem_union, mem_union, or_assoc,
     or_rotate] at hi'
   rw [Finset.range_add_one]
   rcases hi' with (hib | hid | hirs)
@@ -1014,16 +1014,16 @@ theorem six_one_ind (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
   · have hi'' :=
       Finset.disjoint_left.1 degreeSteps_disjoint_bigBlueSteps_union_redOrDensitySteps hid
     have hi''' : i ∉ bigBlueSteps μ k l ini ∧ i ∉ redOrDensitySteps μ k l ini := by
-      simpa [Finset.mem_union, not_or] using hi''
+      simpa [mem_union, not_or] using hi''
     rw [Finset.inter_insert_of_notMem hi'''.2]
     simpa [degree_regularisation_applied hid, BookConfig.degreeRegularisationStep_Y] using ih hi.le
-  rw [Finset.inter_insert_of_mem hirs, Finset.card_insert_of_notMem, pow_succ, mul_assoc]
+  rw [inter_insert_of_mem hirs, Finset.card_insert_of_notMem, pow_succ, mul_assoc]
   swap
   · simp
   rw [← mul_assoc,
     mul_comm
       (((1 - (k : ℝ) ^ (-1 / 8 : ℝ)) * (ini.p - 3 * ε)) ^
-        (redOrDensitySteps μ k l ini ∩ Finset.range i).card),
+        (redOrDensitySteps μ k l ini ∩ range i).card),
     mul_assoc]
   have hk₈ : (0 : ℝ) ≤ 1 - k ^ (-1 / 8 : ℝ) := by
     rw [sub_nonneg]
@@ -1040,7 +1040,7 @@ theorem six_one_ind (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
   have hd : 1 ≤ i ∧ i - 1 ∈ degreeSteps μ k l ini := redOrDensitySteps_sub_one_mem_degree hirs
   have :
     (algorithm μ k l ini i.succ).Y = (red_neighbors χ) (getX hirs) ∩ (algorithm μ k l ini i).Y := by
-    rw [← redSteps_union_densitySteps, Finset.mem_union] at hirs
+    rw [← redSteps_union_densitySteps, mem_union] at hirs
     cases' hirs with hir his
     · rw [red_applied hir, BookConfig.redStepBasic_Y]
     · rw [density_applied his, BookConfig.densityBoostStepBasic_Y]
@@ -1073,8 +1073,8 @@ theorem six_one_ind_rearranged (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (h�
                             i ≤ finalStep μ k l ini →
                               ((1 - (k : ℝ) ^ (-1 / 8 : ℝ)) * (1 - 3 * ε / ini.p)) ^ (2 * k) *
                                     ini.p ^
-                                      ((redSteps μ k l ini ∩ Finset.range i).card +
-                                        (densitySteps μ k l ini ∩ Finset.range i).card) *
+                                      ((redSteps μ k l ini ∩ range i).card +
+                                        (densitySteps μ k l ini ∩ range i).card) *
                                   ini.Y.card ≤
                                 (algorithm μ k l ini i).Y.card := by
   have h₅ : (0 : ℝ) < 1 / 4 := by norm_num
@@ -1086,23 +1086,23 @@ theorem six_one_ind_rearranged (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (h�
   specialize hl k hlk μ hμl hμu n χ hχ ini hini i hi
   refine' hl.trans' (mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _))
   have h₁ :
-      (redSteps μ k l ini ∩ Finset.range i).card +
-          (densitySteps μ k l ini ∩ Finset.range i).card ≤
+      (redSteps μ k l ini ∩ range i).card +
+          (densitySteps μ k l ini ∩ range i).card ≤
         2 * k := by
     rw [two_mul]
     refine' add_le_add _ _
-    · refine' (Finset.card_le_card (Finset.inter_subset_left)).trans _
+    · refine' (Finset.card_le_card (inter_subset_left)).trans _
       exact four_four_red μ hχ ini
-    · refine' (Finset.card_le_card (Finset.inter_subset_left)).trans _
+    · refine' (Finset.card_le_card (inter_subset_left)).trans _
       have := four_four_blue_density μ (hl₀ _ hlk).ne' (hl₀ _ le_rfl).ne' hχ ini
       exact hlk.trans' (this.trans' le_add_self)
   have h₂ :
-      (redSteps μ k l ini ∩ Finset.range i).card +
-          (densitySteps μ k l ini ∩ Finset.range i).card =
-        (redOrDensitySteps μ k l ini ∩ Finset.range i).card := by
+      (redSteps μ k l ini ∩ range i).card +
+          (densitySteps μ k l ini ∩ range i).card =
+        (redOrDensitySteps μ k l ini ∩ range i).card := by
     rw [← Finset.card_union_of_disjoint, ← redSteps_union_densitySteps,
       Finset.union_inter_distrib_right]
-    exact redSteps_disjoint_densitySteps.mono (Finset.inter_subset_left) (Finset.inter_subset_left)
+    exact redSteps_disjoint_densitySteps.mono (inter_subset_left) (inter_subset_left)
   have hp₀' : 0 < ini.p := hp₀.trans_le hini
   have h₃ : (0 : ℝ) ≤ 1 - k ^ (-1 / 8 : ℝ) := by
     refine' sub_nonneg_of_le (rpow_le_one_of_one_le_of_nonpos _ (by norm_num1))
@@ -1196,8 +1196,8 @@ theorem six_one_general (p₀ : ℝ) (hp₀ : 0 < p₀) :
                                       i ≤ finalStep μ k l ini →
                                         (2 : ℝ) ^ f k *
                                               ini.p ^
-                                                ((redSteps μ k l ini ∩ Finset.range i).card +
-                                                  (densitySteps μ k l ini ∩ Finset.range i).card) *
+                                                ((redSteps μ k l ini ∩ range i).card +
+                                                  (densitySteps μ k l ini ∩ range i).card) *
                                             ini.Y.card ≤
                                           (algorithm μ k l ini i).Y.card := by
   obtain ⟨f, hf, hf'⟩ := six_one_error p₀ hp₀
@@ -1240,13 +1240,13 @@ theorem six_one (p₀ : ℝ) (hp₀ : 0 < p₀) :
   refine' ⟨f, hf, _⟩
   intro μ₀ μ₁ hμ₀ hμ₁
   filter_upwards [hf' μ₀ μ₁ hμ₀ hμ₁] with l hl k hlk μ hμl hμu n χ hχ ini hini
-  have h₁ : redSteps μ k l ini ∩ Finset.range (finalStep μ k l ini) = redSteps μ k l ini := by
+  have h₁ : redSteps μ k l ini ∩ range (finalStep μ k l ini) = redSteps μ k l ini := by
     rw [Finset.inter_eq_left]
-    exact redSteps_subset_redOrDensitySteps.trans (Finset.filter_subset _ _)
+    exact redSteps_subset_redOrDensitySteps.trans (filter_subset _ _)
   have h₂ :
-      densitySteps μ k l ini ∩ Finset.range (finalStep μ k l ini) = densitySteps μ k l ini := by
+      densitySteps μ k l ini ∩ range (finalStep μ k l ini) = densitySteps μ k l ini := by
     rw [Finset.inter_eq_left]
-    exact densitySteps_subset_redOrDensitySteps.trans (Finset.filter_subset _ _)
+    exact densitySteps_subset_redOrDensitySteps.trans (filter_subset _ _)
   specialize hl k hlk μ hμl hμu n χ hχ ini hini _ le_rfl
   simpa [h₁, h₂] using hl
 
