@@ -79,7 +79,7 @@ theorem log_base2_end {x₁ x₂ a₁ a₂ : ℝ} (hx₁ : 1 < x₁) (hx₂ : x�
 -- /- ./././Mathport/Syntax/Translate/Expr.lean:337:4: warning: unsupported (TODO): `[tacs] -/
 -- /-- a quick macro to simplify log2 estimate proofs -/
 -- unsafe def weaken (t u : parse parser.pexpr) : tactic Unit :=
---   sorry
+--   implementation omitted
 --
 -- end Interactive
 --
