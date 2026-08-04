@@ -1240,33 +1240,12 @@ theorem powersetCard_filter_mem {α : Type*} [DecidableEq α] {n : ℕ} {s : Fin
     (hx : x ∈ s) :
     ((powersetCard (n + 1) s).filter fun U => x ∈ U) =
       (powersetCard n (s.erase x)).image (insert x) := by
-  ext U
-  constructor
-  · intro hU
-    rw [Finset.mem_image]
-    simp only [mem_filter, Finset.mem_powersetCard] at hU
-    refine' ⟨U.erase x, _, insert_erase hU.2⟩
-    refine' Finset.mem_powersetCard.mpr ⟨_, _⟩
-    · intro y hy
-      rw [mem_erase] at hy
-      exact mem_erase.mpr ⟨hy.1, hU.1.1 hy.2⟩
-    · rw [Finset.card_erase_of_mem hU.2, hU.1.2]
-      simp
-  · intro hU
-    rw [Finset.mem_image] at hU
-    simp only [mem_filter, Finset.mem_powersetCard]
-    obtain ⟨T, hT, rfl⟩ := hU
-    have hT' := Finset.mem_powersetCard.mp hT
-    refine' ⟨⟨_, _⟩, Finset.mem_insert_self x T⟩
-    · intro y hy
-      rw [mem_insert] at hy
-      rcases hy with rfl | hy
-      · exact hx
-      · exact (mem_erase.mp (hT'.1 hy)).2
-    · rw [Finset.card_insert_of_notMem]
-      · rw [hT'.2]
-      · intro hxT
-        exact (mem_erase.mp (hT'.1 hxT)).1 rfl
+  rw [← insert_erase hx, powersetCard_succ_insert (notMem_erase _ _), insert_erase hx,
+    filter_union, filter_false_of_mem, filter_true_of_mem, empty_union]
+  · intro U hU
+    obtain ⟨T, -, rfl⟩ := mem_image.1 hU
+    exact mem_insert_self _ _
+  · simp +contextual [mem_powersetCard, subset_erase]
 
 theorem sum_powersetCard_insert {α β : Type*} [DecidableEq α] [AddCommMonoid β] {n : ℕ}
     {s : Finset α} (f : Finset α → α → β) :
