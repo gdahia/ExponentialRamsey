@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bhavik Mehta
 -/
 import ExponentialRamsey.NecessaryLogEstimates
-import ExponentialRamsey.Prereq.GraphProbability
 import Mathlib.Analysis.SpecialFunctions.Log.Monotone
 
 /-!
@@ -19,8 +18,7 @@ open scoped BigOperators ExponentialRamsey Nat Real
 open Filter Nat Real Set Asymptotics
 
 theorem g_monotone {x₀ x₁ y : ℝ} (hy₀ : 0 ≤ y) (hy₁ : y ≤ 1) (hx₀ : 0 ≤ x₀) (hx : x₀ ≤ x₁) :
-    g x₀ y ≤ g x₁ y :=
-  by
+    g x₀ y ≤ g x₁ y := by
   rw [g_eq, g_eq, add_assoc, add_assoc, add_le_add_iff_left]
   refine' add_le_add (mul_le_mul_of_nonneg_right hx (logb_nonneg one_lt_two (by norm_num1))) _
   rcases eq_or_lt_of_le hy₀ with (rfl | hy₀)
@@ -32,66 +30,50 @@ theorem g_monotone {x₀ x₁ y : ℝ} (hy₀ : 0 ≤ y) (hy₁ : y ≤ 1) (hx�
 
 theorem f_antitone_aux {y : ℝ} (hl : ∀ x₀ x₁, 0 ≤ x₀ → x₀ ≤ x₁ → x₁ ≤ 1 → f1 x₁ y ≤ f1 x₀ y)
     (hu : ∀ x₀ x₁, 0.75 ≤ x₀ → x₀ ≤ x₁ → x₁ ≤ 1 → f2 x₁ y ≤ f2 x₀ y) :
-    ∀ x₀ x₁, 0 ≤ x₀ → x₀ ≤ x₁ → x₁ ≤ 1 → f x₁ y ≤ f x₀ y :=
-  by
+    ∀ x₀ x₁, 0 ≤ x₀ → x₀ ≤ x₁ → x₁ ≤ 1 → f x₁ y ≤ f x₀ y := by
   have : ∀ x y, x ≤ 1 → f2 x y ≤ f1 x y := by
     intro x y hx
     rw [f1, f2, sub_le_self_iff]
     refine' mul_nonneg (one_div_nonneg.2 (mul_nonneg (log_nonneg one_le_two) (by norm_num1))) _
     refine' div_nonneg _ _ <;> linarith only [hx]
+  have h34 : (3 : ℝ) / 4 = 0.75 := by norm_num1
   intro x₀ x₁ hx₀ hx hx₁
-  rw [f]
+  rw [f, h34]
   split_ifs with h₁
-  · rw [f]
+  · rw [f, h34]
     split_ifs with h₀
-    · apply hu _ _ _ hx hx₁
-      norm_num1 at h₀ ⊢
-      exact h₀
+    · exact hu _ _ h₀ hx hx₁
     exact (this _ _ hx₁).trans (hl _ _ hx₀ hx hx₁)
   rw [not_le] at h₁
-  rw [f, if_neg (not_le_of_gt (hx.trans_lt h₁))]
+  rw [f, h34, if_neg (hx.trans_lt h₁).not_ge]
   exact hl _ _ hx₀ hx hx₁
 
-theorem f_antitone {x₀ x₁ y : ℝ} (hx₀ : 0 ≤ x₀) (hx : x₀ ≤ x₁) (hx₁ : x₁ ≤ 1) : f x₁ y ≤ f x₀ y :=
-  by
+theorem f_antitone {x₀ x₁ y : ℝ} (hx₀ : 0 ≤ x₀) (hx : x₀ ≤ x₁) (hx₁ : x₁ ≤ 1) :
+    f x₁ y ≤ f x₀ y := by
   refine' f_antitone_aux _ _ _ _ hx₀ hx hx₁
   · rw [← antitoneOn_Icc_iff]
     exact strictAntiOn_f1.antitoneOn
   · rw [← antitoneOn_Icc_iff]
     exact strictAntiOn_f2.antitoneOn.mono (Icc_subset_Icc_left (by norm_num1))
 
-theorem x_le_iff_y_le {x y : ℝ} (h : x = 3 / 5 * y + 0.5454) : x ≤ 3 / 4 ↔ y ≤ 0.341 :=
-  by
+theorem x_le_iff_y_le {x y : ℝ} (h : x = 3 / 5 * y + 0.5454) : x ≤ 3 / 4 ↔ y ≤ 0.341 := by
   rw [h]
-  constructor <;>
-    · intro
-      linarith
+  constructor <;> intro <;> linarith
 
-theorem le_x_iff_le_y {x y : ℝ} (h : x = 3 / 5 * y + 0.5454) : 3 / 4 ≤ x ↔ 0.341 ≤ y :=
-  by
+theorem le_x_iff_le_y {x y : ℝ} (h : x = 3 / 5 * y + 0.5454) : 3 / 4 ≤ x ↔ 0.341 ≤ y := by
   rw [h]
-  constructor <;>
-    · intro
-      linarith
+  constructor <;> intro <;> linarith
 
 theorem claim_a34 {x y : ℝ} (hx : x ∈ Icc (0 : ℝ) 1) (hy : y ∈ Icc (0 : ℝ) 0.75)
-    (h : x = 3 / 5 * y + 0.5454) : f x y < 1.9993 :=
-  by
-  rw [f]
+    (h : x = 3 / 5 * y + 0.5454) : f x y < 1.9993 := by
+  rw [f, show (3 : ℝ) / 4 = 0.75 by norm_num1]
   split_ifs with h₁
-  · apply claim_a4 ⟨?_, hx.2⟩ hy h
-    norm_num1 at h₁ ⊢
-    exact h₁
-  apply claim_a3 ⟨hx.1, ?_⟩ h
-  have hxlt : x < 3 / 4 := lt_of_not_ge h₁
-  norm_num1 at hxlt ⊢
-  exact hxlt.le
+  · exact claim_a4 ⟨h₁, hx.2⟩ hy h
+  exact claim_a3 ⟨hx.1, le_of_not_ge h₁⟩ h
 
 theorem main_calculation {x y : ℝ} (hx : x ∈ Icc (0 : ℝ) 1) (hy : y ∈ Icc (0 : ℝ) 0.75) :
-    min (f x y) (g x y) < 1.9993 :=
-  by
-  have hxy : 3 / 5 * y + 0.5454 ∈ Icc (0 : ℝ) 1 :=
-    by
+    min (f x y) (g x y) < 1.9993 := by
+  have hxy : 3 / 5 * y + 0.5454 ∈ Icc (0 : ℝ) 1 := by
     cases hy
     constructor <;> linarith
   set xy := 3 / 5 * y + 0.5454
@@ -104,13 +86,11 @@ theorem main_calculation {x y : ℝ} (hx : x ∈ Icc (0 : ℝ) 1) (hy : y ∈ Ic
   exact f_antitone hxy.1 h hx.2
 
 theorem main_calculation_useful {x y z : ℝ} (hx : x ∈ Icc (0 : ℝ) 1) (hy : y ∈ Icc (0 : ℝ) 0.75) :
-    max (min (f x y) (g x y)) 1.95 + (z - 1.9993) < z :=
-  by
+    max (min (f x y) (g x y)) 1.95 + (z - 1.9993) < z := by
   rw [← max_add_add_right, max_lt_iff]
   exact ⟨by linarith [main_calculation hx hy], by linarith⟩
 
-theorem two_pow_calculation : (2 - 1 / 1429 : ℝ) ≤ logb 2 3.999 :=
-  by
+theorem two_pow_calculation : (2 - 1 / 1429 : ℝ) ≤ logb 2 3.999 := by
   have h₁ : (3.999 : ℝ) = 2 ^ (2 : ℝ) * (1 - 1 / 4000 : ℝ) := by norm_num1
   rw [h₁, logb_mul, logb_rpow two_pos one_lt_two.ne']
   rotate_left
@@ -124,8 +104,7 @@ theorem two_pow_calculation : (2 - 1 / 1429 : ℝ) ≤ logb 2 3.999 :=
     norm_num1
   norm_num1
 
-theorem exponential_ramsey : ∀ᶠ k : ℕ in atTop, (ramseyNumber ![k, k] : ℝ) ≤ 3.999 ^ k :=
-  by
+theorem exponential_ramsey : ∀ᶠ k : ℕ in atTop, (ramseyNumber ![k, k] : ℝ) ≤ 3.999 ^ k := by
   have hη : (0 : ℝ) < 2 - 1 / 1429 - 1.9993 := by norm_num1
   filter_upwards [eleven_one _ hη, eventually_gt_atTop 0] with k hk hk₀
   obtain ⟨x, hx, y, hy, h⟩ := hk
@@ -155,10 +134,8 @@ theorem theorem_one'' : ∃ c < 4, ∀ᶠ k : ℕ in atTop, (ramseyNumber ![k, k
 
 -- With the main theorem done, we take a short detour to get a version which holds for all k
 -- but not with an explicit ε
-theorem error_increasing : AntitoneOn (fun x : ℝ => sqrt x ^ x⁻¹) {x | exp 1 ≤ x} :=
-  by
-  have : ∀ x, 0 < x → sqrt x ^ x⁻¹ = exp (log x / x * 2⁻¹) :=
-    by
+theorem error_increasing : AntitoneOn (fun x : ℝ => sqrt x ^ x⁻¹) {x | exp 1 ≤ x} := by
+  have : ∀ x, 0 < x → sqrt x ^ x⁻¹ = exp (log x / x * 2⁻¹) := by
     intro x hx
     rw [sqrt_eq_rpow, ← rpow_mul hx.le, rpow_def_of_pos hx, one_div, div_eq_mul_inv, ← mul_assoc,
       mul_right_comm]
@@ -173,48 +150,39 @@ theorem tiny_bound : ∀ k ≤ 4, (ramseyNumber ![k, k] : ℝ) ≤ (4 - 1) ^ k
   | 0, _ => by simp
   | 1, _ => by norm_num [ramseyNumber_one_succ]
   | 2, _ => by norm_num [ramseyNumber_two_left]
-  | 3, _ => by
-      rw [← diagonalRamsey.def, diagonalRamsey_three]
-      norm_num
-  | 4, _ => by
-      rw [← diagonalRamsey.def, diagonalRamsey_four]
-      norm_num
+  | 3, _ => by rw [← diagonalRamsey.def, diagonalRamsey_three]; norm_num
+  | 4, _ => by rw [← diagonalRamsey.def, diagonalRamsey_four]; norm_num
   | n + 5, h => by linarith [h]
 
 -- for moderate numbers, use Erdos-Szekeres with Stirling to get an exponential improvement
 -- note this works precisely because we have a constant upper bound on k
 theorem medium_bound {K k : ℕ} {c : ℝ} (hkl : 4 < k) (hk' : k ≤ K)
-    (hc : c = 4 - 4 * sqrt K ^ (-((K : ℝ)⁻¹))) : (ramseyNumber ![k, k] : ℝ) ≤ (4 - c) ^ k :=
-  by
+    (hc : c = 4 - 4 * sqrt K ^ (-(K : ℝ)⁻¹)) : (ramseyNumber ![k, k] : ℝ) ≤ (4 - c) ^ k := by
   refine' diagonalRamsey_upper_bound_simpler.trans _
   rw [hc, sub_sub_self, mul_pow, div_eq_mul_inv]
   refine' mul_le_mul_of_nonneg_left _ (by positivity)
   have h₁ : (0 : ℝ) < k := by positivity
   have h₂ : (0 : ℝ) < (k : ℝ)⁻¹ := by positivity
-  rw [← rpow_le_rpow_iff _ _ h₂, ← Real.rpow_natCast, ← rpow_mul, mul_inv_cancel₀ h₁.ne', rpow_one,
+  rw [← rpow_le_rpow_iff _ _ h₂, ← rpow_natCast _ k, ← rpow_mul, mul_inv_cancel₀ h₁.ne', rpow_one,
     rpow_neg (sqrt_nonneg _), inv_rpow (sqrt_nonneg _)]
   rotate_left
   · positivity
   · positivity
   · positivity
-  refine' (inv_le_inv₀
-    (rpow_pos_of_pos (sqrt_pos_of_pos (Nat.cast_pos.2 (by linarith only [hkl]))) _)
-    (rpow_pos_of_pos (sqrt_pos_of_pos (Nat.cast_pos.2 (by linarith only [hkl, hk']))) _)).2 _
+  refine' inv_anti₀ (rpow_pos_of_pos (sqrt_pos_of_pos (Nat.cast_pos.2 (by linarith))) _) _
   have h₃ : exp 1 ≤ k := (Nat.cast_le.2 hkl.le).trans' (exp_one_lt_d9.le.trans (by norm_num1))
   have h₄ : (k : ℝ) ≤ K := Nat.cast_le.2 hk'
   exact error_increasing h₃ (h₃.trans h₄) h₄
 
 -- Without making the lower bound explicit in `exponential_ramsey`, we can't make `ε` here explicit
 -- either.
-theorem global_bound : ∃ ε > 0, ∀ k, (ramseyNumber ![k, k] : ℝ) ≤ (4 - ε) ^ k :=
-  by
+theorem global_bound : ∃ ε > 0, ∀ k, (ramseyNumber ![k, k] : ℝ) ≤ (4 - ε) ^ k := by
   obtain ⟨K, hK₄, hK⟩ := (atTop_basis' 4).mem_iff.1 exponential_ramsey
-  let c := 4 - 4 * sqrt K ^ (-((K : ℝ)⁻¹))
+  let c := 4 - 4 * sqrt K ^ (-(K : ℝ)⁻¹)
   have : 0 < c := by
     rw [sub_pos, mul_lt_iff_lt_one_right, rpow_neg (sqrt_nonneg _)]
     swap; · norm_num1
-    have hKpos : (0 : ℝ) < K := Nat.cast_pos.2 (by linarith only [hK₄])
-    refine' (inv_lt_one₀ (rpow_pos_of_pos (sqrt_pos_of_pos hKpos) _)).2 (one_lt_rpow _ _)
+    refine' inv_lt_one_of_one_lt₀ (one_lt_rpow _ _)
     · rw [lt_sqrt zero_le_one, one_pow, Nat.one_lt_cast]
       linarith only [hK₄]
     positivity
