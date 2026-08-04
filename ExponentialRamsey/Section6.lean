@@ -52,7 +52,7 @@ macro_rules
 theorem six_four_red {μ : ℝ} (hi : i ∈ redSteps μ k l ini) :
     (algorithm μ k l ini i).p - αFunction k (height k ini.p (algorithm μ k l ini i).p) ≤
       (algorithm μ k l ini (i + 1)).p := by
-  change (_ : ℝ) ≤ (red_density χ) _ _
+  change (_ : ℝ) ≤ red_density χ _ _
   rw [red_applied hi, BookConfig.redStepBasic_x, BookConfig.redStepBasic_Y]
   have hi' := hi
   simp only [redSteps, mem_image, mem_filter, mem_attach, true_and,
@@ -125,7 +125,7 @@ theorem colDensity_eq_average {i : Fin 2} {X Y : Finset V} :
   rw [colDensity_eq_sum, ← sum_div, div_div, mul_comm, Nat.cast_sum]
 
 theorem six_four_degree {μ : ℝ} (hi : i ∈ degreeSteps μ k l ini) : p_ i ≤ p_ (i + 1) := by
-  change (red_density χ) _ _ ≤ (red_density χ) _ _
+  change red_density χ _ _ ≤ red_density χ _ _
   rw [degree_regularisation_applied hi, BookConfig.degreeRegularisationStep_x,
     BookConfig.degreeRegularisationStep_Y]
   set C := algorithm μ k l ini i
@@ -158,7 +158,7 @@ theorem BookConfig.getBook_snd_nonempty {V : Type*} [DecidableEq V] {χ} {μ : �
 
 theorem six_four_blue' {μ : ℝ} (hμ₀ : 0 < μ) (hi : i + 1 ∈ bigBlueSteps μ k l ini) :
     p_ i - k ^ (1 / 8 : ℝ) * αFunction k (height k ini.p (p_ i)) ≤ p_ (i + 2) := by
-  change _ ≤ (red_density χ) _ _
+  change _ ≤ red_density χ _ _
   rw [big_blue_applied hi, BookConfig.bigBlueStep_x, BookConfig.bigBlueStep_Y]
   have h : i + 1 < finalStep μ k l ini := by
     rw [bigBlueSteps, mem_filter, mem_range] at hi
@@ -174,7 +174,7 @@ theorem six_four_blue' {μ : ℝ} (hμ₀ : 0 < μ) (hi : i + 1 ∈ bigBlueSteps
   have :
     ∀ x ∈ (C'.bigBlueStep μ).X,
       C.p - k ^ (1 / 8 : ℝ) * αFunction k (height k ini.p C.p) ≤
-        ((red_neighbors χ) x ∩ C.Y).card / C.Y.card := by
+        (red_neighbors χ x ∩ C.Y).card / C.Y.card := by
     intro x hx
     have : x ∈ (algorithm μ k l ini (i + 1)).X := BookConfig.getBook_snd_subset hx
     rw [degree_regularisation_applied hi', BookConfig.degreeRegularisationStep_x,
@@ -1039,7 +1039,7 @@ theorem six_one_ind (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
     norm_num1
   have hd : 1 ≤ i ∧ i - 1 ∈ degreeSteps μ k l ini := redOrDensitySteps_sub_one_mem_degree hirs
   have :
-    (algorithm μ k l ini i.succ).Y = (red_neighbors χ) (getX hirs) ∩ (algorithm μ k l ini i).Y := by
+    (algorithm μ k l ini i.succ).Y = red_neighbors χ (getX hirs) ∩ (algorithm μ k l ini i).Y := by
     rw [← redSteps_union_densitySteps, mem_union] at hirs
     cases' hirs with hir his
     · rw [red_applied hir, BookConfig.redStepBasic_Y]
