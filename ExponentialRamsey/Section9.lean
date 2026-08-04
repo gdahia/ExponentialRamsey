@@ -1164,29 +1164,26 @@ theorem sum_offDiag {α β : Type*} [DecidableEq α] [AddCommMonoid β] {s : Fin
 theorem density_eq_average [Fintype V] [DecidableEq V] (G : SimpleGraph V)
     [Fintype G.edgeSet] [DecidableRel G.Adj] :
     G.density =
-      (↑(card V * (card V - 1)) : ℚ)⁻¹ *
+      ((card V : ℚ) * (card V - 1))⁻¹ *
         ∑ x : V, ∑ y ∈ univ.erase x, if G.Adj x y then 1 else 0 := by
   rw [SimpleGraph.density, edgeFinset_eq_filter', ← sum_boole, Nat.cast_choose_two,
     div_div_eq_mul_div, mul_comm, ← Nat.cast_two, ← nsmul_eq_mul, sum_sym2, div_eq_mul_inv,
-    mul_comm, sum_offDiag, Nat.cast_mul]
-  by_cases hV : card V = 0
-  · simp [hV]
-  · rw [Nat.cast_sub (by grind), Nat.cast_one, mul_inv]
-    rfl
+    mul_comm, sum_offDiag]
+  rfl
 
 theorem density_eq_average' [Fintype V] (G : SimpleGraph V) [Fintype G.edgeSet]
     [DecidableRel G.Adj] :
     G.density =
-      (↑(card V * (card V - 1)) : ℚ)⁻¹ * ∑ (x : V) (y : V), if G.Adj x y then 1 else 0 := by
+      ((card V : ℚ) * (card V - 1))⁻¹ * ∑ (x : V) (y : V), if G.Adj x y then 1 else 0 := by
   classical
   rw [density_eq_average, sum_product]
   congr 1
-  exact sum_congr rfl fun x _ => by
-    simp [filter_erase]
+  refine' sum_congr rfl fun x _ => _
+  simp [filter_erase]
 
 theorem density_eq_average_neighbors [Fintype V] (G : SimpleGraph V) [Fintype G.edgeSet]
     [DecidableRel G.Adj] :
-    G.density = (↑(card V * (card V - 1)) : ℚ)⁻¹ * ∑ x : V, (G.neighborFinset x).card := by
+    G.density = ((card V : ℚ) * (card V - 1))⁻¹ * ∑ x : V, (G.neighborFinset x).card := by
   rw [density_eq_average', sum_product]
   congr 1
   simp [neighborFinset_eq_filter]
@@ -1358,7 +1355,7 @@ theorem density_eq_average_partition [DecidableEq V] (G : SimpleGraph V) [Decida
     rw [Nat.cast_mul, Nat.cast_sub hn.le, Nat.cast_add_one]
   rw [this, sum_const, card_powersetCard, card_sdiff_of_subset (subset_univ _),
     card_univ, card_pair (mem_erase.mp hy).1.symm, mul_one, nsmul_eq_mul]
-  rw [choose_helper hn]
+  rw [choose_helper hn, Nat.cast_mul, Nat.cast_sub (by omega : 1 ≤ card V), Nat.cast_one]
 
 theorem exists_density_edgeDensity [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj]
     [Fintype G.edgeSet] (n : ℕ) (hn₀ : 0 < n) (hn : n < card V) :
@@ -1923,16 +1920,15 @@ theorem commonBlues_insert {V : Type*} [Fintype V] [DecidableEq V] {x : Finset V
 theorem maximally_good_clique_aux {V : Type*} [DecidableEq V] [Fintype V]
     {χ : TopEdgeLabelling V (Fin 2)} {U : Finset V} :
     (χ.pullback (Function.Embedding.subtype (· ∈ U))).density 1 =
-      ((U.card * (U.card - 1) : ℕ) : ℝ)⁻¹ * ∑ v ∈ U, (blue_neighbors χ v ∩ U).card := by
+      ((U.card : ℝ) * (U.card - 1))⁻¹ * ∑ v ∈ U, (blue_neighbors χ v ∩ U).card := by
   rw [TopEdgeLabelling.density, density_eq_average_neighbors, Fintype.card_coe U]
-  norm_num
-  left
+  push_cast
+  congr 1
   refine' sum_bij (M := ℝ) (s := U.attach) (t := U) (fun x _ => (x : V)) (fun x _ => x.2)
     (fun _ _ _ _ h => Subtype.ext h) _ _
   · intro x hx
     refine' ⟨⟨x, hx⟩, mem_univ _, rfl⟩
   rintro ⟨x, hx⟩ -
-  rw [← SimpleGraph.card_neighborFinset_eq_degree]
   have hcard :
       (((χ.pullback (Function.Embedding.subtype (· ∈ U))).labelGraph 1).neighborFinset
             ⟨x, hx⟩).card =
@@ -2001,12 +1997,13 @@ theorem maximally_good_clique {n k l : ℕ} {ξ ξ' : ℝ} {χ : TopEdgeLabellin
     rwa [add_sub_assoc'] at hi''
   rw [density_zero_one, maximally_good_clique_aux, sub_le_sub_iff_left]
   swap
-  · simpa [Fintype.card_coe] using hU'
+  · rwa [Fintype.card_coe]
   rw [Nat.cast_sum]
   refine' (mul_le_mul_of_nonneg_left (sum_le_sum fun i hi => (hz i hi).le) _).trans _
-  · positivity
-  have hcard1 : 1 ≤ (commonBlues χ x).card := hU'.trans' (by norm_num1)
-  rw [Nat.cast_mul, Nat.cast_sub hcard1]
+  · rw [inv_nonneg]
+    refine' mul_nonneg (Nat.cast_nonneg _) _
+    rw [sub_nonneg, Nat.one_le_cast]
+    exact hU'.trans' (by norm_num1)
   rw [sum_const, nsmul_eq_mul, inv_mul_eq_div, mul_div_mul_left, ← div_mul_eq_mul_div, ← mul_assoc]
   swap
   · rw [Nat.cast_ne_zero]
@@ -2015,7 +2012,7 @@ theorem maximally_good_clique {n k l : ℕ} {ξ ξ' : ℝ} {χ : TopEdgeLabellin
   swap
   · rw [add_sub_assoc, ← Nat.cast_sub hml.le]
     positivity
-  simpa using hU
+  exact hU
 
 theorem nine_one_end {k l n : ℕ} {ξ : ℝ} {χ : TopEdgeLabelling (Fin n) (Fin 2)} {x : Finset (Fin n)}
     (hχ : ¬∃ (m : Finset (Fin n)) (c : Fin 2), χ.MonochromaticOf (↑m) c ∧ ![k, l] c ≤ m.card)
