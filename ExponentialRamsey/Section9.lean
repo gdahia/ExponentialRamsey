@@ -1645,8 +1645,7 @@ theorem nine_two (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
   specialize h₉₅ k hlk γ δ η hγ hγl hδ₀ hδ.le hη₀ hp₀ n χ hχ ini hini hYc hn
   specialize hfk k hlk
   clear hδ'
-  rw [norm_eq_abs, abs_le'] at hfk
-  simp at hfk
+  rw [norm_eq_abs, abs_le', Real.norm_natCast] at hfk
   have :
     1 ≤
       exp (-δ * k + f k) * (1 - γ - η) ^ (γ * ↑(redSteps γ k l ini).card / (1 - γ)) *
@@ -1664,9 +1663,8 @@ theorem nine_two (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
   refine' hχ ⟨(endState γ k l ini).A ∪ m, Or.inl ⟨_, hm₂.trans _⟩⟩
   · rw [coe_union, EdgeLabelling.monochromaticOf_union]
     refine' ⟨(endState γ k l ini).red_a, hm₁, _⟩
-    refine' (endState γ k l ini).red_XYA.symm.subset_right ?_
-    intro x hx
-    exact Set.mem_union_right _ (coe_subset.2 hm₀ hx)
+    exact (endState γ k l ini).red_XYA.symm.subset_right
+      ((coe_subset.2 hm₀).trans Set.subset_union_right)
   rw [card_union_of_disjoint, add_le_add_iff_right]
   · exact t_le_a_card γ k l ini
   · exact (endState γ k l ini).hYA.symm.mono_right hm₀
