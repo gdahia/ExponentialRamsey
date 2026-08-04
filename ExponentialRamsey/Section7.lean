@@ -802,7 +802,7 @@ theorem seven_four :
 theorem seven_seven_aux {α : Type*} [Fintype α] [DecidableEq α] {χ : TopEdgeLabelling α (Fin 2)}
     {p q : ℝ} {X0 X1 Y0 Y1 : Finset α} (hY : Y0 = Y1) (hp : p = colDensity χ 0 X0 Y0)
     (hY' : Y0.Nonempty)
-    (h : X1 = X0.filter fun x => (p - q) * Y0.card ≤ ((red_neighbors χ) x ∩ Y0).card)
+    (h : X1 = X0.filter fun x => (p - q) * Y0.card ≤ (red_neighbors χ x ∩ Y0).card)
     (hX1 : X1.Nonempty) :
     ((X0 \ X1).card / X1.card : ℝ) * q ≤ colDensity χ 0 X1 Y1 - colDensity χ 0 X0 Y0 := by
   cases hY
@@ -816,8 +816,8 @@ theorem seven_seven_aux {α : Type*} [Fintype α] [DecidableEq α] {χ : TopEdge
       rwa [Finset.Subset.antisymm_iff, and_iff_right h_1]
     rw [h_1, card_empty, Nat.cast_zero, zero_div, MulZeroClass.zero_mul, this, sub_self]
   have e :
-    (red_density χ) X0 Y0 * X0.card =
-      (red_density χ) (X0 \ X1) Y0 * (X0 \ X1).card + (red_density χ) X1 Y0 * X1.card :=
+    red_density χ X0 Y0 * X0.card =
+      red_density χ (X0 \ X1) Y0 * (X0 \ X1).card + red_density χ X1 Y0 * X1.card :=
     by
     have hX0_ne : ((X0.card : ℝ) ≠ 0) := by
       rwa [Nat.cast_ne_zero, ← pos_iff_ne_zero, card_pos]
@@ -841,8 +841,8 @@ theorem seven_seven_aux {α : Type*} [Fintype α] [DecidableEq α] {χ : TopEdge
     · exact h'.le
     rwa [Nat.cast_pos, card_pos]
   have hsum_le :
-      (red_density χ) X1 Y0 * X1.card + (red_density χ) (X0 \ X1) Y0 * (X0 \ X1).card ≤
-        (red_density χ) X1 Y0 * X1.card + (p - q) * (X0 \ X1).card :=
+      red_density χ X1 Y0 * X1.card + red_density χ (X0 \ X1) Y0 * (X0 \ X1).card ≤
+        red_density χ X1 Y0 * X1.card + (p - q) * (X0 \ X1).card :=
     add_le_add_right (mul_le_mul_of_nonneg_right this (Nat.cast_nonneg _)) _
   have := hsum_le.trans_eq' (by rw [add_comm, ← e])
   rw [div_mul_eq_mul_div, div_le_iff₀, cast_card_sdiff hX, sub_mul, sub_mul, ← hp]

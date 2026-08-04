@@ -1947,14 +1947,14 @@ theorem good_clique_bound {n k l ξ} {χ : TopEdgeLabelling (Fin n) (Fin 2)} {x 
 
 theorem commonBlues_insert {V : Type*} [Fintype V] [DecidableEq V] {x : Finset V} {i : V}
     {χ : TopEdgeLabelling V (Fin 2)} :
-    commonBlues χ (insert i x) = (blue_neighbors χ) i ∩ commonBlues χ x := by
+    commonBlues χ (insert i x) = blue_neighbors χ i ∩ commonBlues χ x := by
   ext v
   simp [commonBlues]
 
 theorem maximally_good_clique_aux {V : Type*} [DecidableEq V] [Fintype V]
     {χ : TopEdgeLabelling V (Fin 2)} {U : Finset V} :
     (χ.pullback (Function.Embedding.subtype (· ∈ U))).density 1 =
-      ((U.card * (U.card - 1) : ℕ) : ℝ)⁻¹ * ∑ v ∈ U, ((blue_neighbors χ) v ∩ U).card := by
+      ((U.card * (U.card - 1) : ℕ) : ℝ)⁻¹ * ∑ v ∈ U, (blue_neighbors χ v ∩ U).card := by
   rw [TopEdgeLabelling.density, density_eq_average_neighbors, Fintype.card_coe U]
   norm_num
   left
@@ -1966,7 +1966,7 @@ theorem maximally_good_clique_aux {V : Type*} [DecidableEq V] [Fintype V]
   rw [← SimpleGraph.card_neighborFinset_eq_degree]
   have hcard :
       (((χ.pullback (Function.Embedding.subtype (· ∈ U))).labelGraph 1).neighborFinset ⟨x, hx⟩).card =
-        (((blue_neighbors χ) x ∩ U).card) := by
+        ((blue_neighbors χ x ∩ U).card) := by
     refine' Finset.card_bij (fun x _ => (x : V)) _ (fun _ _ _ _ h => Subtype.ext h) _
     · simp only [Subtype.forall, mem_neighborFinset, TopEdgeLabelling.labelGraph_adj,
         EdgeLabelling.pullback_get, mem_inter, mem_colNeighbors, forall_exists_index,
@@ -2018,7 +2018,7 @@ theorem maximally_good_clique {n k l : ℕ} {ξ ξ' : ℝ} {χ : TopEdgeLabellin
     exact z
   have hz :
     ∀ i ∈ commonBlues χ x,
-      (((blue_neighbors χ) i ∩ commonBlues χ x).card : ℝ) <
+      ((blue_neighbors χ i ∩ commonBlues χ x).card : ℝ) <
         (commonBlues χ x).card * ((1 + ξ) * ((l - x.card) / (k + l - x.card))) := by
     intro i hi
     obtain ⟨hi', hi''⟩ := this i hi
