@@ -168,9 +168,9 @@ theorem ten_two_exp_approx {η γ : ℝ} (hγu : γ ≤ 1 / 5) (hγl : 0 ≤ η)
     · exact this.trans_eq (by norm_num1)
     · norm_num1
   refine' le_of_pow_le_pow_left₀ (n := 5) (by norm_num1) (by norm_num1) _
-  rw [← exp_nat_mul, show ((5 : ℕ) : ℝ) * (-1 / 5) = -1 by norm_num1, ← inv_div, inv_pow,
-    Real.exp_neg]
-  exact inv_anti₀ (by norm_num1) (exp_one_gt_d9.le.trans' (by norm_num1))
+  rw [← exp_nat_mul, Nat.cast_ofNat, mul_div_cancel₀, ← inv_div, inv_pow, Real.exp_neg]
+  · exact inv_anti₀ (by norm_num1) (exp_one_gt_d9.le.trans' (by norm_num1))
+  · norm_num1
 
 theorem ten_two_exp_approx_more {k t : ℕ} {η γ : ℝ} (hγu : γ ≤ 1 / 5) (hγl : 0 ≤ η)
     (hηγ : η ≤ 1 / 800 * γ) (ht : (2 / 3 : ℝ) * k ≤ t) (hk : 0 < k) :
@@ -285,7 +285,8 @@ theorem ten_two :
   replace h₉₅ := h₉₅.trans' (mul_le_mul_of_nonneg_right this (Nat.cast_nonneg _))
   rw [one_mul, Nat.cast_le, ← Nat.choose_symm_add] at h₉₅
   have := ramseyNumber_le_finset (ramseyNumber_le_choose'.trans h₉₅) χ
-  simp only [Fin.exists_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one, tsub_le_iff_left] at this hχ
+  simp only [Fin.exists_fin_two, Matrix.cons_val_zero, Matrix.cons_val_one,
+    tsub_le_iff_left] at this hχ
   obtain ⟨m, ⟨hm₀, hm₁, hm₂⟩ | ⟨hm₀, hm₁, hm₂⟩⟩ := this
   swap
   · exact hχ ⟨m, Or.inr ⟨hm₁, hm₂⟩⟩
@@ -294,7 +295,7 @@ theorem ten_two :
     refine' ⟨(endState γ k l ini).red_a, hm₁, _⟩
     exact
       (endState γ k l ini).red_XYA.symm.subset_right
-        (Set.subset_union_of_subset_right (Finset.coe_subset.2 hm₀) _)
+        ((Finset.coe_subset.2 hm₀).trans Set.subset_union_right)
   rw [Finset.card_union_of_disjoint, add_le_add_iff_right]
   · exact t_le_a_card γ k l ini
   · exact (endState γ k l ini).hYA.symm.mono_right hm₀
@@ -380,7 +381,8 @@ theorem small_gap_for_next {k l m : ℕ} (hm : m = ⌊(l - k / 9 : ℝ)⌋₊ + 
   have h₂ : (0 : ℝ) < k + b + 1 := add_pos h₁ zero_lt_one
   have : (b + 1 : ℝ) / (k + b + 1) - b / (k + b) ≤ 1 / k :=
     by
-    rw [div_sub_div _ _ h₂.ne' h₁.ne', div_le_div_iff₀ (mul_pos h₂ h₁) (by positivity), ← sub_nonneg]
+    rw [div_sub_div _ _ h₂.ne' h₁.ne', div_le_div_iff₀ (mul_pos h₂ h₁) (by positivity), ←
+      sub_nonneg]
     · ring_nf
       positivity
   rw [← add_assoc] at habove
@@ -431,20 +433,17 @@ theorem exists_good_clique (n k l : ℕ) (χ : TopEdgeLabelling (Fin n) (Fin 2))
   have : s.Nonempty := by
     refine' ⟨∅, _⟩
     simp [s, empty_is_good]
-  obtain ⟨x, hxmem, hx₂⟩ := s.exists_maximal this
-  have hx : IsGoodClique 0 k l χ x := (Finset.mem_filter.1 hxmem).2.1
-  have hx₁ : x.card ≤ ⌊(l - k / 9 : ℝ)⌋₊ + 1 := (Finset.mem_filter.1 hxmem).2.2
+  obtain ⟨x, hxs, hx₂⟩ := s.exists_maximal this
+  simp only [s, Finset.mem_filter, Finset.mem_univ, true_and, and_imp] at hxs hx₂
+  obtain ⟨hx, hx₁⟩ := hxs
   rw [le_iff_eq_or_lt, Nat.lt_add_one_iff] at hx₁
   refine' ⟨x, hx, _⟩
   rcases hx₁ with hx₁ | hx₁
   · exact Or.inr hx₁
   refine' Or.inl ⟨hx₁, _⟩
   intro i hi hi'
-  have hins : insert i x ∈ s := by
-    simp only [s, Finset.mem_filter, Finset.mem_univ, true_and]
-    refine' ⟨hi', _⟩
-    rwa [Finset.card_insert_of_notMem hi, add_le_add_iff_right]
-  exact hi (hx₂ hins (Finset.subset_insert i x) (Finset.mem_insert_self i x))
+  refine' hi (hx₂ hi' _ (Finset.subset_insert i x) (Finset.mem_insert_self i x))
+  rwa [Finset.card_insert_of_notMem hi, add_le_add_iff_right]
 
 -- lemma maximally_good_clique {n k l : ℕ} {ξ ξ' : ℝ} {χ : TopEdgeLabelling (fin n) (fin 2)}
 --   (hξ : 0 ≤ ξ)
@@ -540,12 +539,9 @@ theorem big_l'' {k l m : ℕ} (hk9l : (k : ℝ) ≤ 9 * l) (h5lk : (4 : ℝ) * l
     refine' (Nat.floor_le (by linarith only [hk9l])).trans_lt _
     rw [sub_lt_self_iff]
     positivity
-  rw [← @Nat.floor_div_eq_div ℝ, ← @Nat.cast_le ℝ]
+  rw [← @Nat.floor_div_eq_div ℝ, Nat.cast_ofNat, ← @Nat.cast_le ℝ]
   refine' (Nat.floor_le (by positivity)).trans _
-  rw [Nat.cast_sub hml, Nat.cast_succ]
-  norm_num1
-  simp only [Nat.cast_succ]
-  rw [← sub_sub, le_sub_iff_add_le]
+  rw [Nat.cast_sub hml, Nat.cast_add_one, ← sub_sub, le_sub_iff_add_le]
   refine' (big_l hk9l h5lk hm.le).trans' _
   have : (9 : ℝ) ≤ l := by exact_mod_cast hl
   linarith only [this]
@@ -759,7 +755,7 @@ theorem ten_one_precise (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
     (Nat.tendsto_div_const_atTop (show 3 ≠ 0 by norm_num1)).eventually
       (top_adjuster (nine_one_precise (1 / 20) (by positivity)))] with
     l hk₂ hl₀ hk₈ hk₉₁ h₁₀₂ h₉₁ k γ δ hγ hγl hγu hδ
-  cases' le_total γ (1 / 10) with hγ₁₀ hγ₁₀
+  cases' le_or_gt γ (1 / 10) with hγ₁₀ hγ₁₀
   · refine' (hk₉₁ k γ (2 * δ) hγ hγl hγ₁₀ (by linarith only [hδ])).trans _
     refine' mul_le_mul_of_nonneg_right (exp_le_exp.2 _) (Nat.cast_nonneg _)
     refine'
@@ -780,8 +776,7 @@ theorem ten_one_precise (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
   obtain ⟨χ : TopEdgeLabelling (Fin n) (Fin 2), hχ⟩ := hnr
   suffices (n : ℝ) ≤ exp (-δ * k + 21 / 20) * (k + l).choose l
     by
-    rw [show (2.05 : ℝ) = 41 / 20 by norm_num]
-    have h : (41 / 20 : ℝ) = 21 / 20 + 1 := by norm_num1
+    have h : (2.05 : ℝ) = 21 / 20 + 1 := by norm_num1
     rw [h, ← add_assoc, add_comm, Real.exp_add, mul_assoc, ← div_le_iff₀' (exp_pos _)]
     exact this.trans' (Nat.le_ceil _)
   by_contra! hm
@@ -790,7 +785,7 @@ theorem ten_one_precise (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
   obtain ⟨x, hx, hxy⟩ := this
   have hml := good_clique_bound hχ hx
   let m := x.card
-  have hk9l : (k : ℝ) ≤ 9 * l := nine_bound (hl₀.trans_le hlk) hγ hγ₁₀
+  have hk9l : (k : ℝ) ≤ 9 * l := nine_bound (hl₀.trans_le hlk) hγ hγ₁₀.le
   have h5lk : (4 : ℝ) * l ≤ k := four_bound (hl₀.trans_le hlk) hγ hγu
   have hγ'_le_γ : _ ≤ _ := gamma'_le_gamma (hl₀.trans_le hlk) hml.le
   have hγ' : (l - m : ℝ) / (k + l - m) = ↑(l - x.card) / (↑k + ↑(l - x.card)) := by
@@ -799,7 +794,8 @@ theorem ten_one_precise (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
   · refine'
       ten_one_a n k l γ δ hl₀ hk₈ h₁₀₂ hγ hγu hδ hlk hk9l h5lk χ hχ _ x hx hml hγ'_le_γ hγ' hxy
     refine' hm.trans_le' (mul_le_mul_of_nonneg_right (exp_le_exp.2 _) (Nat.cast_nonneg _))
-    linarith
+    simp only [le_add_iff_nonneg_right]
+    norm_num1
   clear h₁₀₂
   exact ten_one_b n k l γ δ hl₀ hk₈ h₉₁ hγu hδ hlk hk9l h5lk χ hχ hm x hx hml hγ' hxy
 
@@ -812,7 +808,9 @@ theorem ten_one_true (γ : ℝ) (hγu : γ ≤ 1 / 5) :
             (ramseyNumber ![k, l] : ℝ) ≤ exp (-(γ / 40) * k + f k) * (k + l).choose l :=
   by
   cases' le_or_gt γ 0 with hγ₀ hγ₀
-  · refine' ⟨fun _ => 1, IsLittleO.comp_tendsto (isLittleO_const_id_atTop _) tendsto_natCast_atTop_atTop, _⟩
+  · refine'
+      ⟨fun _ => 1,
+        IsLittleO.comp_tendsto (isLittleO_const_id_atTop _) tendsto_natCast_atTop_atTop, _⟩
     rintro k l rfl
     have : (l : ℝ) / (k + l) = 0 := hγ₀.antisymm (by positivity)
     rw [div_eq_zero_iff, Nat.cast_eq_zero, ← Nat.cast_add, Nat.cast_eq_zero, add_eq_zero] at this
@@ -846,13 +844,13 @@ theorem ten_one_true (γ : ℝ) (hγu : γ ≤ 1 / 5) :
     · exact Nat.cast_pos.2 hl
   refine' ⟨fun k => if ⌈(L : ℝ) * ((1 - γ) / γ)⌉₊ ≤ k then 2.05 else γ / 40 * k, _, _⟩
   · refine'
-      IsLittleO.congr' (IsLittleO.comp_tendsto (isLittleO_const_id_atTop 2.05) tendsto_natCast_atTop_atTop) _
+      IsLittleO.congr'
+        (IsLittleO.comp_tendsto (isLittleO_const_id_atTop 2.05) tendsto_natCast_atTop_atTop) _
         EventuallyEq.rfl
     filter_upwards [eventually_ge_atTop ⌈(L : ℝ) * ((1 - γ) / γ)⌉₊] with k hk
-    rw [if_pos hk]
-    rfl
+    exact (if_pos hk).symm
   intro k l hγ
-  simp only
+  dsimp only
   split_ifs with h
   · rw [this k l hγ] at h
     exact hL l h k hγ
