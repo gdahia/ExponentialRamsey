@@ -1875,14 +1875,13 @@ theorem uLowerBoundRatio_lower_bound' {k l m n : ℕ} {γ δ : ℝ} (hml : m < l
     · ring_nf
       linarith only [h]
     · positivity
-  have hg : (l - mst : ℝ) / (k + l - mst) < (l / (k + l)) ^ 2 := by
-    rw [gamma'_le_gamma_iff this.le hk₀, Nat.cast_add_one]
-    exact Nat.lt_floor_add_one _
-  refine
-    (uLowerBoundRatio_lower_bound_aux this hk₀ hγ hδ hg hn).trans
+  refine'
+    (uLowerBoundRatio_lower_bound_aux this hk₀ hγ hδ _ hn).trans
       (mul_le_mul_of_nonneg_left
         (U_lower_bound_decreasing k l (by norm_num1) (by norm_num1) hlk hk₀ hm.le)
         (Nat.cast_nonneg _))
+  rw [gamma'_le_gamma_iff this.le hk₀, Nat.cast_add_one]
+  exact Nat.lt_floor_add_one _
 
 theorem small_k {k l : ℕ} {γ γ₀ : ℝ} (hγ₀ : 0 < γ₀) (hγl : γ₀ ≤ γ) (hγ : γ = l / (k + l))
     (hk₀ : 0 < k) : (k : ℝ) ≤ l * (γ₀⁻¹ - 1) := by
@@ -2022,11 +2021,11 @@ theorem nine_one_end {k l n : ℕ} {ξ : ℝ} {χ : TopEdgeLabelling (Fin n) (Fi
   obtain ⟨m, hm | ⟨hm, hm', hm''⟩⟩ := h
   · exact hχ ⟨m, 0, hm.2⟩
   have : Disjoint m x := by
-    rw [Finset.disjoint_left]
-    intro i hi hix
-    have hi' := hm hi
-    simp [commonBlues] at hi'
-    exact not_mem_colNeighbors (hi' i hix)
+    refine' Disjoint.mono_left hm _
+    simp only [Finset.disjoint_right, commonBlues, mem_filter, mem_colNeighbors, mem_univ, true_and,
+      Classical.not_forall, not_exists]
+    intro i hi
+    exact ⟨i, hi, fun q => (q rfl).elim⟩
   refine' hχ ⟨m ∪ x, 1, _, by simpa [this] using hm''⟩
   rw [coe_union, EdgeLabelling.monochromaticOf_union]
   exact ⟨hm', hx.1, monochromaticBetween_commonBlues.symm.subset_left hm⟩
@@ -2096,8 +2095,7 @@ theorem l_minus_m_big (γ₀ : ℝ) {k l m : ℕ} (hml : m ≤ l) (hl₀ : 0 < l
   rw [div_le_iff₀, one_sub_mul, le_sub_comm, add_sub_add_left_eq_sub]
   swap
   · positivity
-  have hkl' : (k : ℝ) + 2 * l ≤ l * (γ₀⁻¹ - 1) + 2 * l := by nlinarith [hkl]
-  refine' (mul_le_mul_of_nonneg_left hkl' h₂.le).trans _
+  refine' (mul_le_mul_of_nonneg_left (add_le_add_left hkl _) h₂.le).trans _
   rw [mul_comm (2 : ℝ), ← mul_add, mul_left_comm, inv_mul_cancel₀ h₁.ne']
   linarith
 
