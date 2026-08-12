@@ -738,12 +738,13 @@ theorem six_two_part_one {f : ℕ → ℝ} {j j' : ℕ} (hj : Odd j) (hj' : Odd 
   obtain ⟨j, rfl⟩ := hj.exists_bit1
   obtain ⟨j', rfl⟩ := hj'.exists_bit1
   replace hjj : j' ≤ j := by omega
+  have hinj : Function.Injective fun n : ℕ => 2 * n + 1 := by
+    intro i i' h
+    dsimp at h
+    omega
   have :
     (Icc (2 * j' + 1 + 2) (2 * j + 1)).filter Odd =
-      (Icc (j' + 1) j).map ⟨fun n => 2 * n + 1, by
-        intro i i' h
-        dsimp at h
-        omega⟩ := by
+      (Icc (j' + 1) j).map ⟨fun n => 2 * n + 1, hinj⟩ := by
     ext i
     simp only [mem_filter, mem_Icc, Finset.mem_map, odd_iff_exists_bit1,
       Function.Embedding.coeFn_mk, and_assoc]
