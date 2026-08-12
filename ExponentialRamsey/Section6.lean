@@ -917,7 +917,7 @@ theorem six_two_main (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
           (hl' k hlk μ hμl hμu n χ hχ ini hini j' (hj'.1.trans_lt hj) hj'.2.1 this hj'.2.2)
           _).trans'
       _
-  rw [show (3 : ℝ) = 2 + 1 by norm_num, add_one_mul, sub_sub, add_comm]
+  rw [(by norm_num : (3 : ℝ) = 2 + 1), add_one_mul, sub_sub, add_comm]
 
 theorem six_two (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
     ∀ᶠ l : ℕ in atTop,
