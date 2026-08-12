@@ -19,35 +19,23 @@ variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2
 
 variable {k l : ℕ} {ini : BookConfig χ} {i : ℕ}
 
-local syntax "p_" term:max : term
-macro_rules
-  | `(p_ $i) =>
-      `((algorithm $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini) $i).p)
+set_option hygiene false in
+local macro "p_" i:term:max : term => `((algorithm μ k l ini $i).p)
 
-local syntax "ℛ" : term
-macro_rules
-  | `(ℛ) =>
-      `(redSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local macro "ℛ" : term => `(redSteps μ k l ini)
 
-local syntax "ℬ" : term
-macro_rules
-  | `(ℬ) =>
-      `(bigBlueSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local macro "ℬ" : term => `(bigBlueSteps μ k l ini)
 
-local syntax "𝒮" : term
-macro_rules
-  | `(𝒮) =>
-      `(densitySteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local macro "𝒮" : term => `(densitySteps μ k l ini)
 
-local syntax "𝒟" : term
-macro_rules
-  | `(𝒟) =>
-      `(degreeSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local macro "𝒟" : term => `(degreeSteps μ k l ini)
 
-local syntax "ε" : term
-macro_rules
-  | `(ε) => `(($(Lean.mkIdent `k) : ℝ) ^ (-1 / 4 : ℝ))
+set_option hygiene false in
+local macro "ε" : term => `((k : ℝ) ^ (-1 / 4 : ℝ))
 
 theorem six_four_red {μ : ℝ} (hi : i ∈ redSteps μ k l ini) :
     (algorithm μ k l ini i).p - αFunction k (height k ini.p (algorithm μ k l ini i).p) ≤
