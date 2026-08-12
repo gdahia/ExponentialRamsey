@@ -763,10 +763,8 @@ theorem six_two_part_one {f : ℕ → ℝ} {j j' : ℕ} (hj : Odd j) (hj' : Odd 
     rw [Nat.add_sub_cancel]
     simp only [mul_add, add_assoc, mul_one]
   simp only [this]
-  rw [sum_range_sub', add_zero]
-  have h₁ : 2 * j' + 1 + 1 = 2 * (j' + 1) := by omega
-  have h₂ : 2 * j + 1 + 1 = 2 * (j' + 1 + (j - j')) := by omega
-  rw [h₁, h₂]
+  rw [sum_range_sub']
+  grind
 
 theorem sum_le_of_nonneg {α : Type*} {f : α → ℝ} {s : Finset α} :
     ∑ x ∈ s, f x ≤ ∑ x ∈ (s.filter fun i => 0 < f i), f x := by
