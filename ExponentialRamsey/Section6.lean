@@ -436,23 +436,15 @@ theorem six_five_blue (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
     grind
   refine' mul_le_mul_of_nonneg_right _ (pow_nonneg hz.le _)
   let ν : ℝ := k ^ (-(1 / 8) : ℝ)
-  -- `convert` cannot bridge the `Monoid.npow`/`rpow` mismatch here, so rewrite the base, the
-  -- exponent and the right-hand side one at a time
   suffices (1 + ν ^ 2) ^ (-⌊2 * ν⁻¹⌋₊ : ℝ) ≤ 1 - ν by
-    have hbase : 1 + (k : ℝ) ^ (-1 / 4 : ℝ) = 1 + ν ^ 2 := by
-      rw [← rpow_two, ← rpow_mul (Nat.cast_nonneg _)]
+    convert (config := { sameFun := true }) this using 2
+    · rw [← rpow_natCast, ← rpow_neg hz.le, ← rpow_neg (Nat.cast_nonneg _), neg_neg, ← rpow_two, ←
+        rpow_mul (Nat.cast_nonneg _)]
       norm_num
-    have hexp : ⌊2 * (k : ℝ) ^ (1 / 8 : ℝ)⌋₊ = ⌊2 * ν⁻¹⌋₊ := by
-      rw [← rpow_neg (Nat.cast_nonneg _) (-(1 / 8 : ℝ))]
-      norm_num
-    have hrhs : (k : ℝ) ^ (1 / 8 : ℝ) * k ^ (-1 / 4 : ℝ) = ν := by
-      rw [← rpow_add' (Nat.cast_nonneg _)]
-      · norm_num
-        rfl
+    rw [← rpow_add' (Nat.cast_nonneg _)]
+    · congr 1
       norm_num1
-    rw [hbase, hexp, hrhs, ← rpow_natCast, ← rpow_neg]
-    · exact this
-    positivity
+    norm_num1
   exact hkε k hlk (rpow_pos_of_pos (Nat.cast_pos.2 hk₀) _)
 
 /-- the set of steps on which p is below p₀ and decreases in two steps -/
