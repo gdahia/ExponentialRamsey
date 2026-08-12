@@ -117,7 +117,7 @@ theorem neighborFinset_inf [DecidableEq V] {G H : SimpleGraph V} {x : V}
     [Fintype ((G ⊓ H).neighborSet x)] [Fintype (G.neighborSet x)] [Fintype (H.neighborSet x)] :
     (G ⊓ H).neighborFinset x = G.neighborFinset x ∩ H.neighborFinset x := by ext y; simp
 
-instance Finset.decidableRelSup {ι V : Type*} {s : Finset ι} {f : ι → SimpleGraph V}
+instance _root_.Finset.decidableRelSup {ι V : Type*} {s : Finset ι} {f : ι → SimpleGraph V}
     [∀ i, DecidableRel (f i).Adj] : DecidableRel (s.sup f).Adj := fun _ _ =>
   decidable_of_iff' _ adj_sup_iff
 
