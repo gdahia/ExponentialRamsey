@@ -11,14 +11,10 @@ import Mathlib.Algebra.Order.Floor.Semifield
 # Section 4
 -/
 
-theorem ConvexOn.hMul {f g : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) (hg : ConvexOn ℝ s g)
+theorem ConvexOn.mul_of_monotoneOn {f g : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) (hg : ConvexOn ℝ s g)
     (hf' : MonotoneOn f s) (hg' : MonotoneOn g s) (hf'' : ∀ x ∈ s, 0 ≤ f x)
     (hg'' : ∀ x ∈ s, 0 ≤ g x) : ConvexOn ℝ s fun x => f x * g x :=
   hf.mul hg hf'' hg'' (hf'.monovaryOn hg')
-
-theorem MonotoneOn.hMul {s : Set ℝ} {f g : ℝ → ℝ} (hf : MonotoneOn f s) (hg : MonotoneOn g s)
-    (hf' : ∀ x ∈ s, 0 ≤ f x) (hg' : ∀ x ∈ s, 0 ≤ g x) : MonotoneOn (fun x => f x * g x) s :=
-  hf.mul hg hf' hg'
 
 theorem convexOn_sub_const {s : Set ℝ} {c : ℝ} (hs : Convex ℝ s) : ConvexOn ℝ s fun x => x - c :=
   (convexOn_id hs).sub (concaveOn_const _ hs)
@@ -91,7 +87,7 @@ theorem descFactorial_monotoneOn :
     exact monotoneOn_const
   | k + 1 => by
     rw [Nat.cast_add_one, add_sub_cancel_right]
-    refine' MonotoneOn.hMul _ ((descFactorial_monotoneOn k).mono _) _ _
+    refine' MonotoneOn.mul _ ((descFactorial_monotoneOn k).mono _) _ _
     · intro x hx y hy hxy
       simpa using hxy
     · rw [Set.Ici_subset_Ici]
@@ -108,7 +104,7 @@ theorem descFactorial_convex :
   | k + 1 => by
     rw [Nat.cast_add_one, add_sub_cancel_right]
     change ConvexOn _ _ fun x : ℝ => (x - k) * descFactorial x k
-    refine' ConvexOn.hMul _ _ _ _ _ _
+    refine' ConvexOn.mul_of_monotoneOn _ _ _ _ _ _
     · exact convexOn_sub_const (convex_Ici _)
     · refine' (descFactorial_convex k).subset _ (convex_Ici _)
       rw [Set.Ici_subset_Ici]
@@ -213,13 +209,13 @@ theorem my_thing {α : Type*} {s : Finset α} (f : α → ℕ) (b : ℕ) (hb : b
 
 open Real
 
-theorem b_le_sigma_hMul_m {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ : 0 ≤ σ) :
+theorem b_le_sigma_mul_m {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ : 0 ≤ σ) :
     (b : ℝ) ≤ σ * m :=
   hb.trans (half_le_self (by positivity))
 
 theorem cast_b_le_cast_m {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ₀ : 0 ≤ σ) (hσ₁ : σ ≤ 1) :
     (b : ℝ) ≤ m :=
-  (b_le_sigma_hMul_m hb hσ₀).trans (mul_le_of_le_one_left (Nat.cast_nonneg _) hσ₁)
+  (b_le_sigma_mul_m hb hσ₀).trans (mul_le_of_le_one_left (Nat.cast_nonneg _) hσ₁)
 
 theorem b_le_m {m b : ℕ} {σ : ℝ} (hb : (b : ℝ) ≤ σ * m / 2) (hσ₀ : 0 ≤ σ) (hσ₁ : σ ≤ 1) : b ≤ m :=
   Nat.cast_le.1 (cast_b_le_cast_m hb hσ₀ hσ₁)
@@ -377,7 +373,7 @@ theorem four_one_part_one [Fintype V] (μ : ℝ) (l k : ℕ) (C : BookConfig χ)
     obtain ⟨y, hy, rfl⟩ := hx
     exact (Finset.mem_filter.mp y.property).2
 
-theorem colDensity_hMul [Fintype V] {k : Fin 2} {A B : Finset V} :
+theorem colDensity_mul [Fintype V] {k : Fin 2} {A B : Finset V} :
     colDensity χ k A B * A.card = (∑ x ∈ B, (colNeighbors χ k x ∩ A).card) / B.card := by
   rcases A.eq_empty_or_nonempty with (rfl | hA)
   · rw [colDensity_empty_left]
@@ -386,11 +382,11 @@ theorem colDensity_hMul [Fintype V] {k : Fin 2} {A B : Finset V} :
   rw [colDensity_comm, colDensity_eq_sum, div_mul_eq_mul_div, mul_div_mul_right]
   rwa [Nat.cast_ne_zero, ← pos_iff_ne_zero, card_pos]
 
-theorem colDensity_hMul_hMul [Fintype V] {k : Fin 2} {A B : Finset V} :
+theorem colDensity_mul_mul [Fintype V] {k : Fin 2} {A B : Finset V} :
     colDensity χ k A B * (A.card * B.card) = ∑ x ∈ B, (colNeighbors χ k x ∩ A).card := by
   rcases B.eq_empty_or_nonempty with (rfl | hA)
   · simp [colDensity_empty_right]
-  rw [← mul_assoc, colDensity_hMul, div_mul_cancel₀]
+  rw [← mul_assoc, colDensity_mul, div_mul_cancel₀]
   rwa [Nat.cast_ne_zero, ← pos_iff_ne_zero, card_pos]
 
 -- (10)
@@ -447,10 +443,10 @@ theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : BookConfig χ} {U : Fins
   suffices (m : ℝ) * (k / 2 * (1 - μ) + 1) ≤ C.X.card by linarith
   have : (m : ℝ) * (k / 2 * (1 - μ) + 1) ≤ (m : ℝ) * (k / 2 + 1) := by
     refine' mul_le_mul_of_nonneg_left _ (Nat.cast_nonneg _)
-    have hmul : k / 2 * (1 - μ) ≤ k / 2 := by
+    have h_mul : k / 2 * (1 - μ) ≤ k / 2 := by
       refine' mul_le_of_le_one_right (half_pos hk₀).le _
       rwa [sub_le_self_iff]
-    simpa [add_comm] using add_le_add_right hmul 1
+    simpa [add_comm] using add_le_add_right h_mul 1
   refine' this.trans _
   rw [ramseyNumber_pair_swap] at hX
   replace hX := (mul_sub_two_le_ramseyNumber hm₃).trans hX
@@ -465,7 +461,7 @@ theorem four_one_part_three (μ : ℝ) {k l : ℕ} {C : BookConfig χ} {U : Fins
 
 variable [Fintype V] {k l : ℕ} {C : BookConfig χ} {U : Finset V} {μ₀ : ℝ}
 
-theorem ceil_lt_two_hMul {x : ℝ} (hx : 1 / 2 < x) : (⌈x⌉₊ : ℝ) < 2 * x := by
+theorem ceil_lt_two_mul {x : ℝ} (hx : 1 / 2 < x) : (⌈x⌉₊ : ℝ) < 2 * x := by
   cases lt_or_ge x 1
   · have : ⌈x⌉₊ = 1 := by
       rw [Nat.ceil_eq_iff]
@@ -478,7 +474,7 @@ theorem ceil_lt_two_hMul {x : ℝ} (hx : 1 / 2 < x) : (⌈x⌉₊ : ℝ) < 2 * x
   · linarith
   · linarith
 
-theorem ceil_le_two_hMul {x : ℝ} (hx : 1 / 2 ≤ x) : (⌈x⌉₊ : ℝ) ≤ 2 * x := by
+theorem ceil_le_two_mul {x : ℝ} (hx : 1 / 2 ≤ x) : (⌈x⌉₊ : ℝ) ≤ 2 * x := by
   rcases eq_or_lt_of_le hx with (rfl | hx')
   · norm_num
   exact (Nat.ceil_lt_two_mul (by simpa [one_div] using hx')).le
@@ -521,14 +517,14 @@ theorem four_one_part_four (hμ₀ : 0 < μ₀) :
   rw [mul_div_assoc]
   refine' (mul_le_mul_of_nonneg_right hl' (by positivity)).trans' _
   rw [div_mul_div_comm, two_mul]
-  refine' (ceil_le_two_hMul hl).trans _
+  refine' (ceil_le_two_mul hl).trans _
   rw [le_div_iff₀ (by norm_num : (0 : ℝ) < 2 + 2), mul_comm μ,
     ← div_le_iff₀ (hμ₀.trans_le hμ)]
   refine' (Nat.le_ceil _).trans' _
-  have hmul :
+  have h_mul :
       2 * (l : ℝ) ^ (1 / 4 : ℝ) * (2 + 2) / μ =
         (4 * 2 / μ) * (l : ℝ) ^ (1 / 4 : ℝ) := by ring
-  rw [hmul, ← le_div_iff₀ (Real.rpow_pos_of_pos (by exact_mod_cast hl₀) _), ← rpow_sub]
+  rw [h_mul, ← le_div_iff₀ (Real.rpow_pos_of_pos (by exact_mod_cast hl₀) _), ← rpow_sub]
   · exact hl''.trans' (div_le_div_of_nonneg_left (by norm_num1) hμ₀ hμ)
   · rwa [Nat.cast_pos]
 
@@ -580,7 +576,7 @@ theorem four_one_part_six (χ : TopEdgeLabelling V (Fin 2)) {m b : ℕ} {X U : F
     myGeneralizedBinomial (σ * ↑m) b * (X \ U).card ≤
       ∑ v ∈ X \ U, (blue_neighbors χ v ∩ U).card.choose b := by
   refine' (my_thing _ _ hb).trans' _
-  rw [← colDensity_hMul, ← hσ', hU]
+  rw [← colDensity_mul, ← hσ', hU]
 
 theorem four_one_part_seven {V : Type*} [DecidableEq V] {m b : ℕ} {X U : Finset V} {μ σ : ℝ}
     (hσ : (b : ℝ) ≤ σ * m / 2) (hσ₀ : 0 < σ) (hσ₁ : σ ≤ 1) (hμ₀ : 0 < μ) (hσ' : μ - 2 / k ≤ σ)
@@ -687,7 +683,7 @@ theorem four_one_part_nine (hμ₀ : 0 < μ₀) :
       (inv_le_inv₀ hσpos (div_pos hμ' (by norm_num : (0 : ℝ) < 2))).2 hσbound
     simpa [inv_div] using hinv
   refine' (add_le_add_left hfirst _).trans _
-  have h' := ceil_le_two_hMul hl
+  have h' := ceil_le_two_mul hl
   dsimp at h'
   have : (b ^ 2 : ℝ) / m ≤ 4 * l ^ (-(2 / 3 - (1 / 4 : ℝ) * 2)) := by
     rw [neg_sub, rpow_sub hl'', rpow_mul (Nat.cast_nonneg _), rpow_two, mul_div_assoc']
