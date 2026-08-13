@@ -14,6 +14,12 @@ import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 # Section 9
 -/
 
+theorem StrictConvexOn.const_hMul {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : StrictConvexOn ℝ s f)
+    (hc : 0 < c) : StrictConvexOn ℝ s fun x => c * f x :=
+  ⟨hf.1, fun x hx y hy hxy a b ha hb hab =>
+    (mul_lt_mul_of_pos_left (hf.2 hx hy hxy ha hb hab) hc).trans_eq
+      (by simp only [smul_eq_mul]; ring_nf)⟩
+
 namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey Nat Real
@@ -629,35 +635,6 @@ theorem numerics_one_left {γ δ : ℝ} (hγl : 0 < γ) (hγu : γ ≤ 1 / 10) (
   refine' add_le_add_right (one_div_le_one_div_of_le (mul_pos (exp_pos _) (by norm_num1)) _) _
   refine' mul_le_mul_of_nonneg_left _ (exp_pos _).le
   linarith only [hγu]
-
-theorem ConcaveOn.hMul {f g : ℝ → ℝ} {s : Set ℝ} (hf : ConcaveOn ℝ s f) (hg : ConcaveOn ℝ s g)
-    (hf' : MonotoneOn f s) (hg' : AntitoneOn g s) (hf'' : ∀ x ∈ s, 0 ≤ f x)
-    (hg'' : ∀ x ∈ s, 0 ≤ g x) : ConcaveOn ℝ s fun x => f x * g x := by
-  simpa only [Pi.mul_apply] using
-    hf.mul hg hf'' hg'' fun x hx y hy h =>
-      hf' hy hx (le_of_not_gt fun hxy => (hg' hx hy hxy.le).not_gt h)
-
--- lemma convex_on_sub_const {s : set ℝ} {c : ℝ} (hs : convex ℝ s) : concave_on ℝ s (λ x, x - c) :=
--- (convex_on_id hs).sub (concave_on_const _ hs)
-theorem ConvexOn.const_hMul {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : ConvexOn ℝ s f) (hc : 0 ≤ c) :
-    ConvexOn ℝ s fun x => c * f x := by
-  simpa only [smul_eq_mul] using hf.smul hc
-
-theorem ConcaveOn.const_hMul {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : ConcaveOn ℝ s f) (hc : 0 ≤ c) :
-    ConcaveOn ℝ s fun x => c * f x := by
-  simpa only [smul_eq_mul] using hf.smul hc
-
-theorem StrictConvexOn.const_hMul_neg {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : StrictConvexOn ℝ s f)
-    (hc : c < 0) : StrictConcaveOn ℝ s fun x => c * f x :=
-  ⟨hf.1, fun x hx y hy hxy a b ha hb hab =>
-    (mul_lt_mul_of_neg_left (hf.2 hx hy hxy ha hb hab) hc).trans_eq'
-      (by simp only [smul_eq_mul]; ring_nf)⟩
-
-theorem StrictConvexOn.const_hMul {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : StrictConvexOn ℝ s f)
-    (hc : 0 < c) : StrictConvexOn ℝ s fun x => c * f x :=
-  ⟨hf.1, fun x hx y hy hxy a b ha hb hab =>
-    (mul_lt_mul_of_pos_left (hf.2 hx hy hxy ha hb hab) hc).trans_eq
-      (by simp only [smul_eq_mul]; ring_nf)⟩
 
 theorem convexOn_inv : ConvexOn ℝ (Set.Ioi (0 : ℝ)) fun x => x⁻¹ :=
   ConvexOn.congr' (convexOn_zpow (-1)) (by simp [Set.EqOn])
@@ -1658,16 +1635,6 @@ theorem nine_two (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
   rw [card_union_of_disjoint, add_le_add_iff_right]
   · exact t_le_a_card γ k l ini
   · exact (endState γ k l ini).hYA.symm.mono_right hm₀
-
-/-- A finite set viewed as a finset is equivalent to itself. -/
-def Equiv.toFinset {α : Type*} {s : Set α} [Fintype s] : s.toFinset ≃ s :=
-  ⟨fun x => ⟨x, Set.mem_toFinset.mp x.2⟩, fun x => ⟨x, by simp⟩, fun x => Subtype.ext rfl, fun x =>
-    Subtype.ext rfl⟩
-
-theorem Finset.card_congr_of_equiv {α β : Type*} {s : Finset α} {t : Finset β} (e : s ≃ t) :
-    s.card = t.card := by
-  rw [← Fintype.card_coe s, ← Fintype.card_coe t]
-  exact Fintype.card_congr e
 
 theorem densityGraphIso {V V' : Type*} [Fintype V] [Fintype V'] [DecidableEq V] [DecidableEq V']
     {G : SimpleGraph V} {G' : SimpleGraph V'} [DecidableRel G.Adj] [DecidableRel G'.Adj]
