@@ -344,7 +344,7 @@ theorem sum_range_odd_telescope' {k : ℕ} (f : ℕ → ℝ) {c : ℝ} (hc' : �
   simp only [Function.Embedding.coeFn_mk]
   have : ∀ x, f (2 * x + 1 + 1) - f (2 * x + 1 - 1) = f (2 * (x + 1)) - f (2 * x) := by
     intro x
-    rw [show 2 * x + 1 + 1 = 2 * (x + 1) by omega, Nat.add_sub_cancel]
+    rw [(by omega : 2 * x + 1 + 1 = 2 * (x + 1)), Nat.add_sub_cancel]
   simp only [this]
   rw [sum_range_sub fun x => f (2 * x)]
   dsimp
@@ -1995,7 +1995,7 @@ theorem seven_six :
     exact rpow_nonneg two_pos.le _
   rw [prod_const, ← rpow_natCast, ← rpow_mul two_pos.le]
   refine' rpow_le_rpow_of_exponent_le one_le_two _
-  rw [neg_mul, neg_mul, neg_le_neg_iff, ← mul_assoc, ← mul_assoc, show (2 : ℝ) * 2 = 4 by norm_num1]
+  rw [neg_mul, neg_mul, neg_le_neg_iff, ← mul_assoc, ← mul_assoc, (by norm_num1 : (2 : ℝ) * 2 = 4)]
   refine' mul_le_mul_of_nonneg_left _ (by positivity)
   norm_cast
   refine' (card_le_card (filter_subset _ _)).trans _
