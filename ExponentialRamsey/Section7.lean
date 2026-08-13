@@ -14,63 +14,41 @@ namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey
 
-open Filter _root_.Finset Nat Real Asymptotics
+open Filter Finset Nat Real Asymptotics
 
 variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2)}
 
 variable {k l : ℕ} {ini : BookConfig χ} {i : ℕ}
 
-local syntax "X_" term:max : term
-macro_rules
-  | `(X_ $i) =>
-      `((algorithm $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini) $i).X)
+set_option hygiene false in
+local notation:max "X_" i:max => (algorithm μ k l ini i).X
 
-local syntax "p_" term:max : term
-macro_rules
-  | `(p_ $i) =>
-      `((algorithm $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini) $i).p)
+set_option hygiene false in
+local notation:max "p_" i:max => (algorithm μ k l ini i).p
 
-local syntax "h_" term:max : term
-macro_rules
-  | `(h_ $p) => `(height $(Lean.mkIdent `k) $(Lean.mkIdent `ini).p $p)
+set_option hygiene false in
+local notation:max "h_" p:max => height k ini.p p
 
-local syntax "ℛ" : term
-macro_rules
-  | `(ℛ) =>
-      `(redSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "ℛ" => redSteps μ k l ini
 
-local syntax "ℬ" : term
-macro_rules
-  | `(ℬ) =>
-      `(bigBlueSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "ℬ" => bigBlueSteps μ k l ini
 
-local syntax "𝒮" : term
-macro_rules
-  | `(𝒮) =>
-      `(densitySteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "𝒮" => densitySteps μ k l ini
 
-local syntax "𝒟" : term
-macro_rules
-  | `(𝒟) =>
-      `(degreeSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "𝒟" => degreeSteps μ k l ini
 
-local syntax "t" : term
-macro_rules
-  | `(t) =>
-      `((redSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini)).card)
+set_option hygiene false in
+local notation "t" => (redSteps μ k l ini).card
 
-local syntax "s" : term
-macro_rules
-  | `(s) =>
-      `((densitySteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini)).card)
+set_option hygiene false in
+local notation "s" => (densitySteps μ k l ini).card
 
-local syntax "ε" : term
-macro_rules
-  | `(ε) => `((($(Lean.mkIdent `k) : ℝ) ^ (-1 / 4 : ℝ)))
+set_option hygiene false in
+local notation "ε" => (k : ℝ) ^ (-1 / 4 : ℝ)
 
 theorem seven_two_single (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
     ∀ᶠ l : ℕ in atTop,
@@ -298,10 +276,8 @@ noncomputable def moderateSteps (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) : F
   (densitySteps μ k l ini).filter fun i =>
     (height k ini.p (p_ (i + 1)) : ℝ) - height k ini.p (p_ i) ≤ k ^ (1 / 16 : ℝ)
 
-local syntax "𝒮⁺" : term
-macro_rules
-  | `(𝒮⁺) =>
-      `(moderateSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "𝒮⁺" => moderateSteps μ k l ini
 
 theorem range_filter_odd_eq_union {μ : ℝ} :
     (range (finalStep μ k l ini)).filter Odd =
