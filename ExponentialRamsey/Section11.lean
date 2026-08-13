@@ -16,7 +16,7 @@ namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey Nat Real
 
-open Filter _root_.Finset Nat Real Asymptotics
+open Filter Finset Real Asymptotics
 
 theorem large_X (n m : ℕ) (hn'' : 2 ≤ n) (hn' : ⌊(n / 2 : ℝ)⌋₊ ≤ m) :
     (2 : ℝ) ^ (-2 : ℝ) * n ≤ m := by
