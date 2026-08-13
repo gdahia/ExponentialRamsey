@@ -704,7 +704,7 @@ theorem ten_one_precise (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
   filter_upwards [top_adjuster (eventually_ge_atTop 2), eventually_gt_atTop 0,
     eventually_ge_atTop 200, nine_one_precise γ₀ hγ₀,
     large_l.eventually (top_adjuster ten_two_variant),
-    (Nat.tendsto_div_const_atTop (show 3 ≠ 0 by norm_num1)).eventually
+    (Nat.tendsto_div_const_atTop (by norm_num1 : 3 ≠ 0)).eventually
       (top_adjuster (nine_one_precise (1 / 20) (by positivity)))] with
     l hk₂ hl₀ hk₈ hk₉₁ h₁₀₂ h₉₁ k γ δ hγ hγl hγu hδ
   cases' le_or_gt γ (1 / 10) with hγ₁₀ hγ₁₀
@@ -712,7 +712,7 @@ theorem ten_one_precise (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
     refine' mul_le_mul_of_nonneg_right (exp_le_exp.2 _) (Nat.cast_nonneg _)
     refine'
       add_le_add (mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _))
-        (show (1 : ℝ) ≤ 2.05 by norm_num1)
+        (by norm_num1 : (1 : ℝ) ≤ 2.05)
     linarith only [hδ, hγl, hγ₀]
   let n := ⌈(ramseyNumber ![k, l] / exp 1 : ℝ)⌉₊
   have hlk := le_of_gamma_le_half hγ hl₀ (hγu.trans (by norm_num1))
