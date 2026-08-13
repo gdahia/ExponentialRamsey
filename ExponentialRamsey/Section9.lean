@@ -1828,31 +1828,25 @@ theorem maximally_good_clique_aux {V : Type*} [DecidableEq V] [Fintype V]
     {χ : TopEdgeLabelling V (Fin 2)} {U : Finset V} :
     (χ.pullback (Function.Embedding.subtype (· ∈ U))).density 1 =
       ((U.card : ℝ) * (U.card - 1))⁻¹ * ∑ v ∈ U, (blue_neighbors χ v ∩ U).card := by
-  rw [TopEdgeLabelling.density, density_eq_average_neighbors, Fintype.card_coe U]
-  push_cast
-  congr 1
-  refine' sum_bij (M := ℝ) (s := U.attach) (t := U) (fun x _ => (x : V)) (fun x _ => x.2)
-    (fun _ _ _ _ h => Subtype.ext h) _ _
+  rw [TopEdgeLabelling.density, density_eq_average_neighbors, Fintype.card_coe U, Rat.cast_mul,
+    Rat.cast_inv, Rat.cast_mul, Rat.cast_sub, Rat.cast_one, Rat.cast_natCast, Rat.cast_natCast]
+  congr 2
+  refine' sum_bij (fun x _ => (x : V)) (fun x _ => x.2) (fun _ _ _ _ h => Subtype.ext h) _ _
   · intro x hx
     refine' ⟨⟨x, hx⟩, mem_univ _, rfl⟩
   rintro ⟨x, hx⟩ -
-  have hcard :
-      (((χ.pullback (Function.Embedding.subtype (· ∈ U))).labelGraph 1).neighborFinset
-            ⟨x, hx⟩).card =
-        ((blue_neighbors χ x ∩ U).card) := by
-    refine' card_bij (fun x _ => (x : V)) _ (fun _ _ _ _ h => Subtype.ext h) _
-    · simp only [Subtype.forall, mem_neighborFinset, TopEdgeLabelling.labelGraph_adj,
-        EdgeLabelling.pullback_get, mem_inter, mem_colNeighbors, forall_exists_index,
-        Ne.eq_def, coe_mem, and_true]
-      intro y hy h hxy
-      exact ⟨fun hxy' => h (Subtype.ext hxy'), hxy⟩
-    · intro y
-      simp only [mem_neighborFinset, TopEdgeLabelling.labelGraph_adj, mem_colNeighbors,
-        mem_inter, Subtype.exists, and_imp, exists_imp, Ne.eq_def, exists_prop,
-        exists_eq_right, exists_and_right, EdgeLabelling.pullback_get]
-      intro h h' hy
-      exact ⟨hy, fun hsub => h (Subtype.ext_iff.mp hsub), h'⟩
-  exact_mod_cast hcard
+  refine' card_bij (fun x _ => (x : V)) _ (fun _ _ _ _ h => Subtype.ext h) _
+  · simp only [Subtype.forall, mem_neighborFinset, TopEdgeLabelling.labelGraph_adj,
+      EdgeLabelling.pullback_get, mem_inter, mem_colNeighbors, forall_exists_index, Ne.eq_def,
+      coe_mem, and_true]
+    intro y hy h hxy
+    exact ⟨fun hxy' => h (Subtype.ext hxy'), hxy⟩
+  · intro y
+    simp only [mem_neighborFinset, TopEdgeLabelling.labelGraph_adj, mem_colNeighbors,
+      mem_inter, Subtype.exists, and_imp, exists_imp, Ne.eq_def, exists_prop,
+      exists_eq_right, exists_and_right, EdgeLabelling.pullback_get]
+    intro h h' hy
+    exact ⟨hy, fun hsub => h (Subtype.ext_iff.mp hsub), h'⟩
 
 theorem big_U {U : ℕ} (hU : 256 ≤ U) : (U : ℝ) / (U - 1) * (1 + 1 / 16) ≤ 1 + 1 / 15 := by
   have : (256 : ℝ) ≤ U := (Nat.cast_le.2 hU).trans_eq' (by norm_num1)
