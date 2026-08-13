@@ -755,7 +755,6 @@ theorem asc_hMul_asc {a b c : ℕ} :
     a.ascFactorial b * (a + b).ascFactorial c = a.ascFactorial c * (a + c).ascFactorial b := by
   rw [mul_comm, ← yael_two, mul_comm, ← yael_two, add_comm]
 
--- `Nat.ascFactorial_pos` is stated for a successor, so restate it for a positive base
 theorem ascFactorial_pos_of_pos {a : ℕ} (ha : 0 < a) (b : ℕ) : 0 < a.ascFactorial b := by
   obtain ⟨a, rfl⟩ := Nat.exists_eq_succ_of_ne_zero ha.ne'
   exact Nat.ascFactorial_pos _ _
@@ -1177,9 +1176,7 @@ theorem powersetCard_filter_mem {α : Type*} [DecidableEq α] {n : ℕ} {s : Fin
       (powersetCard n (s.erase x)).image (insert x) := by
   rw [← insert_erase hx, powersetCard_succ_insert (notMem_erase _ _), insert_erase hx,
     filter_union, filter_false_of_mem, filter_true_of_mem, empty_union]
-  · intro U hU
-    obtain ⟨T, -, rfl⟩ := mem_image.1 hU
-    exact mem_insert_self _ _
+  · grind
   · simp +contextual [mem_powersetCard, subset_erase]
 
 theorem sum_powersetCard_insert {α β : Type*} [DecidableEq α] [AddCommMonoid β] {n : ℕ}
