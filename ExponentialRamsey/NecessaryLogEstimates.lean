@@ -3,6 +3,7 @@ Copyright (c) 2023 Bhavik Mehta. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bhavik Mehta
 -/
+import ExponentialRamsey.Prereq.Mathlib.Analysis.Calculus.Deriv.MeanValue
 import ExponentialRamsey.Section11
 import ExponentialRamsey.Log2Estimates
 import ExponentialRamsey.LogSmall
