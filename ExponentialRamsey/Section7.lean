@@ -1293,7 +1293,6 @@ theorem height_qStar_le :
   · norm_num
   have : (k : ℝ) ^ (-1 / 4 : ℝ) ≤ 2 / 3 := by rwa [neg_div]
   refine' (log_inequality (by positivity) this).trans' (mul_le_mul_of_nonneg_left _ (by positivity))
-  -- the original's `bit1` normalisation left `3 / 4` here, Lean 4's leaves `3 / (2 * 2)`
   exact quick_calculation.trans_eq' (by norm_num1)
 
 -- t ≤ k
