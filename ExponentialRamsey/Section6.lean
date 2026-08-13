@@ -9,6 +9,9 @@ import ExponentialRamsey.Section5
 # Section 6
 -/
 
+theorem Nat.cast_sub_le {x y : ℕ} : (x - y : ℝ) ≤ (x - y : ℕ) := by
+  rw [sub_le_iff_le_add, ← Nat.cast_add, Nat.cast_le, ← tsub_le_iff_right]
+
 namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey
@@ -248,9 +251,6 @@ theorem six_five_red_aux_glue :
   refine' Filter.Eventually.of_forall _
   intro x
   exact rpow_nonneg (Nat.cast_nonneg _) _
-
-theorem Nat.cast_sub_le {x y : ℕ} : (x - y : ℝ) ≤ (x - y : ℕ) := by
-  rw [sub_le_iff_le_add, ← Nat.cast_add, Nat.cast_le, ← tsub_le_iff_right]
 
 theorem six_five_red :
     ∀ᶠ l : ℕ in atTop,
