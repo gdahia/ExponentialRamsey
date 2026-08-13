@@ -75,7 +75,7 @@ theorem abs_sub_lt_of_approx {a b c ε δ : ℝ} (h₁ : |a - b| ≤ δ) (h₂ :
 -- end
 theorem log_two_near_20 : |log 2 - 48427462327 / 69866059742| < 9 / 10 ^ 21 := by
   have t : |(3⁻¹ : ℝ)| = 3⁻¹ := abs_of_pos (by norm_num1)
-  have z := newbound (show |(3⁻¹ : ℝ)| < 1 by rw [t]; norm_num1) 21
+  have z := newbound (by rw [t]; norm_num1 : |(3⁻¹ : ℝ)| < 1) 21
   rw [t, _root_.abs_sub_comm] at z 
   norm_num1 at z 
   refine abs_sub_lt_of_approx z ?_
@@ -90,7 +90,7 @@ theorem log_two_lt_d20 : log 2 < 0.69314718055994530943 :=
 
 theorem log_three_div_two_near_20 : |log (3 / 2) - 31251726476 / 77076241213| < 1 / 10 ^ 22 := by
   have t : |(5⁻¹ : ℝ)| = 5⁻¹ := abs_of_pos (by norm_num1)
-  have z := newbound (show |(5⁻¹ : ℝ)| < 1 by rw [t]; norm_num1) 17
+  have z := newbound (by rw [t]; norm_num1 : |(5⁻¹ : ℝ)| < 1) 17
   rw [t, _root_.abs_sub_comm] at z 
   norm_num1 at z 
   refine abs_sub_lt_of_approx z ?_
@@ -100,7 +100,7 @@ theorem log_three_div_two_near_20 : |log (3 / 2) - 31251726476 / 77076241213| < 
 theorem log_four_div_three_near_20 :
     |log (4 / 3) - 4349275835861 / 15118341573370| < 1 / 10 ^ 26 := by
   have t : |(7⁻¹ : ℝ)| = 7⁻¹ := abs_of_pos (by norm_num1)
-  have z := newbound (show |(7⁻¹ : ℝ)| < 1 by rw [t]; norm_num1) 16
+  have z := newbound (by rw [t]; norm_num1 : |(7⁻¹ : ℝ)| < 1) 16
   rw [t, _root_.abs_sub_comm] at z 
   norm_num1 at z 
   refine abs_sub_lt_of_approx z ?_
@@ -110,7 +110,7 @@ theorem log_four_div_three_near_20 :
 theorem log_nine_div_eight_near_20 :
     |log (9 / 8) - 26418276175004 / 224296105358295| < 3 / 10 ^ 29 := by
   have t : |(17⁻¹ : ℝ)| = 17⁻¹ := abs_of_pos (by norm_num1)
-  have z := newbound (show |(17⁻¹ : ℝ)| < 1 by rw [t]; norm_num1) 12
+  have z := newbound (by rw [t]; norm_num1 : |(17⁻¹ : ℝ)| < 1) 12
   rw [t, _root_.abs_sub_comm] at z 
   norm_num1 at z 
   refine abs_sub_lt_of_approx z ?_
@@ -170,7 +170,7 @@ theorem log_three_lt_d20 : log 3 < 1.0986122886681097 :=
 
 theorem log_64_div_63_near : |log (64 / 63) - 87664200650948 / 5566561694550313| < 4 / 10 ^ 32 := by
   have t : |(127⁻¹ : ℝ)| = 127⁻¹ := abs_of_pos (by norm_num1)
-  have z := newbound (show |(127⁻¹ : ℝ)| < 1 by rw [t]; norm_num1) 8
+  have z := newbound (by rw [t]; norm_num1 : |(127⁻¹ : ℝ)| < 1) 8
   rw [t, _root_.abs_sub_comm] at z 
   norm_num1 at z 
   refine abs_sub_lt_of_approx z ?_
@@ -212,7 +212,7 @@ theorem log_seven_near : |log 7 - 5543595633008 / 2848844606571| < 6 / 10 ^ 24 :
 
 theorem log_25_div_24_near : |log (25 / 24) - 7010006310925 / 171721308410023| < 4 / 10 ^ 30 := by
   have t : |(49⁻¹ : ℝ)| = 49⁻¹ := abs_of_pos (by norm_num1)
-  have z := newbound (show |(49⁻¹ : ℝ)| < 1 by rw [t]; norm_num1) 9
+  have z := newbound (by rw [t]; norm_num1 : |(49⁻¹ : ℝ)| < 1) 9
   rw [t, _root_.abs_sub_comm] at z 
   norm_num1 at z 
   refine abs_sub_lt_of_approx z ?_
@@ -256,7 +256,7 @@ theorem log_five_lt_d20 : log 5 < 1.609437912434100375 :=
 
 theorem log_8_div_7_near : |log (8 / 7) - 94488369352 / 707611652173| < 9 / 10 ^ 26 := by
   have t : |(15⁻¹ : ℝ)| = 15⁻¹ := abs_of_pos (by norm_num1)
-  have z := newbound (show |(15⁻¹ : ℝ)| < 1 by rw [t]; norm_num1) 11
+  have z := newbound (by rw [t]; norm_num1 : |(15⁻¹ : ℝ)| < 1) 11
   rw [t, _root_.abs_sub_comm] at z 
   norm_num1 at z 
   refine abs_sub_lt_of_approx z ?_
@@ -265,7 +265,7 @@ theorem log_8_div_7_near : |log (8 / 7) - 94488369352 / 707611652173| < 9 / 10 ^
 
 theorem log_16_div_15_near : |log (16 / 15) - 2777280486178 / 43032911774627| < 7 / 10 ^ 28 := by
   have t : |(31⁻¹ : ℝ)| = 31⁻¹ := abs_of_pos (by norm_num1)
-  have z := newbound (show |(31⁻¹ : ℝ)| < 1 by rw [t]; norm_num1) 10
+  have z := newbound (by rw [t]; norm_num1 : |(31⁻¹ : ℝ)| < 1) 10
   rw [t, _root_.abs_sub_comm] at z 
   norm_num1 at z 
   refine abs_sub_lt_of_approx z ?_
@@ -274,7 +274,7 @@ theorem log_16_div_15_near : |log (16 / 15) - 2777280486178 / 43032911774627| < 
 
 theorem log_33_div_32_near : |log (33 / 32) - 63667272858575 / 2069023108181113| < 3 / 10 ^ 31 := by
   have t : |(65⁻¹ : ℝ)| = 65⁻¹ := abs_of_pos (by norm_num1)
-  have z := newbound (show |(65⁻¹ : ℝ)| < 1 by rw [t]; norm_num1) 9
+  have z := newbound (by rw [t]; norm_num1 : |(65⁻¹ : ℝ)| < 1) 9
   rw [t, _root_.abs_sub_comm] at z 
   norm_num1 at z 
   refine abs_sub_lt_of_approx z ?_
