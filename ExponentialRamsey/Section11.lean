@@ -461,8 +461,7 @@ theorem eleven_three_special (μ : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) :
 
 theorem ramseyNumber_diag_ge {k : ℕ} (hk : 2 ≤ k) : k ≤ ramseyNumber ![k, k] := by
   refine' (ramseyNumber.mono_two hk le_rfl).trans' _
-  simp only [ramseyNumber_cons_two, ramseyNumber_singleton]
-  exact le_rfl
+  simp only [ramseyNumber_cons_two, ramseyNumber_singleton, le_rfl]
 
 theorem two_le_n_of_large_k {k : ℕ} (hk : 4 ≤ k) : 2 ≤ ⌈(ramseyNumber ![k, k] : ℝ) / 2⌉₊ := by
   refine' Nat.cast_le.1 ((Nat.le_ceil _).trans' _)
