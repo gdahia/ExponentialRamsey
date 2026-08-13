@@ -126,7 +126,7 @@ theorem eleven_two_aux_error_one (μ : ℝ) (hμ₀ : 0 < μ) :
       isBigO_refl _ _
     refine'
       (IsBigO.mul_isLittleO this
-          (isLittleO_logb_rpow_atTop (show (0 : ℝ) < 1 / 32 by norm_num1))).congr'
+          (isLittleO_logb_rpow_atTop (by norm_num1 : (0 : ℝ) < 1 / 32))).congr'
         EventuallyEq.rfl _
     filter_upwards [eventually_gt_atTop (0 : ℝ)] with k hk
     rw [← rpow_add hk]
@@ -241,10 +241,10 @@ theorem eleven_two_aux_error_one_other (μ : ℝ) (hμ₀ : 0 < μ) :
       (fun x : ℝ => logb 2 μ * x ^ (31 / 32 : ℝ) + 2 * (x ^ (31 / 32 : ℝ) * logb 2 x)) =o[atTop] id
       by exact this.comp_tendsto tendsto_natCast_atTop_atTop
     refine' IsLittleO.add (IsLittleO.const_mul_left _ _) (IsLittleO.const_mul_left _ _)
-    · simpa only [rpow_one] using isLittleO_rpow_rpow (show (31 / 32 : ℝ) < 1 by norm_num1)
+    · simpa only [rpow_one] using isLittleO_rpow_rpow (by norm_num1 : (31 / 32 : ℝ) < 1)
     refine'
       (IsBigO.mul_isLittleO (isBigO_refl (fun k : ℝ => (k : ℝ) ^ (31 / 32 : ℝ)) atTop)
-            (isLittleO_logb_rpow_atTop (show (0 : ℝ) < 1 / 32 by norm_num1))).congr'
+            (isLittleO_logb_rpow_atTop (by norm_num1 : (0 : ℝ) < 1 / 32))).congr'
         EventuallyEq.rfl _
     filter_upwards [eventually_gt_atTop (0 : ℝ)] with k hk
     rw [← rpow_add hk]
@@ -286,7 +286,7 @@ theorem eleven_two_aux_error_two (μ : ℝ) (hμ₀ : 0 < μ) (f : ℕ → ℝ)
                     (1 + f k) * (s / (s + t)) ≤ β →
                       (s : ℝ) * logb 2 (μ / β) ≤ (s : ℝ) * logb 2 (μ * (s + t) / s) + g k := by
   have := (isLittleO_one_iff _).1 hf
-  have := this.eventually (eventually_gt_nhds (show (-1 : ℝ) < 0 by norm_num1))
+  have := this.eventually (eventually_gt_nhds (by norm_num1 : (-1 : ℝ) < 0))
   refine' ⟨fun k => ‖(k * -logb 2 (1 + f k) : ℝ)‖, _, _⟩
   · rw [isLittleO_norm_left]
     refine'
@@ -482,7 +482,7 @@ theorem ramseyNumber_diag_ge {k : ℕ} (hk : 2 ≤ k) : k ≤ ramseyNumber ![k, 
 theorem two_le_n_of_large_k {k : ℕ} (hk : 4 ≤ k) : 2 ≤ ⌈(ramseyNumber ![k, k] : ℝ) / 2⌉₊ := by
   refine' Nat.cast_le.1 ((Nat.le_ceil _).trans' _)
   rw [Nat.cast_two, le_div_iff₀ (zero_lt_two' ℝ)]
-  have : k ≤ ramseyNumber ![k, k] := ramseyNumber_diag_ge (hk.trans' (show 2 ≤ 4 by norm_num))
+  have : k ≤ ramseyNumber ![k, k] := ramseyNumber_diag_ge (hk.trans' (by norm_num : 2 ≤ 4))
   refine' (Nat.cast_le.2 (hk.trans this)).trans' _
   norm_num1
 
@@ -847,7 +847,7 @@ theorem y_le_x_mul (μ η : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) (hη : 0 < 
     refine' IsLittleO.const_mul_left _ _
     suffices (fun k : ℝ => k ^ (15 / 16 : ℝ)) =o[atTop] id by
       exact IsLittleO.comp_tendsto this tendsto_natCast_atTop_atTop
-    simpa only [rpow_one] using isLittleO_rpow_rpow (show (15 / 16 : ℝ) < 1 by norm_num)
+    simpa only [rpow_one] using isLittleO_rpow_rpow (by norm_num : (15 / 16 : ℝ) < 1)
   filter_upwards [eight_five _ _ _ hμ₀ hμ₁ hp₀, beta_pos _ _ _ hμ₀ hμ₁ hp₀,
     beta_le_μ _ _ _ hμ₀ hμ₁ hp₀, this.bound hη, eventually_gt_atTop 0] with k h₈₅ hβ₀ hβμ hη' hk₀ n
     hn χ hχ ini hini
@@ -988,7 +988,7 @@ theorem eleven_one_special (η : ℝ) (hη : 0 < η) :
   have hγ₀ : (0 : ℝ) < 1 / 101 := by norm_num1
   have q :=
     (tendsto_nat_ceil_atTop.comp
-          (tendsto_id.atTop_mul_const' (show (0 : ℝ) < 1e-2 by positivity))).comp
+          (tendsto_id.atTop_mul_const' (by positivity : (0 : ℝ) < 1e-2))).comp
       tendsto_natCast_atTop_atTop
   filter_upwards [q.eventually (top_adjuster (ten_one_precise _ hγ₀)), eventually_gt_atTop 0,
     eventually_ge_atTop ⌈41 / 20 / log 2 / η⌉₊] with k hk hk₀ hkη
@@ -1042,7 +1042,7 @@ theorem eleven_one_special (η : ℝ) (hη : 0 < η) :
     add_le_add_iff_left, h₂, h₆, neg_add_eq_sub, sub_div, ← div_mul_eq_mul_div, div_div _ (40 : ℝ),
     neg_sub, mul_comm (k : ℝ), mul_comm (k : ℝ), mul_comm (1 / _ : ℝ), ← div_eq_mul_one_div,
     mul_comm (40 : ℝ), sub_le_sub_iff_right, ← div_le_iff₀' hη, ← Nat.ceil_le,
-    show (2.05 : ℝ) = 41 / 20 by norm_num1]
+    (by norm_num1 : (2.05 : ℝ) = 41 / 20)]
 
 theorem eleven_one_large_end {x y : ℝ} (hx : x ∈ Set.Icc (0 : ℝ) 1) (hy : y ∈ Set.Icc (0 : ℝ) 0.75)
     (hx' : 0.99 ≤ x) : (2 - x) * binEnt 2 (1 / (2 - x)) + (y + x) ≤ 39 / 20 := by

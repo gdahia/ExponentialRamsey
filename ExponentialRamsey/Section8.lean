@@ -725,12 +725,12 @@ theorem eq_41 (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1)
 -- k ≥ 1.6
 theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2 * k ^ 5 ≤ 2 * k ^ 7 := by
   filter_upwards [eventually_ge_atTop (1.6 : ℝ)] with k hk
-  rw [show (1.6 : ℝ) = 8 / 5 by norm_num1] at hk
+  rw [(by norm_num1 : (1.6 : ℝ) = 8 / 5)] at hk
   have h₄ : 2 * k ^ 4 ≤ 2 * (5 / 8) ^ 3 * k ^ 7 := by
     rw [mul_assoc]
     refine' mul_le_mul_of_nonneg_left _ (by norm_num1)
     rw [← div_le_iff₀', div_pow, div_div_eq_mul_div, mul_div_assoc, ← div_pow,
-      show k ^ 7 = k ^ 4 * k ^ 3 by ring]
+      (by ring : k ^ 7 = k ^ 4 * k ^ 3)]
     · refine' mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (by norm_num1) hk _) _
       exact pow_nonneg (by positivity) _
     positivity
@@ -743,7 +743,7 @@ theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2
     rw [mul_assoc]
     refine' mul_le_mul_of_nonneg_left _ (by norm_num1)
     rw [← div_le_iff₀', div_pow, div_div_eq_mul_div, mul_div_assoc, ← div_pow,
-      show k ^ 7 = k ^ 5 * k ^ 2 by ring]
+      (by ring : k ^ 7 = k ^ 5 * k ^ 2)]
     · refine' mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (by norm_num1) hk _) _
       exact pow_nonneg (by positivity) _
     positivity
