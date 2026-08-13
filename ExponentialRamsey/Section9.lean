@@ -1231,12 +1231,12 @@ theorem sum_pair_subset {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
 theorem choose_helper {n k : ℕ} (h : k + 1 < n) :
     (n.choose (k + 1) : ℚ)⁻¹ * ((n - 2).choose k * (1 / (((k : ℚ) + 1) * (n - ((k : ℚ) + 1))))) =
       ((n : ℚ) * (n - 1))⁻¹ := by
-  have h2 : k + 2 ≤ n := h
+  have : k + 2 ≤ n := h
   have : 2 ≤ n := h.trans_le' (by simp)
   obtain ⟨n, rfl⟩ := le_iff_exists_add'.1 this
   rw [add_tsub_cancel_right]
   clear this h
-  simp only [add_le_add_iff_right] at h2
+  simp only [add_le_add_iff_right] at this
   rw [one_div, mul_left_comm, ← mul_inv, ← one_div, ← one_div, mul_one_div, mul_left_comm, ←
     Nat.cast_add_one, ← Nat.cast_sub, ← Nat.cast_mul, ← Nat.choose_mul_succ_eq, ← Nat.cast_mul, ←
     mul_assoc, mul_comm (k + 1), ← Nat.add_one_mul_choose_eq, mul_comm (n + 1), mul_assoc,
@@ -1244,7 +1244,7 @@ theorem choose_helper {n k : ℕ} (h : k + 1 < n) :
     add_sub_assoc, Nat.cast_add_one]
   · norm_num1; rfl
   · rw [Nat.cast_ne_zero, ← pos_iff_ne_zero]
-    exact Nat.choose_pos h2
+    exact Nat.choose_pos this
   · linarith
 
 variable [Fintype V]
