@@ -543,10 +543,6 @@ theorem eleven_two_improve (μ : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) :
   · positivity
   · positivity
 
-theorem le_limsup_add (f : ℕ → ℝ) (hf : BddAbove (Set.range f)) (ε : ℝ) (hε : 0 < ε) :
-    ∀ᶠ x in atTop, f x ≤ limsup f atTop + ε :=
-  (eventually_lt_add_pos_of_limsup_le hf.isBoundedUnder_of_range le_rfl hε).mono fun _ => le_of_lt
-
 theorem exists_nice_χ {k n : ℕ} (hn2 : 2 ≤ n) (hnr : n < ramseyNumber ![k, k]) :
     ∃ χ : TopEdgeLabelling (Fin n) (Fin 2),
       1 / 2 ≤ χ.density 0 ∧
