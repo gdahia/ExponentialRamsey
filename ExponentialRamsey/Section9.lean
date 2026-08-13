@@ -255,10 +255,8 @@ theorem end_ramseyNumber_pow_isLittleO :
         (rpow_le_rpow (Nat.cast_nonneg _) (Nat.cast_le.2 hlk) (by norm_num1)) two_pos.le)
   exact (one_le_rpow (Nat.one_le_cast.2 hl₁) (by norm_num1)).trans' (by norm_num1)
 
-theorem descFactorial_eq_prod {n k : ℕ} : n.descFactorial k = ∏ i ∈ range k, (n - i) := by
-  induction' k with k ih
-  · simp
-  rw [Nat.descFactorial_succ, ih, prod_range_succ, mul_comm]
+theorem descFactorial_eq_prod {n k : ℕ} : n.descFactorial k = ∏ i ∈ range k, (n - i) :=
+  Nat.descFactorial_eq_prod_range n k
 
 theorem cast_descFactorial_eq_prod {n k : ℕ} :
     (n.descFactorial k : ℝ) = ∏ i ∈ range k, (n - i : ℝ) := by
@@ -642,16 +640,12 @@ theorem ConcaveOn.hMul {f g : ℝ → ℝ} {s : Set ℝ} (hf : ConcaveOn ℝ s f
 -- lemma convex_on_sub_const {s : set ℝ} {c : ℝ} (hs : convex ℝ s) : concave_on ℝ s (λ x, x - c) :=
 -- (convex_on_id hs).sub (concave_on_const _ hs)
 theorem ConvexOn.const_hMul {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : ConvexOn ℝ s f) (hc : 0 ≤ c) :
-    ConvexOn ℝ s fun x => c * f x :=
-  ⟨hf.1, fun x hx y hy a b ha hb hab =>
-    (mul_le_mul_of_nonneg_left (hf.2 hx hy ha hb hab) hc).trans_eq
-      (by simp only [smul_eq_mul]; ring_nf)⟩
+    ConvexOn ℝ s fun x => c * f x := by
+  simpa only [smul_eq_mul] using hf.smul hc
 
 theorem ConcaveOn.const_hMul {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : ConcaveOn ℝ s f) (hc : 0 ≤ c) :
-    ConcaveOn ℝ s fun x => c * f x :=
-  ⟨hf.1, fun x hx y hy a b ha hb hab =>
-    (mul_le_mul_of_nonneg_left (hf.2 hx hy ha hb hab) hc).trans_eq'
-      (by simp only [smul_eq_mul]; ring_nf)⟩
+    ConcaveOn ℝ s fun x => c * f x := by
+  simpa only [smul_eq_mul] using hf.smul hc
 
 theorem StrictConvexOn.const_hMul_neg {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : StrictConvexOn ℝ s f)
     (hc : c < 0) : StrictConcaveOn ℝ s fun x => c * f x :=
