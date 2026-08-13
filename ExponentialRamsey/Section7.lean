@@ -614,10 +614,9 @@ theorem beta_le_one (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
 theorem my_ineq {α : Type*} {y : Finset α} (hy : y.Nonempty) {f : α → ℝ} (hf : ∀ i ∈ y, 0 < f i) :
     ((y.card : ℝ) * (∑ i ∈ y, 1 / f i)⁻¹) ^ y.card ≤ ∏ i ∈ y, f i := by
   have hy' : 0 < y.card := by rwa [card_pos]
-  have hycard_ne : ((y.card : ℝ) ≠ 0) := Nat.cast_ne_zero.2 hy'.ne'
   simp only [one_div]
   rw [← inv_le_inv₀, ← prod_inv_distrib, ← rpow_natCast, ← inv_rpow, mul_inv, inv_inv, ←
-    rpow_le_rpow_iff, ← rpow_mul, mul_inv_cancel₀ hycard_ne, rpow_one, mul_sum,
+    rpow_le_rpow_iff, ← rpow_mul, mul_inv_cancel₀ (by positivity), rpow_one, mul_sum,
     ← finset_prod_rpow y (fun x => (f x)⁻¹) fun i hi => inv_nonneg_of_nonneg (hf i hi).le]
   refine' geom_mean_le_arith_mean_weighted _ _ _ _ _ _
   · intros; positivity
