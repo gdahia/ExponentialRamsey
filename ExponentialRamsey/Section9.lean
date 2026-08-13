@@ -255,10 +255,8 @@ theorem end_ramseyNumber_pow_isLittleO :
         (rpow_le_rpow (Nat.cast_nonneg _) (Nat.cast_le.2 hlk) (by norm_num1)) two_pos.le)
   exact (one_le_rpow (Nat.one_le_cast.2 hl₁) (by norm_num1)).trans' (by norm_num1)
 
-theorem descFactorial_eq_prod {n k : ℕ} : n.descFactorial k = ∏ i ∈ range k, (n - i) := by
-  induction' k with k ih
-  · simp
-  rw [Nat.descFactorial_succ, ih, prod_range_succ, mul_comm]
+theorem descFactorial_eq_prod {n k : ℕ} : n.descFactorial k = ∏ i ∈ range k, (n - i) :=
+  Nat.descFactorial_eq_prod_range n k
 
 theorem cast_descFactorial_eq_prod {n k : ℕ} :
     (n.descFactorial k : ℝ) = ∏ i ∈ range k, (n - i : ℝ) := by
@@ -642,16 +640,12 @@ theorem ConcaveOn.hMul {f g : ℝ → ℝ} {s : Set ℝ} (hf : ConcaveOn ℝ s f
 -- lemma convex_on_sub_const {s : set ℝ} {c : ℝ} (hs : convex ℝ s) : concave_on ℝ s (λ x, x - c) :=
 -- (convex_on_id hs).sub (concave_on_const _ hs)
 theorem ConvexOn.const_hMul {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : ConvexOn ℝ s f) (hc : 0 ≤ c) :
-    ConvexOn ℝ s fun x => c * f x :=
-  ⟨hf.1, fun x hx y hy a b ha hb hab =>
-    (mul_le_mul_of_nonneg_left (hf.2 hx hy ha hb hab) hc).trans_eq
-      (by simp only [smul_eq_mul]; ring_nf)⟩
+    ConvexOn ℝ s fun x => c * f x := by
+  simpa only [smul_eq_mul] using hf.smul hc
 
 theorem ConcaveOn.const_hMul {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : ConcaveOn ℝ s f) (hc : 0 ≤ c) :
-    ConcaveOn ℝ s fun x => c * f x :=
-  ⟨hf.1, fun x hx y hy a b ha hb hab =>
-    (mul_le_mul_of_nonneg_left (hf.2 hx hy ha hb hab) hc).trans_eq'
-      (by simp only [smul_eq_mul]; ring_nf)⟩
+    ConcaveOn ℝ s fun x => c * f x := by
+  simpa only [smul_eq_mul] using hf.smul hc
 
 theorem StrictConvexOn.const_hMul_neg {c : ℝ} {s : Set ℝ} {f : ℝ → ℝ} (hf : StrictConvexOn ℝ s f)
     (hc : c < 0) : StrictConcaveOn ℝ s fun x => c * f x :=
@@ -1198,7 +1192,7 @@ theorem sum_ite_fintype {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
 
 theorem sum_powersetCard_erase {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMonoid β] {n : ℕ}
     {s : Finset α} (f : Finset α → α → β) :
-  ∑ U ∈ powersetCard n s, ∑ y ∈ Uᶜ, f U y =
+    ∑ U ∈ powersetCard n s, ∑ y ∈ Uᶜ, f U y =
       ∑ y, ∑ U ∈ powersetCard n (s.erase y), f U y := by
   have : (∑ U ∈ powersetCard n s, ∑ y ∈ Uᶜ, f U y) =
       ∑ U ∈ powersetCard n s, ∑ y, if y ∈ Uᶜ then f U y else 0 := by
@@ -1209,7 +1203,7 @@ theorem sum_powersetCard_erase {α β : Type*} [Fintype α] [DecidableEq α] [Ad
   rw [← sum_filter]
   refine' sum_congr _ fun _ _ => rfl
   ext U
-  simp [mem_powersetCard, subset_erase]
+  simp only [mem_compl, mem_filter, mem_powersetCard, subset_erase]
   tauto
 
 theorem powersetCard_filter_mem {α : Type*} [DecidableEq α] {n : ℕ} {s : Finset α} {x : α}
@@ -1283,7 +1277,7 @@ theorem sum_pair_subset {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
     refine' sum_congr _ fun U hU => rfl
     congr 1
     ext z
-    simp [mem_erase, mem_insert]
+    simp only [mem_erase, ne_eq, Finset.mem_sdiff, mem_insert, mem_singleton, not_or]
     tauto
 
 theorem choose_helper {n k : ℕ} (h : k + 1 < n) :
