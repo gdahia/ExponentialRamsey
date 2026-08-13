@@ -1052,13 +1052,12 @@ theorem eleven_one (η : ℝ) (hη : 0 < η) :
     exact (eleven_one_large_end hx hy hx99.le).trans_eq (by norm_num1)
   refine' le_max_of_le_left _
   cases' lt_or_ge ((t : ℝ) / k) 0.75 with hx34 hx34
-  · have hx34' : ¬(3 / 4 : ℝ) ≤ (t : ℝ) / k := (hx34.trans_eq (by norm_num1)).not_ge
-    rw [f, if_neg hx34', f1, add_assoc, add_div, add_div, add_div]
+  · rw [f, if_neg (hx34.trans_eq (by norm_num1)).not_ge, f1, add_assoc, add_div, add_div, add_div]
     refine' add_le_add _ (h₂.trans (half_le_self hη.le))
     rw [add_right_comm, add_rotate, add_le_add_iff_left, div_le_iff₀' hk₀']
     exact F_le_f1 rfl hk₀ hx.2
-  have hx34' : (3 / 4 : ℝ) ≤ (t : ℝ) / k := hx34.trans' (by norm_num1)
-  rw [f, if_pos hx34', f2, add_assoc, add_div, add_div, add_div, add_assoc, add_assoc]
+  rw [f, if_pos (hx34.trans' (by norm_num1)), f2, add_assoc, add_div, add_div, add_div, add_assoc,
+    add_assoc]
   refine' (add_le_add_left (div_le_div_of_nonneg_right (h₁₁ hx34 hx99) hk₀'.le) _).trans _
   rw [mul_div_cancel_left₀ _ hk₀'.ne', add_sub_assoc, add_assoc, add_right_comm, add_comm,
     add_le_add_iff_right, add_assoc, add_left_comm, add_left_comm (t / k : ℝ), add_le_add_iff_left,
