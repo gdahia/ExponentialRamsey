@@ -1215,6 +1215,11 @@ theorem sum_pair_subset {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
   rw [Finset.sum_sigma' univ, Finset.sum_sigma' s]
   refine' sum_bij (fun x hx => ⟨x.2, x.1⟩) _ _ _ _
   · simp +contextual [eq_comm]
+  rotate_right 1
+  · rintro ⟨x, y⟩ hx
+    refine' sum_congr _ fun y hy => rfl
+    dsimp
+    rw [sdiff_insert, sdiff_singleton_eq_erase]
   · rintro ⟨x₁, x₂⟩ - ⟨y₁, y₂⟩ -
     simp +contextual
   · rintro ⟨x, y⟩
@@ -1222,10 +1227,6 @@ theorem sum_pair_subset {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
       exists_prop, and_assoc]
     intro hx hxy
     exact ⟨y, x, hxy.symm, hx, rfl⟩
-  · rintro ⟨x, y⟩ hx
-    refine' sum_congr _ fun y hy => rfl
-    dsimp
-    rw [sdiff_insert, sdiff_singleton_eq_erase]
 
 theorem choose_helper {n k : ℕ} (h : k + 1 < n) :
     (n.choose (k + 1) : ℚ)⁻¹ * ((n - 2).choose k * (1 / (((k : ℚ) + 1) * (n - ((k : ℚ) + 1))))) =
