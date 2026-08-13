@@ -61,7 +61,7 @@ theorem seven_two_single (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
                   (¬∃ (m : Finset (Fin n)) (c : Fin 2),
                         χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card) →
                     ∀ ini : BookConfig χ,
-                      ∀ i ∈ redSteps μ k l ini,
+                      ∀ i ∈ ℛ,
                         2 ^ (-2 * (1 / ((1 - μ) * k))) * (1 - μ) ≤
                           ((X_ (i + 1)).card : ℝ) / (X_ i).card := by
   have h34 : (0 : ℝ) < 3 / 4 := by norm_num1
