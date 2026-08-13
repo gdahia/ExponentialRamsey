@@ -1763,8 +1763,7 @@ theorem uLowerBoundRatio_lower_bound_aux {k l m n : ℕ} {γ δ : ℝ} (hml : m 
     exact Nat.sub_pos_of_lt hml
   rw [add_comm k (l - m)]
   refine' (Nat.choose_le_choose k (add_le_add_left this k)).trans' _
-  rw [(by omega : 1 + k = k + 1), Nat.choose_symm_add, Nat.choose_one_right]
-  simp
+  simp only [add_comm, Nat.choose_succ_self_right, le_add_iff_nonneg_right, zero_le]
 
 theorem uLowerBoundRatio_lower_bound' {k l m n : ℕ} {γ δ : ℝ} (hml : m < l) (hk₀ : 0 < k)
     (hlk : l ≤ k) (hγ : γ = l / (k + l)) (hδ : δ = γ / 20)
