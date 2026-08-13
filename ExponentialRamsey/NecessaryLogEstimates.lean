@@ -3,6 +3,7 @@ Copyright (c) 2023 Bhavik Mehta. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bhavik Mehta
 -/
+import ExponentialRamsey.Prereq.Mathlib.Analysis.Calculus.Deriv.MeanValue
 import ExponentialRamsey.Section11
 import ExponentialRamsey.Log2Estimates
 import ExponentialRamsey.LogSmall
@@ -421,7 +422,7 @@ theorem strictAntiOn_f2 {y : ℝ} : StrictAntiOn (fun x => f2 x y) (Icc (1 / 2 :
   have : 0 < log 2 := log_pos one_lt_two
   have h₁ : logb 2 ((1 - x) / (2 - x)) ≤ logb 2 (1 / 3) :=
     by
-    refine' _root_.logb_le_logb_of_le one_le_two (div_pos (sub_pos_of_lt hx₂) (sub_pos_of_lt h2x)) _
+    refine' logb_le_logb_of_le one_lt_two (div_pos (sub_pos_of_lt hx₂) (sub_pos_of_lt h2x)) _
     rw [div_le_iff₀ (sub_pos_of_lt h2x)]
     linarith only [hx₁]
   rw [one_div, logb_inv] at h₁ 
@@ -933,7 +934,7 @@ theorem strictMonoOn_f' : StrictMonoOn f' (Icc 0 0.75) :=
   have : -logb 2 5 ≤ logb 2 ((1 - x) / (2 - x)) :=
     by
     rw [← logb_inv, ← one_div]
-    exact _root_.logb_le_logb_of_le (by norm_num) (by norm_num) this
+    exact logb_le_logb_of_le (by norm_num) (by norm_num) this
   replace this := this.trans' (neg_le_neg logb_two_five_interval.2)
   refine' (add_le_add_right this _).trans_lt' _
   norm_num

@@ -14,7 +14,7 @@ namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey Nat Real
 
-open Filter Nat Real Set Asymptotics
+open Filter Real Set Asymptotics
 
 theorem g_monotone {x₀ x₁ y : ℝ} (hy₀ : 0 ≤ y) (hy₁ : y ≤ 1) (hx₀ : 0 ≤ x₀) (hx : x₀ ≤ x₁) :
     g x₀ y ≤ g x₁ y := by
@@ -23,7 +23,7 @@ theorem g_monotone {x₀ x₁ y : ℝ} (hy₀ : 0 ≤ y) (hy₁ : y ≤ 1) (hx�
   rcases eq_or_lt_of_le hy₀ with (rfl | hy₀)
   · rw [MulZeroClass.zero_mul, MulZeroClass.zero_mul]
   refine' mul_le_mul_of_nonneg_left _ hy₀.le
-  refine' logb_le_logb_of_le one_le_two (by positivity) _
+  refine' logb_le_logb_of_le one_lt_two (by positivity) _
   refine' mul_le_mul_of_nonneg_left _ (by norm_num1)
   exact div_le_div_of_nonneg_right (add_le_add_left hx _) hy₀.le
 
