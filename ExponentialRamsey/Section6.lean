@@ -20,22 +20,22 @@ variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2
 variable {k l : ℕ} {ini : BookConfig χ} {i : ℕ}
 
 set_option hygiene false in
-local macro "p_" i:term:max : term => `((algorithm μ k l ini $i).p)
+local notation:max "p_" i:max => (algorithm μ k l ini i).p
 
 set_option hygiene false in
-local macro "ℛ" : term => `(redSteps μ k l ini)
+local notation "ℛ" => redSteps μ k l ini
 
 set_option hygiene false in
-local macro "ℬ" : term => `(bigBlueSteps μ k l ini)
+local notation "ℬ" => bigBlueSteps μ k l ini
 
 set_option hygiene false in
-local macro "𝒮" : term => `(densitySteps μ k l ini)
+local notation "𝒮" => densitySteps μ k l ini
 
 set_option hygiene false in
-local macro "𝒟" : term => `(degreeSteps μ k l ini)
+local notation "𝒟" => degreeSteps μ k l ini
 
 set_option hygiene false in
-local macro "ε" : term => `((k : ℝ) ^ (-1 / 4 : ℝ))
+local notation "ε" => (k : ℝ) ^ (-1 / 4 : ℝ)
 
 theorem six_four_red {μ : ℝ} (hi : i ∈ redSteps μ k l ini) :
     (algorithm μ k l ini i).p - αFunction k (height k ini.p (algorithm μ k l ini i).p) ≤
