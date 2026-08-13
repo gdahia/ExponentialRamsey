@@ -1192,7 +1192,7 @@ theorem sum_ite_fintype {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
 
 theorem sum_powersetCard_erase {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMonoid β] {n : ℕ}
     {s : Finset α} (f : Finset α → α → β) :
-  ∑ U ∈ powersetCard n s, ∑ y ∈ Uᶜ, f U y =
+    ∑ U ∈ powersetCard n s, ∑ y ∈ Uᶜ, f U y =
       ∑ y, ∑ U ∈ powersetCard n (s.erase y), f U y := by
   have : (∑ U ∈ powersetCard n s, ∑ y ∈ Uᶜ, f U y) =
       ∑ U ∈ powersetCard n s, ∑ y, if y ∈ Uᶜ then f U y else 0 := by
@@ -1203,7 +1203,7 @@ theorem sum_powersetCard_erase {α β : Type*} [Fintype α] [DecidableEq α] [Ad
   rw [← sum_filter]
   refine' sum_congr _ fun _ _ => rfl
   ext U
-  simp [mem_powersetCard, subset_erase]
+  simp only [mem_compl, mem_filter, mem_powersetCard, subset_erase]
   tauto
 
 theorem powersetCard_filter_mem {α : Type*} [DecidableEq α] {n : ℕ} {s : Finset α} {x : α}
@@ -1277,7 +1277,7 @@ theorem sum_pair_subset {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
     refine' sum_congr _ fun U hU => rfl
     congr 1
     ext z
-    simp [mem_erase, mem_insert]
+    simp only [mem_erase, ne_eq, Finset.mem_sdiff, mem_insert, mem_singleton, not_or]
     tauto
 
 theorem choose_helper {n k : ℕ} (h : k + 1 < n) :
