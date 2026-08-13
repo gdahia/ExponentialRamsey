@@ -344,7 +344,7 @@ theorem sum_range_odd_telescope' {k : ℕ} (f : ℕ → ℝ) {c : ℝ} (hc' : �
   simp only [Function.Embedding.coeFn_mk]
   have : ∀ x, f (2 * x + 1 + 1) - f (2 * x + 1 - 1) = f (2 * (x + 1)) - f (2 * x) := by
     intro x
-    rw [show 2 * x + 1 + 1 = 2 * (x + 1) by omega, Nat.add_sub_cancel]
+    rw [(by omega : 2 * x + 1 + 1 = 2 * (x + 1)), Nat.add_sub_cancel]
   simp only [this]
   rw [sum_range_sub fun x => f (2 * x)]
   dsimp
@@ -650,11 +650,7 @@ theorem my_ineq {α : Type*} {y : Finset α} (hy : y.Nonempty) {f : α → ℝ} 
   have hycard_ne : ((y.card : ℝ) ≠ 0) := Nat.cast_ne_zero.2 hy'.ne'
   simp only [one_div]
   rw [← inv_le_inv₀, ← prod_inv_distrib, ← rpow_natCast, ← inv_rpow, mul_inv, inv_inv, ←
-    rpow_le_rpow_iff, ← rpow_mul]
-  -- `mul_inv_cancel₀` cannot fire before the exponent is exposed, so state the shape it acts on
-  change (∏ x ∈ y, (f x)⁻¹) ^ ((y.card : ℝ)⁻¹) ≤
-    ((y.card : ℝ)⁻¹ * ∑ x ∈ y, (f x)⁻¹) ^ ((y.card : ℝ) * (y.card : ℝ)⁻¹)
-  rw [mul_inv_cancel₀ hycard_ne, rpow_one, mul_sum,
+    rpow_le_rpow_iff, ← rpow_mul, mul_inv_cancel₀ hycard_ne, rpow_one, mul_sum,
     ← finset_prod_rpow y (fun x => (f x)⁻¹) fun i hi => inv_nonneg_of_nonneg (hf i hi).le]
   refine' geom_mean_le_arith_mean_weighted _ _ _ _ _ _
   · intros; positivity
@@ -1089,8 +1085,7 @@ theorem seven_nine_inner :
       positivity
     rw [Nat.cast_add_one, Nat.cast_sub this]
     rw [← sub_le_iff_le_add'] at hp₂
-    rw [add_comm]
-    refine' (add_le_add_right hp₂ _).trans _
+    refine' (add_le_add_left hp₂ _).trans _
     suffices 2 ≤ (k : ℝ) ^ (1 / 16 : ℝ) by linarith
     exact hk16 k hlk
   refine' (div_le_div_of_nonneg_right (sub_le_sub_right this _) (by positivity)).trans _
@@ -2000,7 +1995,7 @@ theorem seven_six :
     exact rpow_nonneg two_pos.le _
   rw [prod_const, ← rpow_natCast, ← rpow_mul two_pos.le]
   refine' rpow_le_rpow_of_exponent_le one_le_two _
-  rw [neg_mul, neg_mul, neg_le_neg_iff, ← mul_assoc, ← mul_assoc, show (2 : ℝ) * 2 = 4 by norm_num1]
+  rw [neg_mul, neg_mul, neg_le_neg_iff, ← mul_assoc, ← mul_assoc, (by norm_num1 : (2 : ℝ) * 2 = 4)]
   refine' mul_le_mul_of_nonneg_left _ (by positivity)
   norm_cast
   refine' (card_le_card (filter_subset _ _)).trans _
@@ -2036,7 +2031,6 @@ theorem seven_one_calc {frk fbk fsk fdk μ β : ℝ} {s_ t_ : ℕ} :
       2 ^ fbk * (μ ^ l * (μ ^ s_)⁻¹) * (2 ^ frk * (1 - μ) ^ t_) * (2 ^ fsk * β ^ s_) * 2 ^ fdk := by
   ring_nf
 
-set_option maxHeartbeats 400000 in
 theorem seven_one (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
     ∃ f : ℕ → ℝ,
       (f =o[atTop] fun i => (i : ℝ)) ∧
