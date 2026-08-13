@@ -1214,25 +1214,18 @@ theorem sum_pair_subset {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
   simp only [sum_powersetCard_insert]
   rw [Finset.sum_sigma' univ, Finset.sum_sigma' s]
   refine' sum_bij (fun x hx => ⟨x.2, x.1⟩) _ _ _ _
+  · simp +contextual [eq_comm]
+  · rintro ⟨x₁, x₂⟩ - ⟨y₁, y₂⟩ -
+    simp +contextual
+  · rintro ⟨x, y⟩
+    simp only [mem_sigma, mem_erase, mem_univ, and_true, Sigma.exists, true_and, and_imp,
+      exists_prop, and_assoc]
+    intro hx hxy
+    exact ⟨y, x, hxy.symm, hx, rfl⟩
   · rintro ⟨x, y⟩ hx
-    rw [mem_sigma, mem_erase] at hx ⊢
-    exact ⟨hx.2.2, hx.2.1.symm, mem_univ x⟩
-  · rintro ⟨x₁, x₂⟩ hx ⟨y₁, y₂⟩ hy h
-    cases h
-    rfl
-  · rintro ⟨x, y⟩ hxy
-    dsimp at hxy ⊢
-    rw [mem_sigma, mem_erase] at hxy
-    exact ⟨⟨y, x⟩, by
-      rw [mem_sigma, mem_erase]
-      exact ⟨mem_univ y, hxy.2.1.symm, hxy.1⟩, rfl⟩
-  · rintro ⟨x, y⟩ hx
+    refine' sum_congr _ fun y hy => rfl
     dsimp
-    refine' sum_congr _ fun U hU => rfl
-    congr 1
-    ext z
-    simp only [mem_erase, ne_eq, Finset.mem_sdiff, mem_insert, mem_singleton, not_or]
-    tauto
+    rw [sdiff_insert, sdiff_singleton_eq_erase]
 
 theorem choose_helper {n k : ℕ} (h : k + 1 < n) :
     (n.choose (k + 1) : ℚ)⁻¹ * ((n - 2).choose k * (1 / (((k : ℚ) + 1) * (n - ((k : ℚ) + 1))))) =
