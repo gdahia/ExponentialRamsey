@@ -125,7 +125,6 @@ theorem eleven_two_aux_error_one (μ : ℝ) (hμ₀ : 0 < μ) :
     norm_num1
     rw [rpow_one, id_eq]
   intro k s t ht hs
-  beta_reduce
   rcases s.eq_zero_or_pos with (rfl | hs₀)
   · rw [Nat.cast_zero, MulZeroClass.zero_mul]
     exact norm_nonneg _
@@ -139,7 +138,7 @@ theorem eleven_two_aux_error_one (μ : ℝ) (hμ₀ : 0 < μ) :
   have : 0 < k := hs₀.trans_le hsk
   cases' le_or_gt (logb 2 (μ * (s + t) / s)) 0 with h h
   · exact (norm_nonneg _).trans' (mul_nonpos_of_nonneg_of_nonpos (Nat.cast_nonneg _) h)
-  rw [norm_eq_abs, ← mul_add, abs_mul]
+  simp only [norm_eq_abs, ← mul_add, abs_mul]
   refine' (mul_le_mul_of_nonneg_right (hs.trans (le_abs_self _)) h.le).trans _
   refine' mul_le_mul_of_nonneg_left _ (abs_nonneg _)
   refine' (le_abs_self _).trans' _
@@ -462,8 +461,7 @@ theorem eleven_three_special (μ : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) :
 
 theorem ramseyNumber_diag_ge {k : ℕ} (hk : 2 ≤ k) : k ≤ ramseyNumber ![k, k] := by
   refine' (ramseyNumber.mono_two hk le_rfl).trans' _
-  simp only [ramseyNumber_cons_two, ramseyNumber_singleton]
-  exact le_rfl
+  simp only [ramseyNumber_cons_two, ramseyNumber_singleton, le_rfl]
 
 theorem two_le_n_of_large_k {k : ℕ} (hk : 4 ≤ k) : 2 ≤ ⌈(ramseyNumber ![k, k] : ℝ) / 2⌉₊ := by
   refine' Nat.cast_le.1 ((Nat.le_ceil _).trans' _)
@@ -745,20 +743,20 @@ theorem twelve_one {b' : ℝ} (hb' : 1 < b') {a b : ℕ} (h : b ≤ a) :
   · positivity
 
 -- lemma ten_one_precise (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
---   ∀ᶠ l : ℕ in atTop, ∀ k : ℕ,
+--   ∀ᶠ l : ℕ in at_top, ∀ k : ℕ,
 --   ∀ γ δ : ℝ, γ = l / (k + l) → γ₀ ≤ γ → γ ≤ 1 / 5 → δ = γ / 40 →
---   (ramseyNumber ![k, l] : ℝ) ≤ exp (- δ * k + 2.05) * (k + l).choose l :=
+--   (ramsey_number ![k, l] : ℝ) ≤ exp (- δ * k + 2.05) * (k + l).choose l :=
 -- lemma eleven_three (μ : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) :
---   ∃ f : ℕ → ℝ, f =o[atTop] (λ i, (i : ℝ)) ∧
---     ∀ᶠ k : ℕ in atTop,
+--   ∃ f : ℕ → ℝ, f =o[at_top] (λ i, (i : ℝ)) ∧
+--     ∀ᶠ k : ℕ in at_top,
 --     ∀ n : ℕ, 2 ≤ n →
 --     ∀ χ : TopEdgeLabelling (fin n) (fin 2),
 --     ¬ (∃ (m : finset (fin n)) (c : fin 2), χ.MonochromaticOf m c ∧ ![k, k] c ≤ m.card) →
 --     ∀ (ini : book_config χ), 1 / 2 ≤ ini.p → ⌊(n / 2 : ℝ)⌋₊ ≤ ini.Y.card →
---     let s := (densitySteps μ k k ini).card,
---         t := (redSteps μ k k ini).card
---     in logb 2 n ≤ logb 2 (ramseyNumber ![k, k - t]) + s + t + f k :=
-theorem y_le_x_mul (μ η : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) (hη : 0 < η) :
+--     let s := (density_steps μ k k ini).card,
+--         t := (red_steps μ k k ini).card
+--     in logb 2 n ≤ logb 2 (ramsey_number ![k, k - t]) + s + t + f k :=
+theorem y_le_x_hMul (μ η : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) (hη : 0 < η) :
     ∀ᶠ k : ℕ in atTop,
       ∀ n : ℕ,
         2 ≤ n →
@@ -823,7 +821,7 @@ theorem y_le_3_4 :
   have hμ₀ : (0 : ℝ) < 2 / 5 := by norm_num1
   have hμ₁ : (2 / 5 : ℝ) < 1 := by norm_num1
   have hη : (0 : ℝ) < 1 / 12 := by norm_num1
-  filter_upwards [y_le_x_mul (2 / 5) (1 / 12) hμ₀ hμ₁ hη, eventually_gt_atTop 0] with k hk hk₀ n
+  filter_upwards [y_le_x_hMul (2 / 5) (1 / 12) hμ₀ hμ₁ hη, eventually_gt_atTop 0] with k hk hk₀ n
     hn2 χ hχ ini hini
   specialize hk n hn2 χ hχ ini hini
   refine' hk.trans _
@@ -930,10 +928,9 @@ theorem eleven_one_special (η : ℝ) (hη : 0 < η) :
     positivity
   have h2x : 0 < 2 - x := sub_pos_of_lt (hxu.trans_lt (by norm_num1))
   have h₂ : (↑(k - t) : ℝ) / (↑k + ↑(k - t)) = 1 - 1 / (2 - x) := by
-    have hk' : (k : ℝ) ≠ 0 := Nat.cast_ne_zero.2 hk₀.ne'
-    dsimp only [x] at h2x ⊢
-    rw [Nat.cast_sub htk, one_sub_div h2x.ne', sub_div' hk', div_sub' hk',
-      div_div_div_cancel_right₀ hk', mul_one, two_mul, sub_sub, add_sub_add_right_eq_sub,
+    have : (k : ℝ) ≠ 0 := Nat.cast_ne_zero.2 hk₀.ne'
+    rw [Nat.cast_sub htk, one_sub_div h2x.ne', sub_div' this, div_sub' this,
+      div_div_div_cancel_right₀ this, mul_one, two_mul, sub_sub, add_sub_add_right_eq_sub,
       add_sub_assoc]
   have h₃ : (↑(k - t) : ℝ) / (↑k + ↑(k - t)) ≤ 1 / 5 := by
     rw [h₂, sub_le_comm, le_one_div _ h2x, sub_le_comm]
@@ -1055,13 +1052,12 @@ theorem eleven_one (η : ℝ) (hη : 0 < η) :
     exact (eleven_one_large_end hx hy hx99.le).trans_eq (by norm_num1)
   refine' le_max_of_le_left _
   cases' lt_or_ge ((t : ℝ) / k) 0.75 with hx34 hx34
-  · have hx34' : ¬(3 / 4 : ℝ) ≤ (t : ℝ) / k := (hx34.trans_eq (by norm_num1)).not_ge
-    rw [f, if_neg hx34', f1, add_assoc, add_div, add_div, add_div]
+  · rw [f, if_neg (hx34.trans_eq (by norm_num1)).not_ge, f1, add_assoc, add_div, add_div, add_div]
     refine' add_le_add _ (h₂.trans (half_le_self hη.le))
     rw [add_right_comm, add_rotate, add_le_add_iff_left, div_le_iff₀' hk₀']
     exact F_le_f1 rfl hk₀ hx.2
-  have hx34' : (3 / 4 : ℝ) ≤ (t : ℝ) / k := hx34.trans' (by norm_num1)
-  rw [f, if_pos hx34', f2, add_assoc, add_div, add_div, add_div, add_assoc, add_assoc]
+  rw [f, if_pos (hx34.trans' (by norm_num1)), f2, add_assoc, add_div, add_div, add_div, add_assoc,
+    add_assoc]
   refine' (add_le_add_left (div_le_div_of_nonneg_right (h₁₁ hx34 hx99) hk₀'.le) _).trans _
   rw [mul_div_cancel_left₀ _ hk₀'.ne', add_sub_assoc, add_assoc, add_right_comm, add_comm,
     add_le_add_iff_right, add_assoc, add_left_comm, add_left_comm (t / k : ℝ), add_le_add_iff_left,

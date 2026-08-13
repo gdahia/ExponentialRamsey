@@ -755,7 +755,6 @@ theorem asc_hMul_asc {a b c : ℕ} :
     a.ascFactorial b * (a + b).ascFactorial c = a.ascFactorial c * (a + c).ascFactorial b := by
   rw [mul_comm, ← yael_two, mul_comm, ← yael_two, add_comm]
 
--- `Nat.ascFactorial_pos` is stated for a successor, so restate it for a positive base
 theorem ascFactorial_pos_of_pos {a : ℕ} (ha : 0 < a) (b : ℕ) : 0 < a.ascFactorial b := by
   obtain ⟨a, rfl⟩ := Nat.exists_eq_succ_of_ne_zero ha.ne'
   exact Nat.ascFactorial_pos _ _
@@ -1177,9 +1176,7 @@ theorem powersetCard_filter_mem {α : Type*} [DecidableEq α] {n : ℕ} {s : Fin
       (powersetCard n (s.erase x)).image (insert x) := by
   rw [← insert_erase hx, powersetCard_succ_insert (notMem_erase _ _), insert_erase hx,
     filter_union, filter_false_of_mem, filter_true_of_mem, empty_union]
-  · intro U hU
-    obtain ⟨T, -, rfl⟩ := mem_image.1 hU
-    exact mem_insert_self _ _
+  · grind
   · simp +contextual [mem_powersetCard, subset_erase]
 
 theorem sum_powersetCard_insert {α β : Type*} [DecidableEq α] [AddCommMonoid β] {n : ℕ}
@@ -1217,35 +1214,29 @@ theorem sum_pair_subset {α β : Type*} [Fintype α] [DecidableEq α] [AddCommMo
   simp only [sum_powersetCard_insert]
   rw [Finset.sum_sigma' univ, Finset.sum_sigma' s]
   refine' sum_bij (fun x hx => ⟨x.2, x.1⟩) _ _ _ _
+  · simp +contextual [eq_comm]
+  rotate_right 1
   · rintro ⟨x, y⟩ hx
-    rw [mem_sigma, mem_erase] at hx ⊢
-    exact ⟨hx.2.2, hx.2.1.symm, mem_univ x⟩
-  · rintro ⟨x₁, x₂⟩ hx ⟨y₁, y₂⟩ hy h
-    cases h
-    rfl
-  · rintro ⟨x, y⟩ hxy
-    dsimp at hxy ⊢
-    rw [mem_sigma, mem_erase] at hxy
-    exact ⟨⟨y, x⟩, by
-      rw [mem_sigma, mem_erase]
-      exact ⟨mem_univ y, hxy.2.1.symm, hxy.1⟩, rfl⟩
-  · rintro ⟨x, y⟩ hx
+    refine' sum_congr _ fun y hy => rfl
     dsimp
-    refine' sum_congr _ fun U hU => rfl
-    congr 1
-    ext z
-    simp only [mem_erase, ne_eq, Finset.mem_sdiff, mem_insert, mem_singleton, not_or]
-    tauto
+    rw [sdiff_insert, sdiff_singleton_eq_erase]
+  · rintro ⟨x₁, x₂⟩ - ⟨y₁, y₂⟩ -
+    simp +contextual
+  · rintro ⟨x, y⟩
+    simp only [mem_sigma, mem_erase, mem_univ, and_true, Sigma.exists, true_and, and_imp,
+      exists_prop, and_assoc]
+    intro hx hxy
+    exact ⟨y, x, hxy.symm, hx, rfl⟩
 
 theorem choose_helper {n k : ℕ} (h : k + 1 < n) :
     (n.choose (k + 1) : ℚ)⁻¹ * ((n - 2).choose k * (1 / (((k : ℚ) + 1) * (n - ((k : ℚ) + 1))))) =
       ((n : ℚ) * (n - 1))⁻¹ := by
-  have h2 : k + 2 ≤ n := h
+  have : k + 2 ≤ n := h
   have : 2 ≤ n := h.trans_le' (by simp)
   obtain ⟨n, rfl⟩ := le_iff_exists_add'.1 this
   rw [add_tsub_cancel_right]
   clear this h
-  simp only [add_le_add_iff_right] at h2
+  simp only [add_le_add_iff_right] at this
   rw [one_div, mul_left_comm, ← mul_inv, ← one_div, ← one_div, mul_one_div, mul_left_comm, ←
     Nat.cast_add_one, ← Nat.cast_sub, ← Nat.cast_mul, ← Nat.choose_mul_succ_eq, ← Nat.cast_mul, ←
     mul_assoc, mul_comm (k + 1), ← Nat.add_one_mul_choose_eq, mul_comm (n + 1), mul_assoc,
@@ -1253,7 +1244,7 @@ theorem choose_helper {n k : ℕ} (h : k + 1 < n) :
     add_sub_assoc, Nat.cast_add_one]
   · norm_num1; rfl
   · rw [Nat.cast_ne_zero, ← pos_iff_ne_zero]
-    exact Nat.choose_pos h2
+    exact Nat.choose_pos this
   · linarith
 
 variable [Fintype V]
@@ -1407,16 +1398,16 @@ theorem nine_two_part_two {k t : ℕ} {γ η : ℝ} (hγl : 0 ≤ γ) (hγu : γ
 -- begin
 --   have : 0 < 1 - γ - η := by linarith only [hγu, hηγ],
 --   rw [div_eq_mul_one_div _ (1 - γ), mul_comm _ (1 / (1 - γ)), rpow_mul this.le],
---   refine' (mul_le_mul_of_nonneg_left (rpow_le_rpow (exp_pos _).le h (by positivity))
+--   refine (mul_le_mul_of_nonneg_left (rpow_le_rpow (exp_pos _).le h (by positivity))
 --     (exp_pos _).le).trans' _,
 --   rw [←exp_one_rpow (_ + _), ←rpow_mul (exp_pos _).le, exp_one_rpow, ←real.exp_add, exp_le_exp,
 --     sq, ←mul_assoc γ, mul_div_assoc, ←mul_comm (γ * t), ←mul_add],
 --   have : (k : ℝ) * (γ * (2 / 15)) ≤ γ * t * (1 / 5),
 --   { rw [mul_left_comm, mul_assoc],
---     refine' mul_le_mul_of_nonneg_left _ hγl,
+--     refine mul_le_mul_of_nonneg_left _ hγl,
 --     linarith only [ht] },
---   refine' this.trans (mul_le_mul_of_nonneg_left _ (by positivity)),
---   rw [div_add', le_div_iff₀],
+--   refine this.trans (mul_le_mul_of_nonneg_left _ (by positivity)),
+--   rw [div_add', le_div_iff],
 --   { linarith only [ht] },
 --   { positivity },
 --   { positivity },
@@ -1530,9 +1521,7 @@ theorem ramseyNumber_le_finset [DecidableEq K] [Fintype K] {s : Finset V}
 theorem ramseyNumber_le_choose' {i j : ℕ} : ramseyNumber ![i, j] ≤ (i + j).choose i :=
   ((ramseyNumber.mono_two (Nat.le_succ _) (Nat.le_succ _)).trans
         (ramseyNumber_le_choose (i + 1) (j + 1))).trans
-    (by
-      simp only [Nat.succ_sub_succ_eq_sub, Nat.sub_zero, Nat.add_succ, Nat.succ_add_sub_one]
-      exact le_rfl)
+    (by grind)
 
 end
 
@@ -1774,8 +1763,7 @@ theorem uLowerBoundRatio_lower_bound_aux {k l m n : ℕ} {γ δ : ℝ} (hml : m 
     exact Nat.sub_pos_of_lt hml
   rw [add_comm k (l - m)]
   refine' (Nat.choose_le_choose k (add_le_add_left this k)).trans' _
-  rw [(by omega : 1 + k = k + 1), Nat.choose_symm_add, Nat.choose_one_right]
-  simp
+  simp only [add_comm, Nat.choose_succ_self_right, le_add_iff_nonneg_right, zero_le]
 
 theorem uLowerBoundRatio_lower_bound' {k l m n : ℕ} {γ δ : ℝ} (hml : m < l) (hk₀ : 0 < k)
     (hlk : l ≤ k) (hγ : γ = l / (k + l)) (hδ : δ = γ / 20)
@@ -1840,31 +1828,25 @@ theorem maximally_good_clique_aux {V : Type*} [DecidableEq V] [Fintype V]
     {χ : TopEdgeLabelling V (Fin 2)} {U : Finset V} :
     (χ.pullback (Function.Embedding.subtype (· ∈ U))).density 1 =
       ((U.card : ℝ) * (U.card - 1))⁻¹ * ∑ v ∈ U, (blue_neighbors χ v ∩ U).card := by
-  rw [TopEdgeLabelling.density, density_eq_average_neighbors, Fintype.card_coe U]
-  push_cast
-  congr 1
-  refine' sum_bij (M := ℝ) (s := U.attach) (t := U) (fun x _ => (x : V)) (fun x _ => x.2)
-    (fun _ _ _ _ h => Subtype.ext h) _ _
+  rw [TopEdgeLabelling.density, density_eq_average_neighbors, Fintype.card_coe U, Rat.cast_mul,
+    Rat.cast_inv, Rat.cast_mul, Rat.cast_sub, Rat.cast_one, Rat.cast_natCast, Rat.cast_natCast]
+  congr 2
+  refine' sum_bij (fun x _ => (x : V)) (fun x _ => x.2) (fun _ _ _ _ h => Subtype.ext h) _ _
   · intro x hx
     refine' ⟨⟨x, hx⟩, mem_univ _, rfl⟩
   rintro ⟨x, hx⟩ -
-  have hcard :
-      (((χ.pullback (Function.Embedding.subtype (· ∈ U))).labelGraph 1).neighborFinset
-            ⟨x, hx⟩).card =
-        ((blue_neighbors χ x ∩ U).card) := by
-    refine' card_bij (fun x _ => (x : V)) _ (fun _ _ _ _ h => Subtype.ext h) _
-    · simp only [Subtype.forall, mem_neighborFinset, TopEdgeLabelling.labelGraph_adj,
-        EdgeLabelling.pullback_get, mem_inter, mem_colNeighbors, forall_exists_index,
-        Ne.eq_def, coe_mem, and_true]
-      intro y hy h hxy
-      exact ⟨fun hxy' => h (Subtype.ext hxy'), hxy⟩
-    · intro y
-      simp only [mem_neighborFinset, TopEdgeLabelling.labelGraph_adj, mem_colNeighbors,
-        mem_inter, Subtype.exists, and_imp, exists_imp, Ne.eq_def, exists_prop,
-        exists_eq_right, exists_and_right, EdgeLabelling.pullback_get]
-      intro h h' hy
-      exact ⟨hy, fun hsub => h (Subtype.ext_iff.mp hsub), h'⟩
-  exact_mod_cast hcard
+  refine' card_bij (fun x _ => (x : V)) _ (fun _ _ _ _ h => Subtype.ext h) _
+  · simp only [Subtype.forall, mem_neighborFinset, TopEdgeLabelling.labelGraph_adj,
+      EdgeLabelling.pullback_get, mem_inter, mem_colNeighbors, forall_exists_index, Ne.eq_def,
+      coe_mem, and_true]
+    intro y hy h hxy
+    exact ⟨fun hxy' => h (Subtype.ext hxy'), hxy⟩
+  · intro y
+    simp only [mem_neighborFinset, TopEdgeLabelling.labelGraph_adj, mem_colNeighbors,
+      mem_inter, Subtype.exists, and_imp, exists_imp, Ne.eq_def, exists_prop,
+      exists_eq_right, exists_and_right, EdgeLabelling.pullback_get]
+    intro h h' hy
+    exact ⟨hy, fun hsub => h (Subtype.ext_iff.mp hsub), h'⟩
 
 theorem big_U {U : ℕ} (hU : 256 ≤ U) : (U : ℝ) / (U - 1) * (1 + 1 / 16) ≤ 1 + 1 / 15 := by
   have : (256 : ℝ) ≤ U := (Nat.cast_le.2 hU).trans_eq' (by norm_num1)
