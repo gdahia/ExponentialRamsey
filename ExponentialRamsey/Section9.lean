@@ -1521,9 +1521,7 @@ theorem ramseyNumber_le_finset [DecidableEq K] [Fintype K] {s : Finset V}
 theorem ramseyNumber_le_choose' {i j : ℕ} : ramseyNumber ![i, j] ≤ (i + j).choose i :=
   ((ramseyNumber.mono_two (Nat.le_succ _) (Nat.le_succ _)).trans
         (ramseyNumber_le_choose (i + 1) (j + 1))).trans
-    (by
-      simp only [Nat.succ_sub_succ_eq_sub, Nat.sub_zero, Nat.add_succ, Nat.succ_add_sub_one]
-      exact le_rfl)
+    (by grind)
 
 end
 
