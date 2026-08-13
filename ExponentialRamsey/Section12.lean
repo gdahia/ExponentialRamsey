@@ -65,7 +65,7 @@ theorem le_x_iff_le_y {x y : ℝ} (h : x = 3 / 5 * y + 0.5454) : 3 / 4 ≤ x ↔
 
 theorem claim_a34 {x y : ℝ} (hx : x ∈ Icc (0 : ℝ) 1) (hy : y ∈ Icc (0 : ℝ) 0.75)
     (h : x = 3 / 5 * y + 0.5454) : f x y < 1.9993 := by
-  rw [f, show (3 : ℝ) / 4 = 0.75 by norm_num1]
+  rw [f, (by norm_num1 : (3 : ℝ) / 4 = 0.75)]
   split_ifs with h₁
   · exact claim_a4 ⟨h₁, hx.2⟩ hy h
   exact claim_a3 ⟨hx.1, le_of_not_ge h₁⟩ h
