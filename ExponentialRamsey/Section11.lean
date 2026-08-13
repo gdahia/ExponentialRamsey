@@ -125,7 +125,6 @@ theorem eleven_two_aux_error_one (μ : ℝ) (hμ₀ : 0 < μ) :
     norm_num1
     rw [rpow_one, id_eq]
   intro k s t ht hs
-  beta_reduce
   rcases s.eq_zero_or_pos with (rfl | hs₀)
   · rw [Nat.cast_zero, MulZeroClass.zero_mul]
     exact norm_nonneg _
@@ -139,7 +138,7 @@ theorem eleven_two_aux_error_one (μ : ℝ) (hμ₀ : 0 < μ) :
   have : 0 < k := hs₀.trans_le hsk
   cases' le_or_gt (logb 2 (μ * (s + t) / s)) 0 with h h
   · exact (norm_nonneg _).trans' (mul_nonpos_of_nonneg_of_nonpos (Nat.cast_nonneg _) h)
-  rw [norm_eq_abs, ← mul_add, abs_mul]
+  simp only [norm_eq_abs, ← mul_add, abs_mul]
   refine' (mul_le_mul_of_nonneg_right (hs.trans (le_abs_self _)) h.le).trans _
   refine' mul_le_mul_of_nonneg_left _ (abs_nonneg _)
   refine' (le_abs_self _).trans' _
