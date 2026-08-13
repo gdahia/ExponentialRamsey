@@ -16,9 +16,9 @@ import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 
 namespace SimpleGraph
 
-open scoped BigOperators ExponentialRamsey _root_.Nat Real
+open scoped BigOperators ExponentialRamsey Nat Real
 
-open Filter _root_.Finset Nat Real Asymptotics
+open Filter Finset Real Asymptotics
 
 -- fails at n = 0 because rhs is 0 and lhs is 1
 theorem little_o_stirling :

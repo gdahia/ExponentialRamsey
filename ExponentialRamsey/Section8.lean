@@ -13,7 +13,7 @@ namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey
 
-open Filter Finset Nat Real Asymptotics
+open Filter Finset Real Asymptotics
 
 variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2)}
 
