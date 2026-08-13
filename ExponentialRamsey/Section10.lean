@@ -13,7 +13,7 @@ namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey Nat Real
 
-open Filter _root_.Finset Nat Real Asymptotics
+open Filter Finset Real Asymptotics
 
 theorem large_gamma_part_one_aux {γ η : ℝ} (h : γ ≤ 1 / 5) (hη : η ≤ 1 / 800 * γ) :
     (3199 / 4000) ^ (5 / 4 : ℝ) ≤ (1 - γ - η) ^ (1 / (1 - γ)) := by
@@ -218,7 +218,7 @@ theorem ten_two_end {k t : ℕ} {γ η fk : ℝ} (hγ₀' : 0 < γ) (ht : (2 / 3
     rw [← Real.exp_add, ← Real.exp_add, ← Real.exp_add, one_le_exp_iff]
     linarith only [this]
 
-open _root_.Finset
+open Finset
 
 theorem ten_two :
     ∀ᶠ l : ℕ in atTop,
@@ -558,18 +558,15 @@ theorem large_number {k l m : ℕ} {γ δ : ℝ} (hγu : γ ≤ 1 / 5) (hδ : δ
   norm_num1
   rfl
 
-theorem Nat.tendsto_div_const_atTop {a : ℕ} (ha : a ≠ 0) : Tendsto (fun x => x / a) atTop atTop :=
-  Monotone.tendsto_atTop_atTop (fun _ _ h => Nat.div_le_div_right h) fun _ =>
-    ⟨_, (Nat.mul_div_left _ ha.bot_lt).ge⟩
-
 theorem large_l : Tendsto (fun l : ℕ => 4 * l / 9) atTop atTop := by
   refine' Monotone.tendsto_atTop_atTop _ _
   · intro i j h
     exact Nat.div_le_div_right (Nat.mul_le_mul_left _ h)
   intro b
   refine' ⟨b * 9, _⟩
-  rw [← mul_assoc, Nat.mul_div_cancel _ (by norm_num1)]
-  exact Nat.le_mul_of_pos_left _ (by norm_num1)
+  rw [← mul_assoc, Nat.mul_div_cancel]
+  · exact Nat.le_mul_of_pos_left _ (by norm_num1)
+  · norm_num1
 
 theorem ten_one_a_end {k l m n : ℕ} {γ δ : ℝ} (hγ : γ ≤ 1 / 5) (hδ : δ = γ / 40) (hml : m < l)
     (hm : exp (-δ * k) * (k + l).choose l < n)
