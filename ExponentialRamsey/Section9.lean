@@ -1398,16 +1398,16 @@ theorem nine_two_part_two {k t : ℕ} {γ η : ℝ} (hγl : 0 ≤ γ) (hγu : γ
 -- begin
 --   have : 0 < 1 - γ - η := by linarith only [hγu, hηγ],
 --   rw [div_eq_mul_one_div _ (1 - γ), mul_comm _ (1 / (1 - γ)), rpow_mul this.le],
---   refine' (mul_le_mul_of_nonneg_left (rpow_le_rpow (exp_pos _).le h (by positivity))
+--   refine (mul_le_mul_of_nonneg_left (rpow_le_rpow (exp_pos _).le h (by positivity))
 --     (exp_pos _).le).trans' _,
 --   rw [←exp_one_rpow (_ + _), ←rpow_mul (exp_pos _).le, exp_one_rpow, ←real.exp_add, exp_le_exp,
 --     sq, ←mul_assoc γ, mul_div_assoc, ←mul_comm (γ * t), ←mul_add],
 --   have : (k : ℝ) * (γ * (2 / 15)) ≤ γ * t * (1 / 5),
 --   { rw [mul_left_comm, mul_assoc],
---     refine' mul_le_mul_of_nonneg_left _ hγl,
+--     refine mul_le_mul_of_nonneg_left _ hγl,
 --     linarith only [ht] },
---   refine' this.trans (mul_le_mul_of_nonneg_left _ (by positivity)),
---   rw [div_add', le_div_iff₀],
+--   refine this.trans (mul_le_mul_of_nonneg_left _ (by positivity)),
+--   rw [div_add', le_div_iff],
 --   { linarith only [ht] },
 --   { positivity },
 --   { positivity },
