@@ -13,7 +13,7 @@ namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey
 
-open Filter _root_.Finset Nat Real Asymptotics
+open Filter Finset Real Asymptotics
 
 variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2)}
 
@@ -71,57 +71,35 @@ noncomputable def Δ' (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) (i : ℕ) (h 
 noncomputable def Δ (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) (i : ℕ) : ℝ :=
   (algorithm μ k l ini (i + 1)).p - (algorithm μ k l ini i).p
 
-local syntax "X_" term:max : term
-macro_rules
-  | `(X_ $i) =>
-      `((algorithm $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini) $i).X)
+set_option hygiene false in
+local notation:max "X_" i:max => (algorithm μ k l ini i).X
 
-local syntax "p_" term:max : term
-macro_rules
-  | `(p_ $i) =>
-      `((algorithm $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini) $i).p)
+set_option hygiene false in
+local notation:max "p_" i:max => (algorithm μ k l ini i).p
 
-local syntax "h_" term:max : term
-macro_rules
-  | `(h_ $p) => `(height $(Lean.mkIdent `k) $(Lean.mkIdent `ini).p $p)
+set_option hygiene false in
+local notation:max "h_" p:max => height k ini.p p
 
-local syntax "ℛ" : term
-macro_rules
-  | `(ℛ) =>
-      `(redSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "ℛ" => redSteps μ k l ini
 
-local syntax "ℬ" : term
-macro_rules
-  | `(ℬ) =>
-      `(bigBlueSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "ℬ" => bigBlueSteps μ k l ini
 
-local syntax "𝒮" : term
-macro_rules
-  | `(𝒮) =>
-      `(densitySteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "𝒮" => densitySteps μ k l ini
 
-local syntax "𝒟" : term
-macro_rules
-  | `(𝒟) =>
-      `(degreeSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "𝒟" => degreeSteps μ k l ini
 
-local syntax "t" : term
-macro_rules
-  | `(t) =>
-      `((redSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini)).card)
+set_option hygiene false in
+local notation "t" => (redSteps μ k l ini).card
 
-local syntax "s" : term
-macro_rules
-  | `(s) =>
-      `((densitySteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini)).card)
+set_option hygiene false in
+local notation "s" => (densitySteps μ k l ini).card
 
-local syntax "ε" : term
-macro_rules
-  | `(ε) => `((($(Lean.mkIdent `k) : ℝ) ^ (-1 / 4 : ℝ)))
+set_option hygiene false in
+local notation "ε" => (k : ℝ) ^ (-1 / 4 : ℝ)
 
 theorem prop33_aux {μ : ℝ} {z : ℕ} (h : 1 ≤ z) :
     ∑ h ∈ Icc 1 z, Δ' μ k l ini i h =
@@ -725,12 +703,12 @@ theorem eq_41 (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1)
 -- k ≥ 1.6
 theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2 * k ^ 5 ≤ 2 * k ^ 7 := by
   filter_upwards [eventually_ge_atTop (1.6 : ℝ)] with k hk
-  rw [show (1.6 : ℝ) = 8 / 5 by norm_num1] at hk
+  rw [(by norm_num1 : (1.6 : ℝ) = 8 / 5)] at hk
   have h₄ : 2 * k ^ 4 ≤ 2 * (5 / 8) ^ 3 * k ^ 7 := by
     rw [mul_assoc]
     refine' mul_le_mul_of_nonneg_left _ (by norm_num1)
     rw [← div_le_iff₀', div_pow, div_div_eq_mul_div, mul_div_assoc, ← div_pow,
-      show k ^ 7 = k ^ 4 * k ^ 3 by ring]
+      (by ring : k ^ 7 = k ^ 4 * k ^ 3)]
     · refine' mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (by norm_num1) hk _) _
       exact pow_nonneg (by positivity) _
     positivity
@@ -743,7 +721,7 @@ theorem polynomial_ineq_aux : ∀ᶠ k : ℝ in atTop, 2 * k ^ 4 + 1 + k ^ 6 + 2
     rw [mul_assoc]
     refine' mul_le_mul_of_nonneg_left _ (by norm_num1)
     rw [← div_le_iff₀', div_pow, div_div_eq_mul_div, mul_div_assoc, ← div_pow,
-      show k ^ 7 = k ^ 5 * k ^ 2 by ring]
+      (by ring : k ^ 7 = k ^ 5 * k ^ 2)]
     · refine' mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (by norm_num1) hk _) _
       exact pow_nonneg (by positivity) _
     positivity

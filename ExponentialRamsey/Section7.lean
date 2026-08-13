@@ -14,63 +14,41 @@ namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey
 
-open Filter _root_.Finset Nat Real Asymptotics
+open Filter Finset Real Asymptotics
 
 variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2)}
 
 variable {k l : ℕ} {ini : BookConfig χ} {i : ℕ}
 
-local syntax "X_" term:max : term
-macro_rules
-  | `(X_ $i) =>
-      `((algorithm $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini) $i).X)
+set_option hygiene false in
+local notation:max "X_" i:max => (algorithm μ k l ini i).X
 
-local syntax "p_" term:max : term
-macro_rules
-  | `(p_ $i) =>
-      `((algorithm $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini) $i).p)
+set_option hygiene false in
+local notation:max "p_" i:max => (algorithm μ k l ini i).p
 
-local syntax "h_" term:max : term
-macro_rules
-  | `(h_ $p) => `(height $(Lean.mkIdent `k) $(Lean.mkIdent `ini).p $p)
+set_option hygiene false in
+local notation:max "h_" p:max => height k ini.p p
 
-local syntax "ℛ" : term
-macro_rules
-  | `(ℛ) =>
-      `(redSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "ℛ" => redSteps μ k l ini
 
-local syntax "ℬ" : term
-macro_rules
-  | `(ℬ) =>
-      `(bigBlueSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "ℬ" => bigBlueSteps μ k l ini
 
-local syntax "𝒮" : term
-macro_rules
-  | `(𝒮) =>
-      `(densitySteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "𝒮" => densitySteps μ k l ini
 
-local syntax "𝒟" : term
-macro_rules
-  | `(𝒟) =>
-      `(degreeSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "𝒟" => degreeSteps μ k l ini
 
-local syntax "t" : term
-macro_rules
-  | `(t) =>
-      `((redSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini)).card)
+set_option hygiene false in
+local notation "t" => (redSteps μ k l ini).card
 
-local syntax "s" : term
-macro_rules
-  | `(s) =>
-      `((densitySteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini)).card)
+set_option hygiene false in
+local notation "s" => (densitySteps μ k l ini).card
 
-local syntax "ε" : term
-macro_rules
-  | `(ε) => `((($(Lean.mkIdent `k) : ℝ) ^ (-1 / 4 : ℝ)))
+set_option hygiene false in
+local notation "ε" => (k : ℝ) ^ (-1 / 4 : ℝ)
 
 theorem seven_two_single (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
     ∀ᶠ l : ℕ in atTop,
@@ -83,7 +61,7 @@ theorem seven_two_single (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
                   (¬∃ (m : Finset (Fin n)) (c : Fin 2),
                         χ.MonochromaticOf m c ∧ ![k, l] c ≤ m.card) →
                     ∀ ini : BookConfig χ,
-                      ∀ i ∈ redSteps μ k l ini,
+                      ∀ i ∈ ℛ,
                         2 ^ (-2 * (1 / ((1 - μ) * k))) * (1 - μ) ≤
                           ((X_ (i + 1)).card : ℝ) / (X_ i).card := by
   have h34 : (0 : ℝ) < 3 / 4 := by norm_num1
@@ -298,10 +276,8 @@ noncomputable def moderateSteps (μ : ℝ) (k l : ℕ) (ini : BookConfig χ) : F
   (densitySteps μ k l ini).filter fun i =>
     (height k ini.p (p_ (i + 1)) : ℝ) - height k ini.p (p_ i) ≤ k ^ (1 / 16 : ℝ)
 
-local syntax "𝒮⁺" : term
-macro_rules
-  | `(𝒮⁺) =>
-      `(moderateSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "𝒮⁺" => moderateSteps μ k l ini
 
 theorem range_filter_odd_eq_union {μ : ℝ} :
     (range (finalStep μ k l ini)).filter Odd =
@@ -328,23 +304,14 @@ theorem sum_range_odd_telescope' {k : ℕ} (f : ℕ → ℝ) {c : ℝ} (hc' : �
       Function.Embedding.coeFn_mk]
     constructor
     · rintro ⟨hi, i, rfl⟩
-      refine' ⟨i, _, rfl⟩
-      suffices 2 * i + 1 < 2 * (k / 2) + 1 by omega
-      refine' hi.trans_le _
-      rcases Nat.even_or_odd k with hk | hk
-      · rw [Nat.two_mul_div_two_of_even hk]
-        simp
-      rw [Nat.two_mul_div_two_add_one_of_odd hk]
+      exact ⟨i, by omega, rfl⟩
     rintro ⟨i, hi, rfl⟩
-    refine' ⟨_, i, rfl⟩
-    have hle : 2 * (i + 1) ≤ k :=
-      (Nat.mul_le_mul_left 2 (Nat.succ_le_of_lt hi)).trans (Nat.mul_div_le k 2)
-    omega
+    exact ⟨by omega, i, rfl⟩
   rw [this, sum_map]
   simp only [Function.Embedding.coeFn_mk]
   have : ∀ x, f (2 * x + 1 + 1) - f (2 * x + 1 - 1) = f (2 * (x + 1)) - f (2 * x) := by
     intro x
-    rw [show 2 * x + 1 + 1 = 2 * (x + 1) by omega, Nat.add_sub_cancel]
+    rw [(by omega : 2 * x + 1 + 1 = 2 * (x + 1)), Nat.add_sub_cancel]
   simp only [this]
   rw [sum_range_sub fun x => f (2 * x)]
   dsimp
@@ -647,14 +614,9 @@ theorem beta_le_one (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
 theorem my_ineq {α : Type*} {y : Finset α} (hy : y.Nonempty) {f : α → ℝ} (hf : ∀ i ∈ y, 0 < f i) :
     ((y.card : ℝ) * (∑ i ∈ y, 1 / f i)⁻¹) ^ y.card ≤ ∏ i ∈ y, f i := by
   have hy' : 0 < y.card := by rwa [card_pos]
-  have hycard_ne : ((y.card : ℝ) ≠ 0) := Nat.cast_ne_zero.2 hy'.ne'
   simp only [one_div]
   rw [← inv_le_inv₀, ← prod_inv_distrib, ← rpow_natCast, ← inv_rpow, mul_inv, inv_inv, ←
-    rpow_le_rpow_iff, ← rpow_mul]
-  -- `mul_inv_cancel₀` cannot fire before the exponent is exposed, so state the shape it acts on
-  change (∏ x ∈ y, (f x)⁻¹) ^ ((y.card : ℝ)⁻¹) ≤
-    ((y.card : ℝ)⁻¹ * ∑ x ∈ y, (f x)⁻¹) ^ ((y.card : ℝ) * (y.card : ℝ)⁻¹)
-  rw [mul_inv_cancel₀ hycard_ne, rpow_one, mul_sum,
+    rpow_le_rpow_iff, ← rpow_mul, mul_inv_cancel₀ (by positivity), rpow_one, mul_sum,
     ← finset_prod_rpow y (fun x => (f x)⁻¹) fun i hi => inv_nonneg_of_nonneg (hf i hi).le]
   refine' geom_mean_le_arith_mean_weighted _ _ _ _ _ _
   · intros; positivity
@@ -1089,8 +1051,7 @@ theorem seven_nine_inner :
       positivity
     rw [Nat.cast_add_one, Nat.cast_sub this]
     rw [← sub_le_iff_le_add'] at hp₂
-    rw [add_comm]
-    refine' (add_le_add_right hp₂ _).trans _
+    refine' (add_le_add_left hp₂ _).trans _
     suffices 2 ≤ (k : ℝ) ^ (1 / 16 : ℝ) by linarith
     exact hk16 k hlk
   refine' (div_le_div_of_nonneg_right (sub_le_sub_right this _) (by positivity)).trans _
@@ -1322,7 +1283,6 @@ theorem height_qStar_le :
   · norm_num
   have : (k : ℝ) ^ (-1 / 4 : ℝ) ≤ 2 / 3 := by rwa [neg_div]
   refine' (log_inequality (by positivity) this).trans' (mul_le_mul_of_nonneg_left _ (by positivity))
-  -- the original's `bit1` normalisation left `3 / 4` here, Lean 4's leaves `3 / (2 * 2)`
   exact quick_calculation.trans_eq' (by norm_num1)
 
 -- t ≤ k
@@ -2000,7 +1960,7 @@ theorem seven_six :
     exact rpow_nonneg two_pos.le _
   rw [prod_const, ← rpow_natCast, ← rpow_mul two_pos.le]
   refine' rpow_le_rpow_of_exponent_le one_le_two _
-  rw [neg_mul, neg_mul, neg_le_neg_iff, ← mul_assoc, ← mul_assoc, show (2 : ℝ) * 2 = 4 by norm_num1]
+  rw [neg_mul, neg_mul, neg_le_neg_iff, ← mul_assoc, ← mul_assoc, (by norm_num1 : (2 : ℝ) * 2 = 4)]
   refine' mul_le_mul_of_nonneg_left _ (by positivity)
   norm_cast
   refine' (card_le_card (filter_subset _ _)).trans _
@@ -2036,7 +1996,6 @@ theorem seven_one_calc {frk fbk fsk fdk μ β : ℝ} {s_ t_ : ℕ} :
       2 ^ fbk * (μ ^ l * (μ ^ s_)⁻¹) * (2 ^ frk * (1 - μ) ^ t_) * (2 ^ fsk * β ^ s_) * 2 ^ fdk := by
   ring_nf
 
-set_option maxHeartbeats 400000 in
 theorem seven_one (μ₁ : ℝ) (hμ₁ : μ₁ < 1) :
     ∃ f : ℕ → ℝ,
       (f =o[atTop] fun i => (i : ℝ)) ∧

@@ -9,45 +9,36 @@ import ExponentialRamsey.Section5
 # Section 6
 -/
 
+theorem Nat.cast_sub_le {x y : ℕ} : (x - y : ℝ) ≤ (x - y : ℕ) := by
+  rw [sub_le_iff_le_add, ← Nat.cast_add, Nat.cast_le, ← tsub_le_iff_right]
+
 namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey
 
-open Filter _root_.Finset Real
+open Filter Finset Real
 
 variable {V : Type*} [DecidableEq V] [Fintype V] {χ : TopEdgeLabelling V (Fin 2)}
 
 variable {k l : ℕ} {ini : BookConfig χ} {i : ℕ}
 
-local syntax "p_" term:max : term
-macro_rules
-  | `(p_ $i) =>
-      `((algorithm $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l)
-          $(Lean.mkIdent `ini) $i).p)
+set_option hygiene false in
+local notation:max "p_" i:max => (algorithm μ k l ini i).p
 
-local syntax "ℛ" : term
-macro_rules
-  | `(ℛ) =>
-      `(redSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "ℛ" => redSteps μ k l ini
 
-local syntax "ℬ" : term
-macro_rules
-  | `(ℬ) =>
-      `(bigBlueSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "ℬ" => bigBlueSteps μ k l ini
 
-local syntax "𝒮" : term
-macro_rules
-  | `(𝒮) =>
-      `(densitySteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "𝒮" => densitySteps μ k l ini
 
-local syntax "𝒟" : term
-macro_rules
-  | `(𝒟) =>
-      `(degreeSteps $(Lean.mkIdent `μ) $(Lean.mkIdent `k) $(Lean.mkIdent `l) $(Lean.mkIdent `ini))
+set_option hygiene false in
+local notation "𝒟" => degreeSteps μ k l ini
 
-local syntax "ε" : term
-macro_rules
-  | `(ε) => `(($(Lean.mkIdent `k) : ℝ) ^ (-1 / 4 : ℝ))
+set_option hygiene false in
+local notation "ε" => (k : ℝ) ^ (-1 / 4 : ℝ)
 
 theorem six_four_red {μ : ℝ} (hi : i ∈ redSteps μ k l ini) :
     (algorithm μ k l ini i).p - αFunction k (height k ini.p (algorithm μ k l ini i).p) ≤
@@ -261,9 +252,6 @@ theorem six_five_red_aux_glue :
   intro x
   exact rpow_nonneg (Nat.cast_nonneg _) _
 
-theorem Nat.cast_sub_le {x y : ℕ} : (x - y : ℝ) ≤ (x - y : ℕ) := by
-  rw [sub_le_iff_le_add, ← Nat.cast_add, Nat.cast_le, ← tsub_le_iff_right]
-
 theorem six_five_red :
     ∀ᶠ l : ℕ in atTop,
       ∀ k,
@@ -436,23 +424,15 @@ theorem six_five_blue (μ₀ : ℝ) (hμ₀ : 0 < μ₀) :
     grind
   refine' mul_le_mul_of_nonneg_right _ (pow_nonneg hz.le _)
   let ν : ℝ := k ^ (-(1 / 8) : ℝ)
-  -- `convert` cannot bridge the `Monoid.npow`/`rpow` mismatch here, so rewrite the base, the
-  -- exponent and the right-hand side one at a time
   suffices (1 + ν ^ 2) ^ (-⌊2 * ν⁻¹⌋₊ : ℝ) ≤ 1 - ν by
-    have hbase : 1 + (k : ℝ) ^ (-1 / 4 : ℝ) = 1 + ν ^ 2 := by
-      rw [← rpow_two, ← rpow_mul (Nat.cast_nonneg _)]
+    convert (config := { sameFun := true }) this using 2
+    · rw [← rpow_natCast, ← rpow_neg hz.le, ← rpow_neg (Nat.cast_nonneg _), neg_neg, ← rpow_two, ←
+        rpow_mul (Nat.cast_nonneg _)]
       norm_num
-    have hexp : ⌊2 * (k : ℝ) ^ (1 / 8 : ℝ)⌋₊ = ⌊2 * ν⁻¹⌋₊ := by
-      rw [← rpow_neg (Nat.cast_nonneg _) (-(1 / 8 : ℝ))]
-      norm_num
-    have hrhs : (k : ℝ) ^ (1 / 8 : ℝ) * k ^ (-1 / 4 : ℝ) = ν := by
-      rw [← rpow_add' (Nat.cast_nonneg _)]
-      · norm_num
-        rfl
+    rw [← rpow_add' (Nat.cast_nonneg _)]
+    · congr 1
       norm_num1
-    rw [hbase, hexp, hrhs, ← rpow_natCast, ← rpow_neg]
-    · exact this
-    positivity
+    norm_num1
   exact hkε k hlk (rpow_pos_of_pos (Nat.cast_pos.2 hk₀) _)
 
 /-- the set of steps on which p is below p₀ and decreases in two steps -/
@@ -746,12 +726,13 @@ theorem six_two_part_one {f : ℕ → ℝ} {j j' : ℕ} (hj : Odd j) (hj' : Odd 
   obtain ⟨j, rfl⟩ := hj.exists_bit1
   obtain ⟨j', rfl⟩ := hj'.exists_bit1
   replace hjj : j' ≤ j := by omega
+  have hinj : Function.Injective fun n : ℕ => 2 * n + 1 := by
+    intro i i' h
+    dsimp at h
+    omega
   have :
     (Icc (2 * j' + 1 + 2) (2 * j + 1)).filter Odd =
-      (Icc (j' + 1) j).map ⟨fun n => 2 * n + 1, by
-        intro i i' h
-        dsimp at h
-        omega⟩ := by
+      (Icc (j' + 1) j).map ⟨fun n => 2 * n + 1, hinj⟩ := by
     ext i
     simp only [mem_filter, mem_Icc, Finset.mem_map, odd_iff_exists_bit1,
       Function.Embedding.coeFn_mk, and_assoc]
@@ -771,10 +752,8 @@ theorem six_two_part_one {f : ℕ → ℝ} {j j' : ℕ} (hj : Odd j) (hj' : Odd 
     rw [Nat.add_sub_cancel]
     simp only [mul_add, add_assoc, mul_one]
   simp only [this]
-  rw [sum_range_sub', add_zero]
-  have h₁ : 2 * j' + 1 + 1 = 2 * (j' + 1) := by omega
-  have h₂ : 2 * j + 1 + 1 = 2 * (j' + 1 + (j - j')) := by omega
-  rw [h₁, h₂]
+  rw [sum_range_sub']
+  grind
 
 theorem sum_le_of_nonneg {α : Type*} {f : α → ℝ} {s : Finset α} :
     ∑ x ∈ s, f x ≤ ∑ x ∈ (s.filter fun i => 0 < f i), f x := by
@@ -925,7 +904,7 @@ theorem six_two_main (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ�
           (hl' k hlk μ hμl hμu n χ hχ ini hini j' (hj'.1.trans_lt hj) hj'.2.1 this hj'.2.2)
           _).trans'
       _
-  rw [show (3 : ℝ) = 2 + 1 by norm_num, add_one_mul, sub_sub, add_comm]
+  rw [← two_add_one_eq_three, add_one_mul, sub_sub, add_comm]
 
 theorem six_two (μ₀ μ₁ p₀ : ℝ) (hμ₀ : 0 < μ₀) (hμ₁ : μ₁ < 1) (hp₀ : 0 < p₀) :
     ∀ᶠ l : ℕ in atTop,

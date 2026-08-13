@@ -13,7 +13,7 @@ namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey Nat Real
 
-open Filter _root_.Finset Nat Real Asymptotics
+open Filter Finset Real Asymptotics
 
 theorem large_gamma_part_one_aux {γ η : ℝ} (h : γ ≤ 1 / 5) (hη : η ≤ 1 / 800 * γ) :
     (3199 / 4000) ^ (5 / 4 : ℝ) ≤ (1 - γ - η) ^ (1 / (1 - γ)) := by
@@ -218,7 +218,7 @@ theorem ten_two_end {k t : ℕ} {γ η fk : ℝ} (hγ₀' : 0 < γ) (ht : (2 / 3
     rw [← Real.exp_add, ← Real.exp_add, ← Real.exp_add, one_le_exp_iff]
     linarith only [this]
 
-open _root_.Finset
+open Finset
 
 theorem ten_two :
     ∀ᶠ l : ℕ in atTop,
@@ -537,9 +537,7 @@ theorem other_silly_numeric : 1 ≤ exp (-(1 / 200)) * (1 + 4 / 81) := by
 theorem large_number {k l m : ℕ} {γ δ : ℝ} (hγu : γ ≤ 1 / 5) (hδ : δ = γ / 40) (hlm : m ≤ l)
     (h : (1 + 4 / 81 : ℝ) * k ≤ (k + l - m : ℝ)) (hk : 0 < k) (hk' : 200 ≤ k) :
     801 ≤ exp (-δ * k) * ((k + l - m).choose k : ℝ) := by
-  have h₁ : k ≤ k + l - m := by
-    rw [add_tsub_assoc_of_le hlm]
-    simp only [le_add_iff_nonneg_right, zero_le']
+  have h₁ : k ≤ k + l - m := by grind
   have h₂ : exp (-(1 / 200)) ^ k ≤ exp (-δ * k) := by
     rw [← exp_nat_mul, mul_comm, exp_le_exp, hδ]
     refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)
@@ -558,18 +556,9 @@ theorem large_number {k l m : ℕ} {γ δ : ℝ} (hγu : γ ≤ 1 / 5) (hδ : δ
   norm_num1
   rfl
 
-theorem Nat.tendsto_div_const_atTop {a : ℕ} (ha : a ≠ 0) : Tendsto (fun x => x / a) atTop atTop :=
-  Monotone.tendsto_atTop_atTop (fun _ _ h => Nat.div_le_div_right h) fun _ =>
-    ⟨_, (Nat.mul_div_left _ ha.bot_lt).ge⟩
-
-theorem large_l : Tendsto (fun l : ℕ => 4 * l / 9) atTop atTop := by
-  refine' Monotone.tendsto_atTop_atTop _ _
-  · intro i j h
-    exact Nat.div_le_div_right (Nat.mul_le_mul_left _ h)
-  intro b
-  refine' ⟨b * 9, _⟩
-  rw [← mul_assoc, Nat.mul_div_cancel _ (by norm_num1)]
-  exact Nat.le_mul_of_pos_left _ (by norm_num1)
+theorem large_l : Tendsto (fun l : ℕ => 4 * l / 9) atTop atTop :=
+  (Nat.tendsto_div_const_atTop (by norm_num1)).comp <|
+    tendsto_atTop_mono (fun n => Nat.le_mul_of_pos_left n (by norm_num1)) tendsto_id
 
 theorem ten_one_a_end {k l m n : ℕ} {γ δ : ℝ} (hγ : γ ≤ 1 / 5) (hδ : δ = γ / 40) (hml : m < l)
     (hm : exp (-δ * k) * (k + l).choose l < n)
@@ -704,7 +693,7 @@ theorem ten_one_precise (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
   filter_upwards [top_adjuster (eventually_ge_atTop 2), eventually_gt_atTop 0,
     eventually_ge_atTop 200, nine_one_precise γ₀ hγ₀,
     large_l.eventually (top_adjuster ten_two_variant),
-    (Nat.tendsto_div_const_atTop (show 3 ≠ 0 by norm_num1)).eventually
+    (Nat.tendsto_div_const_atTop (by norm_num1 : 3 ≠ 0)).eventually
       (top_adjuster (nine_one_precise (1 / 20) (by positivity)))] with
     l hk₂ hl₀ hk₈ hk₉₁ h₁₀₂ h₉₁ k γ δ hγ hγl hγu hδ
   cases' le_or_gt γ (1 / 10) with hγ₁₀ hγ₁₀
@@ -712,7 +701,7 @@ theorem ten_one_precise (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
     refine' mul_le_mul_of_nonneg_right (exp_le_exp.2 _) (Nat.cast_nonneg _)
     refine'
       add_le_add (mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _))
-        (show (1 : ℝ) ≤ 2.05 by norm_num1)
+        (by norm_num1 : (1 : ℝ) ≤ 2.05)
     linarith only [hδ, hγl, hγ₀]
   let n := ⌈(ramseyNumber ![k, l] / exp 1 : ℝ)⌉₊
   have hlk := le_of_gamma_le_half hγ hl₀ (hγu.trans (by norm_num1))

@@ -17,10 +17,6 @@ open Real
 theorem logb_zpow {b x : ℝ} (m : ℤ) : logb b (x ^ m) = m * logb b x := by
   rw [logb, log_zpow, mul_div_assoc, logb]
 
-theorem logb_le_logb_of_le {b x y : ℝ} (hb : 1 ≤ b) (hx : 0 < x) (hy : x ≤ y) :
-    logb b x ≤ logb b y :=
-  div_le_div_of_nonneg_right (Real.log_le_log hx hy) (log_nonneg hb)
-
 theorem logb_base {b : ℝ} (hb : 0 < b) (hb' : b ≠ 1) : logb b b = 1 :=
   div_self (log_ne_zero_of_pos_of_ne_one hb hb')
 
@@ -42,8 +38,8 @@ theorem log_base2_weaken {x₁ x₂ a₁ a₂ : ℝ} (x₃ x₄ : ℝ) (h : LogB
   intro hx₁ hx₂
   have t := h h₃ (h₁.trans (hx₂.trans h₂))
   exact
-    ⟨t.1.trans_le (logb_le_logb_of_le one_le_two h₃ h₁),
-      t.2.trans_le' (logb_le_logb_of_le one_le_two (hx₁.trans_le hx₂) h₂)⟩
+    ⟨t.1.trans_le (logb_le_logb_of_le one_lt_two h₃ h₁),
+      t.2.trans_le' (logb_le_logb_of_le one_lt_two (hx₁.trans_le hx₂) h₂)⟩
 
 theorem log_base2_half {x₁ x₂ a₁ a₂ : ℝ} (h : LogBase2Goal (x₁ / 2) (x₂ / 2) (a₁ - 1) (a₂ - 1)) :
     LogBase2Goal x₁ x₂ a₁ a₂ := fun hx₁ hx₂ => by

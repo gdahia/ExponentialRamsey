@@ -5,7 +5,6 @@ Authors: Bhavik Mehta
 -/
 import ExponentialRamsey.Section10
 import ExponentialRamsey.Prereq.Mathlib.InformationTheory.BinaryEntropy
-import ExponentialRamsey.Prereq.Mathlib.Analysis.Calculus.Deriv.MeanValue
 import ExponentialRamsey.Prereq.Mathlib.Analysis.SpecialFunctions.Log.Base
 
 /-!
@@ -16,7 +15,7 @@ namespace SimpleGraph
 
 open scoped BigOperators ExponentialRamsey Nat Real
 
-open Filter _root_.Finset Nat Real Asymptotics
+open Filter Finset Real Asymptotics
 
 theorem large_X (n m : ℕ) (hn'' : 2 ≤ n) (hn' : ⌊(n / 2 : ℝ)⌋₊ ≤ m) :
     (2 : ℝ) ^ (-2 : ℝ) * n ≤ m := by
@@ -68,9 +67,6 @@ theorem eleven_two_start (μ : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) :
   rw [div_eq_mul_inv, mul_comm, rpow_neg two_pos.le, inv_inv, ← mul_assoc, ← rpow_add two_pos, ←
     mul_assoc, ← rpow_add two_pos, ← mul_assoc, ← mul_assoc]
 
-theorem logb_pow {b x : ℝ} {k : ℕ} : logb b (x ^ k) = k * logb b x := by
-  rw [logb, log_pow, mul_div_assoc, logb]
-
 theorem IsLittleO.max {f g h : ℕ → ℝ} (hf : f =o[atTop] h) (hg : g =o[atTop] h) :
     (fun x => max (f x) (g x)) =o[atTop] h := by
   rw [isLittleO_iff]
@@ -89,16 +85,12 @@ theorem log_one_add_o (f : ℕ → ℝ) (hf : f =o[atTop] fun _ => (1 : ℝ)) :
   convert (@tendsto_const_nhds _ _ _ 1 _).add hf using 1
   rw [add_zero]
 
-theorem logb_isBigO_log (b : ℝ) (l) : logb b =O[l] log := by
-  rw [isBigO_iff]
-  refine' ⟨‖(log b)⁻¹‖, _⟩
-  filter_upwards with k
-  rw [logb, div_eq_mul_inv, norm_mul, mul_comm]
-
 -- logb (1 + o(1)) is o(1)
 theorem logb_one_add_o {b : ℝ} (f : ℕ → ℝ) (hf : f =o[atTop] fun _ => (1 : ℝ)) :
     (fun k => logb b (1 + f k)) =o[atTop] fun _ => (1 : ℝ) := by
-  refine' (IsBigO.comp_tendsto (logb_isBigO_log _ (nhds 1)) _).trans_isLittleO (log_one_add_o _ hf)
+  refine'
+    (IsBigO.comp_tendsto (isBigO_logb_log.mono (le_top : nhds (1 : ℝ) ≤ ⊤)) _).trans_isLittleO
+      (log_one_add_o _ hf)
   rw [isLittleO_one_iff] at hf
   convert (@tendsto_const_nhds _ _ _ 1 _).add hf using 1
   rw [add_zero]
@@ -126,7 +118,7 @@ theorem eleven_two_aux_error_one (μ : ℝ) (hμ₀ : 0 < μ) :
       isBigO_refl _ _
     refine'
       (IsBigO.mul_isLittleO this
-          (isLittleO_logb_rpow_atTop (show (0 : ℝ) < 1 / 32 by norm_num1))).congr'
+          (isLittleO_logb_rpow_atTop (by norm_num1 : (0 : ℝ) < 1 / 32))).congr'
         EventuallyEq.rfl _
     filter_upwards [eventually_gt_atTop (0 : ℝ)] with k hk
     rw [← rpow_add hk]
@@ -168,12 +160,6 @@ theorem logb_coe_nonneg (b : ℝ) (hb : 1 < b) (k : ℕ) : 0 ≤ logb b k := by
   · rw [Nat.cast_zero, logb_zero]
   refine' logb_nonneg hb _
   simp
-
-theorem logb_le_logb_of_le {b x y : ℝ} (hb : 1 ≤ b) (hx : 0 < x) (hxy : x ≤ y) :
-    logb b x ≤ logb b y := by
-  rcases eq_or_lt_of_le hb with (rfl | hb')
-  · rw [logb, logb, log_one, div_zero, div_zero]
-  rwa [logb_le_logb hb' hx (hx.trans_le hxy)]
 
 theorem eleven_two_aux_error_one' (μ : ℝ) (hμ₀ : 0 < μ) :
     ∃ f : ℕ → ℝ,
@@ -221,7 +207,7 @@ theorem eleven_two_aux_error_one' (μ : ℝ) (hμ₀ : 0 < μ) :
     · have : 0 < k := hs.trans_le this; positivity
   rw [← Nat.cast_add, abs_of_nonneg (logb_coe_nonneg _ one_lt_two _), Nat.cast_add,
     abs_of_nonneg (logb_coe_nonneg _ one_lt_two _), two_mul, ← add_assoc, this, two_mul]
-  refine' add_le_add (logb_le_logb_of_le one_lt_two.le _ _) (logb_le_logb_of_le one_lt_two.le _ _)
+  refine' add_le_add (logb_le_logb_of_le one_lt_two _ _) (logb_le_logb_of_le one_lt_two _ _)
   any_goals positivity
   any_goals norm_cast
   · exact add_le_add ‹_› htk
@@ -241,10 +227,10 @@ theorem eleven_two_aux_error_one_other (μ : ℝ) (hμ₀ : 0 < μ) :
       (fun x : ℝ => logb 2 μ * x ^ (31 / 32 : ℝ) + 2 * (x ^ (31 / 32 : ℝ) * logb 2 x)) =o[atTop] id
       by exact this.comp_tendsto tendsto_natCast_atTop_atTop
     refine' IsLittleO.add (IsLittleO.const_mul_left _ _) (IsLittleO.const_mul_left _ _)
-    · simpa only [rpow_one] using isLittleO_rpow_rpow (show (31 / 32 : ℝ) < 1 by norm_num1)
+    · simpa only [rpow_one] using isLittleO_rpow_rpow (by norm_num1 : (31 / 32 : ℝ) < 1)
     refine'
       (IsBigO.mul_isLittleO (isBigO_refl (fun k : ℝ => (k : ℝ) ^ (31 / 32 : ℝ)) atTop)
-            (isLittleO_logb_rpow_atTop (show (0 : ℝ) < 1 / 32 by norm_num1))).congr'
+            (isLittleO_logb_rpow_atTop (by norm_num1 : (0 : ℝ) < 1 / 32))).congr'
         EventuallyEq.rfl _
     filter_upwards [eventually_gt_atTop (0 : ℝ)] with k hk
     rw [← rpow_add hk]
@@ -269,7 +255,7 @@ theorem eleven_two_aux_error_one_other (μ : ℝ) (hμ₀ : 0 < μ) :
   · positivity
   · positivity
   refine' mul_le_mul_of_nonneg_left _ (by positivity)
-  refine' logb_le_logb_of_le one_lt_two.le (div_pos hμ₀ hβ') _
+  refine' logb_le_logb_of_le one_lt_two (div_pos hμ₀ hβ') _
   refine' (div_le_div_of_nonneg_left hμ₀.le (by positivity) hβ).trans _
   rw [div_div_eq_mul_div, div_one]
 
@@ -286,7 +272,7 @@ theorem eleven_two_aux_error_two (μ : ℝ) (hμ₀ : 0 < μ) (f : ℕ → ℝ)
                     (1 + f k) * (s / (s + t)) ≤ β →
                       (s : ℝ) * logb 2 (μ / β) ≤ (s : ℝ) * logb 2 (μ * (s + t) / s) + g k := by
   have := (isLittleO_one_iff _).1 hf
-  have := this.eventually (eventually_gt_nhds (show (-1 : ℝ) < 0 by norm_num1))
+  have := this.eventually (eventually_gt_nhds (by norm_num1 : (-1 : ℝ) < 0))
   refine' ⟨fun k => ‖(k * -logb 2 (1 + f k) : ℝ)‖, _, _⟩
   · rw [isLittleO_norm_left]
     refine'
@@ -439,7 +425,7 @@ theorem eleven_three (μ : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) :
   rw [mul_right_comm, ← rpow_add two_pos] at hf
   replace hf := hf.trans' (mul_le_mul_of_nonneg_left (large_X _ _ hn hn') (by positivity))
   rw [← mul_assoc, ← rpow_add two_pos] at hf
-  replace hf := logb_le_logb_of_le one_le_two (by positivity) hf
+  replace hf := logb_le_logb_of_le one_lt_two (by positivity) hf
   rw [logb_mul, logb_rpow two_pos one_lt_two.ne', ← le_sub_iff_add_le'] at hf
   rotate_left
   · positivity
@@ -482,7 +468,7 @@ theorem ramseyNumber_diag_ge {k : ℕ} (hk : 2 ≤ k) : k ≤ ramseyNumber ![k, 
 theorem two_le_n_of_large_k {k : ℕ} (hk : 4 ≤ k) : 2 ≤ ⌈(ramseyNumber ![k, k] : ℝ) / 2⌉₊ := by
   refine' Nat.cast_le.1 ((Nat.le_ceil _).trans' _)
   rw [Nat.cast_two, le_div_iff₀ (zero_lt_two' ℝ)]
-  have : k ≤ ramseyNumber ![k, k] := ramseyNumber_diag_ge (hk.trans' (show 2 ≤ 4 by norm_num))
+  have : k ≤ ramseyNumber ![k, k] := ramseyNumber_diag_ge (hk.trans' (by norm_num : 2 ≤ 4))
   refine' (Nat.cast_le.2 (hk.trans this)).trans' _
   norm_num1
 
@@ -556,29 +542,6 @@ theorem eleven_two_improve (μ : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) :
     div_div_div_cancel_right₀ (Nat.cast_ne_zero.2 hk₀.ne'), add_comm]
   · positivity
   · positivity
-
-theorem sInf_mem_of_upclosed {s : Set ℝ} {ε : ℝ} (hf' : s.Nonempty)
-    (hf'' : ∀ x ∈ s, ∀ y, x ≤ y → y ∈ s) (hε : 0 < ε) : sInf s + ε ∈ s := by
-  by_contra! hε'
-  have : ∀ x ∈ s, sInf s + ε < x := by
-    intro x hx
-    by_contra!
-    exact hε' (hf'' _ hx _ this)
-  have : sInf s + ε ≤ sInf s := le_csInf hf' fun x hx => (this _ hx).le
-  simp only [add_le_iff_nonpos_right] at this
-  exact hε.not_ge this
-
-theorem le_limsup_add (f : ℕ → ℝ) (hf : BddAbove (Set.range f)) (ε : ℝ) (hε : 0 < ε) :
-    ∀ᶠ x in atTop, f x ≤ limsup f atTop + ε := by
-  suffices limsup f atTop + ε ∈ {a : ℝ | ∀ᶠ n : ℕ in atTop, f n ≤ a} by exact this
-  simp only [limsup_eq]
-  refine' sInf_mem_of_upclosed _ _ hε
-  · obtain ⟨y, hy⟩ := hf
-    refine' ⟨y, Eventually.of_forall _⟩
-    intro z
-    exact hy ⟨z, rfl⟩
-  intro x hx y hxy
-  filter_upwards [hx] with z hz using hz.trans hxy
 
 theorem exists_nice_χ {k n : ℕ} (hn2 : 2 ≤ n) (hnr : n < ramseyNumber ![k, k]) :
     ∃ χ : TopEdgeLabelling (Fin n) (Fin 2),
@@ -674,64 +637,28 @@ theorem R_k_close_to_n (k : ℕ) (hk₆ : 4 ≤ k) :
   rw [Nat.cast_pos]
   positivity
 
-theorem bin_ent_deriv_aux (x : ℝ) (hx₀ : x ≠ 0) (hx₁ : x ≠ 1) :
-    HasDerivAt (fun y => -(y * log y) + -((1 - y) * log (1 - y))) (log (1 - x) - log x) x := by
-  have h : ∀ x : ℝ, x ≠ 0 → HasDerivAt (fun y => -(y * log y)) (-(log x + 1)) x := by
-    rintro x hx₀
-    refine' HasDerivAt.neg _
-    have : 1 * log x + x * x⁻¹ = log x + 1 := by rw [one_mul, mul_inv_cancel₀ hx₀]
-    rw [← this]
-    exact HasDerivAt.mul (hasDerivAt_id' x) (hasDerivAt_log hx₀)
-  suffices
-    HasDerivAt (fun y => -(y * log y) + -((1 - y) * log (1 - y)))
-      (-(log x + 1) + -(log (1 - x) + 1) * -1) x by
-    convert this using 1
-    ring_nf
-  have : HasDerivAt (fun y : ℝ => 1 - y) (-1 : ℝ) x := (hasDerivAt_id' x).const_sub 1
-  refine' HasDerivAt.add (h _ hx₀) _
-  exact (h (1 - x) (sub_ne_zero_of_ne hx₁.symm)).comp x ((hasDerivAt_id' x).const_sub 1)
-
 theorem binEnt_deriv (b x : ℝ) (hx₀ : x ≠ 0) (hx₁ : x ≠ 1) :
     HasDerivAt (binEnt b) (logb b (1 - x) - logb b x) x := by
-  convert HasDerivAt.div_const (bin_ent_deriv_aux x hx₀ hx₁) (log b) using 1
+  convert HasDerivAt.div_const (hasDerivAt_binEntropy hx₀ hx₁) (log b) using 1
   · ext y
-    rw [binEnt_eq]
+    rw [binEnt_eq_binEntropy_div]
   rw [logb, logb, sub_div]
-
-theorem strictMonoOn_binEnt_zero_half_aux {b : ℝ} (hb : 1 < b) :
-    StrictMonoOn (binEnt b) (Set.Ioc 0 (1 / 2)) := by
-  suffices StrictMonoOn (fun p => -(p * log p) + -((1 - p) * log (1 - p))) (Set.Ioc 0 (1 / 2)) by
-    intro x hx x' hx' h
-    rw [binEnt_eq, binEnt_eq]
-    exact div_lt_div_of_pos_right (this hx hx' h) (log_pos hb)
-  clear hb b
-  refine'
-    Convex.strictMonoOn_of_hasDerivAt_pos (convex_Ioc _ _)
-      (fun x hx => bin_ent_deriv_aux x hx.1.ne' (by linarith only [hx.2])) _
-  rw [interior_Ioc]
-  rintro x ⟨hx₁, hx₂⟩
-  rw [sub_pos]
-  refine' log_lt_log _ _ <;> linarith only [hx₁, hx₂]
 
 theorem strictMonoOn_binEnt_zero_half {b : ℝ} (hb : 1 < b) :
     StrictMonoOn (binEnt b) (Set.Icc 0 (1 / 2)) := by
-  rintro x ⟨hx₁, hx₂⟩ y ⟨hy₁, hy₂⟩ h
-  rcases lt_or_eq_of_le hx₁ with (hx₁ | rfl)
-  · exact strictMonoOn_binEnt_zero_half_aux hb ⟨hx₁, hx₂⟩ ⟨hx₁.trans h, hy₂⟩ h
-  rw [binEnt_zero]
-  refine'
-    (strictMonoOn_binEnt_zero_half_aux hb ⟨half_pos h, by linarith⟩ ⟨h, hy₂⟩
-          (half_lt_self h)).trans_le'
-      _
-  exact binEnt_nonneg hb (by linarith) (by linarith)
+  intro x hx y hy h
+  rw [binEnt_eq_binEntropy_div, binEnt_eq_binEntropy_div]
+  refine' div_lt_div_of_pos_right (binEntropy_strictMonoOn _ _ h) (log_pos hb)
+  · simpa only [one_div] using hx
+  · simpa only [one_div] using hy
 
 theorem strictAntiOn_binEnt_half_one {b : ℝ} (hb : 1 < b) :
     StrictAntiOn (binEnt b) (Set.Icc (1 / 2) 1) := by
-  rintro x ⟨hx₁, hx₂⟩ y ⟨hy₁, hy₂⟩ h
-  have :=
-    strictMonoOn_binEnt_zero_half hb ⟨sub_nonneg_of_le hy₂, by linarith⟩
-      ⟨sub_nonneg_of_le hx₂, by linarith⟩ (sub_lt_sub_left h _)
-  rwa [binEnt_symm, binEnt_symm] at this
+  intro x hx y hy h
+  rw [binEnt_eq_binEntropy_div, binEnt_eq_binEntropy_div]
+  refine' div_lt_div_of_pos_right (binEntropy_strictAntiOn _ _ h) (log_pos hb)
+  · simpa only [one_div] using hx
+  · simpa only [one_div] using hy
 
 theorem strictMonoOn_Icc_iff {f : ℝ → ℝ} {a b : ℝ} :
     StrictMonoOn f (Set.Icc a b) ↔ ∀ x y, a ≤ x → x < y → y ≤ b → f x < f y := by
@@ -847,7 +774,7 @@ theorem y_le_x_mul (μ η : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) (hη : 0 < 
     refine' IsLittleO.const_mul_left _ _
     suffices (fun k : ℝ => k ^ (15 / 16 : ℝ)) =o[atTop] id by
       exact IsLittleO.comp_tendsto this tendsto_natCast_atTop_atTop
-    simpa only [rpow_one] using isLittleO_rpow_rpow (show (15 / 16 : ℝ) < 1 by norm_num)
+    simpa only [rpow_one] using isLittleO_rpow_rpow (by norm_num : (15 / 16 : ℝ) < 1)
   filter_upwards [eight_five _ _ _ hμ₀ hμ₁ hp₀, beta_pos _ _ _ hμ₀ hμ₁ hp₀,
     beta_le_μ _ _ _ hμ₀ hμ₁ hp₀, this.bound hη, eventually_gt_atTop 0] with k h₈₅ hβ₀ hβμ hη' hk₀ n
     hn χ hχ ini hini
@@ -968,7 +895,7 @@ theorem F_le_f1 {k t : ℕ} {x : ℝ} (hx : x = t / k) (hk : 0 < k) (hx1 : x ≤
     · norm_num
     positivity
   have : 0 < k - t := Nat.sub_pos_of_lt (lt_of_le_of_ne this htk)
-  refine' (F_le_f1_aux hx hk hx1).trans' (logb_le_logb_of_le one_le_two _ _)
+  refine' (F_le_f1_aux hx hk hx1).trans' (logb_le_logb_of_le one_lt_two _ _)
   · rw [Nat.cast_pos, ramseyNumber_pos, Fin.forall_fin_two]
     exact ⟨hk.ne', this.ne'⟩
   rw [Nat.cast_le]
@@ -988,7 +915,7 @@ theorem eleven_one_special (η : ℝ) (hη : 0 < η) :
   have hγ₀ : (0 : ℝ) < 1 / 101 := by norm_num1
   have q :=
     (tendsto_nat_ceil_atTop.comp
-          (tendsto_id.atTop_mul_const' (show (0 : ℝ) < 1e-2 by positivity))).comp
+          (tendsto_id.atTop_mul_const' (by positivity : (0 : ℝ) < 1e-2))).comp
       tendsto_natCast_atTop_atTop
   filter_upwards [q.eventually (top_adjuster (ten_one_precise _ hγ₀)), eventually_gt_atTop 0,
     eventually_ge_atTop ⌈41 / 20 / log 2 / η⌉₊] with k hk hk₀ hkη
@@ -1032,7 +959,7 @@ theorem eleven_one_special (η : ℝ) (hη : 0 < η) :
     rw [one_sub_div h2x.ne', sub_sub, add_comm, ← sub_sub]
     norm_num1
     rfl
-  refine' (logb_le_logb_of_le one_le_two h₅ hk).trans _
+  refine' (logb_le_logb_of_le one_lt_two h₅ hk).trans _
   have h₇ : (0 : ℝ) < (k + (k - t)).choose k := by
     rw [Nat.cast_pos]
     exact Nat.choose_pos le_self_add
@@ -1042,7 +969,7 @@ theorem eleven_one_special (η : ℝ) (hη : 0 < η) :
     add_le_add_iff_left, h₂, h₆, neg_add_eq_sub, sub_div, ← div_mul_eq_mul_div, div_div _ (40 : ℝ),
     neg_sub, mul_comm (k : ℝ), mul_comm (k : ℝ), mul_comm (1 / _ : ℝ), ← div_eq_mul_one_div,
     mul_comm (40 : ℝ), sub_le_sub_iff_right, ← div_le_iff₀' hη, ← Nat.ceil_le,
-    show (2.05 : ℝ) = 41 / 20 by norm_num1]
+    (by norm_num1 : (2.05 : ℝ) = 41 / 20)]
 
 theorem eleven_one_large_end {x y : ℝ} (hx : x ∈ Set.Icc (0 : ℝ) 1) (hy : y ∈ Set.Icc (0 : ℝ) 0.75)
     (hx' : 0.99 ≤ x) : (2 - x) * binEnt 2 (1 / (2 - x)) + (y + x) ≤ 39 / 20 := by
