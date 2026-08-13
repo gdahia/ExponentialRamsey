@@ -537,9 +537,7 @@ theorem other_silly_numeric : 1 ≤ exp (-(1 / 200)) * (1 + 4 / 81) := by
 theorem large_number {k l m : ℕ} {γ δ : ℝ} (hγu : γ ≤ 1 / 5) (hδ : δ = γ / 40) (hlm : m ≤ l)
     (h : (1 + 4 / 81 : ℝ) * k ≤ (k + l - m : ℝ)) (hk : 0 < k) (hk' : 200 ≤ k) :
     801 ≤ exp (-δ * k) * ((k + l - m).choose k : ℝ) := by
-  have h₁ : k ≤ k + l - m := by
-    rw [add_tsub_assoc_of_le hlm]
-    simp only [le_add_iff_nonneg_right, zero_le']
+  have h₁ : k ≤ k + l - m := by grind
   have h₂ : exp (-(1 / 200)) ^ k ≤ exp (-δ * k) := by
     rw [← exp_nat_mul, mul_comm, exp_le_exp, hδ]
     refine' mul_le_mul_of_nonneg_right _ (Nat.cast_nonneg _)
@@ -558,15 +556,9 @@ theorem large_number {k l m : ℕ} {γ δ : ℝ} (hγu : γ ≤ 1 / 5) (hδ : δ
   norm_num1
   rfl
 
-theorem large_l : Tendsto (fun l : ℕ => 4 * l / 9) atTop atTop := by
-  refine' Monotone.tendsto_atTop_atTop _ _
-  · intro i j h
-    exact Nat.div_le_div_right (Nat.mul_le_mul_left _ h)
-  intro b
-  refine' ⟨b * 9, _⟩
-  rw [← mul_assoc, Nat.mul_div_cancel]
-  · exact Nat.le_mul_of_pos_left _ (by norm_num1)
-  · norm_num1
+theorem large_l : Tendsto (fun l : ℕ => 4 * l / 9) atTop atTop :=
+  (Nat.tendsto_div_const_atTop (by norm_num1)).comp <|
+    tendsto_atTop_mono (fun n => Nat.le_mul_of_pos_left n (by norm_num1)) tendsto_id
 
 theorem ten_one_a_end {k l m n : ℕ} {γ δ : ℝ} (hγ : γ ≤ 1 / 5) (hδ : δ = γ / 40) (hml : m < l)
     (hm : exp (-δ * k) * (k + l).choose l < n)
