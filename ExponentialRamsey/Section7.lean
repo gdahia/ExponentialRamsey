@@ -304,18 +304,9 @@ theorem sum_range_odd_telescope' {k : ℕ} (f : ℕ → ℝ) {c : ℝ} (hc' : �
       Function.Embedding.coeFn_mk]
     constructor
     · rintro ⟨hi, i, rfl⟩
-      refine' ⟨i, _, rfl⟩
-      suffices 2 * i + 1 < 2 * (k / 2) + 1 by omega
-      refine' hi.trans_le _
-      rcases Nat.even_or_odd k with hk | hk
-      · rw [Nat.two_mul_div_two_of_even hk]
-        simp
-      rw [Nat.two_mul_div_two_add_one_of_odd hk]
+      exact ⟨i, by omega, rfl⟩
     rintro ⟨i, hi, rfl⟩
-    refine' ⟨_, i, rfl⟩
-    have hle : 2 * (i + 1) ≤ k :=
-      (Nat.mul_le_mul_left 2 (Nat.succ_le_of_lt hi)).trans (Nat.mul_div_le k 2)
-    omega
+    exact ⟨by omega, i, rfl⟩
   rw [this, sum_map]
   simp only [Function.Embedding.coeFn_mk]
   have : ∀ x, f (2 * x + 1 + 1) - f (2 * x + 1 - 1) = f (2 * (x + 1)) - f (2 * x) := by
