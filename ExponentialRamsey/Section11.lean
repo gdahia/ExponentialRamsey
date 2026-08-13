@@ -928,10 +928,9 @@ theorem eleven_one_special (η : ℝ) (hη : 0 < η) :
     positivity
   have h2x : 0 < 2 - x := sub_pos_of_lt (hxu.trans_lt (by norm_num1))
   have h₂ : (↑(k - t) : ℝ) / (↑k + ↑(k - t)) = 1 - 1 / (2 - x) := by
-    have hk' : (k : ℝ) ≠ 0 := Nat.cast_ne_zero.2 hk₀.ne'
-    dsimp only [x] at h2x ⊢
-    rw [Nat.cast_sub htk, one_sub_div h2x.ne', sub_div' hk', div_sub' hk',
-      div_div_div_cancel_right₀ hk', mul_one, two_mul, sub_sub, add_sub_add_right_eq_sub,
+    have : (k : ℝ) ≠ 0 := Nat.cast_ne_zero.2 hk₀.ne'
+    rw [Nat.cast_sub htk, one_sub_div h2x.ne', sub_div' this, div_sub' this,
+      div_div_div_cancel_right₀ this, mul_one, two_mul, sub_sub, add_sub_add_right_eq_sub,
       add_sub_assoc]
   have h₃ : (↑(k - t) : ℝ) / (↑k + ↑(k - t)) ≤ 1 / 5 := by
     rw [h₂, sub_le_comm, le_one_div _ h2x, sub_le_comm]
