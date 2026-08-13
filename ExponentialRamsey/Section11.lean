@@ -743,20 +743,20 @@ theorem twelve_one {b' : ℝ} (hb' : 1 < b') {a b : ℕ} (h : b ≤ a) :
   · positivity
 
 -- lemma ten_one_precise (γ₀ : ℝ) (hγ₀ : 0 < γ₀) :
---   ∀ᶠ l : ℕ in atTop, ∀ k : ℕ,
+--   ∀ᶠ l : ℕ in at_top, ∀ k : ℕ,
 --   ∀ γ δ : ℝ, γ = l / (k + l) → γ₀ ≤ γ → γ ≤ 1 / 5 → δ = γ / 40 →
---   (ramseyNumber ![k, l] : ℝ) ≤ exp (- δ * k + 2.05) * (k + l).choose l :=
+--   (ramsey_number ![k, l] : ℝ) ≤ exp (- δ * k + 2.05) * (k + l).choose l :=
 -- lemma eleven_three (μ : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) :
---   ∃ f : ℕ → ℝ, f =o[atTop] (λ i, (i : ℝ)) ∧
---     ∀ᶠ k : ℕ in atTop,
+--   ∃ f : ℕ → ℝ, f =o[at_top] (λ i, (i : ℝ)) ∧
+--     ∀ᶠ k : ℕ in at_top,
 --     ∀ n : ℕ, 2 ≤ n →
 --     ∀ χ : TopEdgeLabelling (fin n) (fin 2),
 --     ¬ (∃ (m : finset (fin n)) (c : fin 2), χ.MonochromaticOf m c ∧ ![k, k] c ≤ m.card) →
 --     ∀ (ini : book_config χ), 1 / 2 ≤ ini.p → ⌊(n / 2 : ℝ)⌋₊ ≤ ini.Y.card →
---     let s := (densitySteps μ k k ini).card,
---         t := (redSteps μ k k ini).card
---     in logb 2 n ≤ logb 2 (ramseyNumber ![k, k - t]) + s + t + f k :=
-theorem y_le_x_mul (μ η : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) (hη : 0 < η) :
+--     let s := (density_steps μ k k ini).card,
+--         t := (red_steps μ k k ini).card
+--     in logb 2 n ≤ logb 2 (ramsey_number ![k, k - t]) + s + t + f k :=
+theorem y_le_x_hMul (μ η : ℝ) (hμ₀ : 0 < μ) (hμ₁ : μ < 1) (hη : 0 < η) :
     ∀ᶠ k : ℕ in atTop,
       ∀ n : ℕ,
         2 ≤ n →
@@ -821,7 +821,7 @@ theorem y_le_3_4 :
   have hμ₀ : (0 : ℝ) < 2 / 5 := by norm_num1
   have hμ₁ : (2 / 5 : ℝ) < 1 := by norm_num1
   have hη : (0 : ℝ) < 1 / 12 := by norm_num1
-  filter_upwards [y_le_x_mul (2 / 5) (1 / 12) hμ₀ hμ₁ hη, eventually_gt_atTop 0] with k hk hk₀ n
+  filter_upwards [y_le_x_hMul (2 / 5) (1 / 12) hμ₀ hμ₁ hη, eventually_gt_atTop 0] with k hk hk₀ n
     hn2 χ hχ ini hini
   specialize hk n hn2 χ hχ ini hini
   refine' hk.trans _
